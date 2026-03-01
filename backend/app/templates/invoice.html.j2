@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Invoice {{ invoice.invoice_number }}</title>
+    <style>
+      :root { --muted: #666; --border: #e5e7eb; }
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 40px; color: #111; }
+      .no-print { margin-bottom: 16px; }
+      .btn { padding: 8px 12px; border: 1px solid var(--border); background: #fff; cursor: pointer; border-radius: 8px; }
+      .header { display: flex; justify-content: space-between; gap: 24px; }
+      .company-name { font-weight: 700; font-size: 18px; }
+      .muted { color: var(--muted); font-size: 13px; }
+      h1 { margin: 0; font-size: 22px; }
+      hr { border: 0; border-top: 1px solid var(--border); margin: 18px 0; }
+      table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+      th, td { border: 1px solid var(--border); padding: 10px; font-size: 14px; }
+      th { background: #f9fafb; text-align: left; }
+      .right { text-align: right; }
+      .totals { margin-top: 16px; width: 360px; margin-left: auto; }
+      .totals td { border: none; padding: 6px 0; }
+      .grand { font-weight: 700; font-size: 16px; }
+      @media print {
+        .no-print { display: none; }
+        body { margin: 0; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="no-print">
+      <button class="btn" onclick="window.print()">Print / Save PDF</button>
+    </div>
+
+    <div class="header">
+      <div>
+        <div class="company-name">{{ company.name }}</div>
+        {% if company.address %}<div class="muted">{{ company.address }}</div>{% endif %}
+        <div class="muted">
+          {% if company.phone %}<span>{{ company.phone }}</span>{% endif %}
+          {% if company.email %}<span> {{ company.email }}</span>{% endif %}
+          {% if company.tax_code %}<span> Tax: {{ company.tax_code }}</span>{% endif %}
+        </div>
+      </div>
+
+      <div style="text-align:right">
+        <h1>INVOICE</h1>
+        <div class="muted"><b>No:</b> {{ invoice.invoice_number }}</div>
+        <div class="muted"><b>Issued:</b> {{ issued_date }}</div>
+        {% if due_date %}<div class="muted"><b>Due:</b> {{ due_date }}</div>{% endif %}
+      </div>
+    </div>
+
+    <hr />
+
+    <div>
+      <div class="muted" style="font-weight:700; margin-bottom:6px">Bill To</div>
+      {% if customer %}
+        <div style="font-weight:700">{{ customer.name }}</div>
+        {% if customer.address %}<div class="muted">{{ customer.address }}</div>{% endif %}
+        <div class="muted">
+          {% if customer.phone %}<span>{{ customer.phone }}</span>{% endif %}
+          {% if customer.email %}<span> {{ customer.email }}</span>{% endif %}
+        </div>
+      {% else %}
+        <div class="muted">Walk-in customer</div>
+      {% endif %}
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width:40px">#</th>
+          <th style="width:120px">SKU</th>
+          <th>Product</th>
+          <th class="right" style="width:80px">Qty</th>
+          <th class="right" style="width:140px">Unit</th>
+          <th class="right" style="width:160px">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for line in invoice.lines %}
+          <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ line.sku }}</td>
+            <td>{{ line.product_name }}</td>
+            <td class="right">{{ line.quantity }}</td>
+            <td class="right">{{ fmt_money(line.unit_price) }}</td>
+            <td class="right">{{ fmt_money(line.line_total) }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="totals">
+      <table>
+        <tr>
+          <td class="muted">Subtotal</td>
+          <td class="right">{{ fmt_money(invoice.subtotal_amount) }}</td>
+        </tr>
+        <tr>
+          <td class="muted">Tax ({{ (invoice.tax_rate * 100) | round(2) }}%)</td>
+          <td class="right">{{ fmt_money(invoice.tax_amount) }}</td>
+        </tr>
+        <tr class="grand">
+          <td>Total</td>
+          <td class="right">{{ fmt_money(invoice.total_amount) }}</td>
+        </tr>
+      </table>
+    </div>
+  </body>
+</html>
+

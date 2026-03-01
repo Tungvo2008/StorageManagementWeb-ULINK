@@ -1,0 +1,95 @@
+No.,GIN No.,Invoice No.,Date,Client Code,Client,Tele,Address,City,ZIP Code,Item Code,Item Description,UOM,Quantity,Unit Price,Total
+1,GIN1,UL0008,4/24/25,C0001,Thanh Tran - TT Nail Supply LLC,(314) 222-9482,8506 Olive Blvd,St. Louis,MO 63132,UL1628T001,16x28 - White Hand Towel Premium,Dozen,16,$16.00,$256.00
+1,GIN1,UL0008,4/24/25,C0001,Thanh Tran - TT Nail Supply LLC,(314) 222-9482,8506 Olive Blvd,St. Louis,MO 63132,UL1628T002,16x28 - Black Hand Towel Premium,Dozen,16,$20.00,$320.00
+1,GIN1,UL0008,4/24/25,C0001,Thanh Tran - TT Nail Supply LLC,(314) 222-9482,8506 Olive Blvd,St. Louis,MO 63132,UL1628T003,16x28 - Gray Hand Towel Premium,Dozen,16,$20.00,$320.00
+1,GIN1,UL0008,4/24/25,C0001,Thanh Tran - TT Nail Supply LLC,(314) 222-9482,8506 Olive Blvd,St. Louis,MO 63132,UL1628T004,16x28 - Yellow Hand Towel Premium,Dozen,16,$20.00,$320.00
+1,GIN1,UL0008,4/24/25,C0001,Thanh Tran - TT Nail Supply LLC,(314) 222-9482,8506 Olive Blvd,St. Louis,MO 63132,UL1628T005,16x28 - Turquoise Hand Towel Premium,Dozen,16,$20.00,$320.00
+1,GIN1,UL0008,4/24/25,C0001,Thanh Tran - TT Nail Supply LLC,(314) 222-9482,8506 Olive Blvd,St. Louis,MO 63132,UL1628T006,16x28 - Orange Hand Towel Premium,Dozen,16,$20.00,$320.00
+1,GIN1,UL0008,4/24/25,C0001,Thanh Tran - TT Nail Supply LLC,(314) 222-9482,8506 Olive Blvd,St. Louis,MO 63132,UL1628T007,16x28 - Pink Hand Towel Premium,Dozen,16,$20.00,$320.00
+1,GIN1,UL0008,4/24/25,C0001,Thanh Tran - TT Nail Supply LLC,(314) 222-9482,8506 Olive Blvd,St. Louis,MO 63132,UL1628T008,16x28 - Teal Hand Towel Premium,Dozen,16,$20.00,$320.00
+1,GIN1,UL0008,4/24/25,C0001,Thanh Tran - TT Nail Supply LLC,(314) 222-9482,8506 Olive Blvd,St. Louis,MO 63132,UL1628T009,16x28 - Green Hand Towel Premium,Dozen,16,$20.00,$320.00
+1,GIN1,UL0008,4/24/25,C0001,Thanh Tran - TT Nail Supply LLC,(314) 222-9482,8506 Olive Blvd,St. Louis,MO 63132,UL1628T010,16x28 - Navy Hand Towel Premium,Dozen,16,$20.00,$320.00
+1,GIN1,UL0008,4/24/25,C0001,Thanh Tran - TT Nail Supply LLC,(314) 222-9482,8506 Olive Blvd,St. Louis,MO 63132,UL1628T011,16x28 - Brown Hand Towel Premium,Dozen,16,$20.00,$320.00
+1,GIN1,UL0008,4/24/25,C0001,Thanh Tran - TT Nail Supply LLC,(314) 222-9482,8506 Olive Blvd,St. Louis,MO 63132,UL1313WC001,13x13 - White Washcloth Premium,Dozen,8,$7.00,$56.00
+1,GIN1,UL0008,4/24/25,C0001,Thanh Tran - TT Nail Supply LLC,(314) 222-9482,8506 Olive Blvd,St. Louis,MO 63132,UL1313WC002,13x13 - Black Washcloth Premium,Dozen,8,$12.00,$96.00
+1,GIN1,UL0008,4/24/25,C0001,Thanh Tran - TT Nail Supply LLC,(314) 222-9482,8506 Olive Blvd,St. Louis,MO 63132,UL1313WC003,13x13 - Gray Washcloth Premium,Dozen,8,$12.00,$96.00
+1,GIN1,UL0008,4/24/25,C0001,Thanh Tran - TT Nail Supply LLC,(314) 222-9482,8506 Olive Blvd,St. Louis,MO 63132,UL1313WC004,13x13 - Yellow Washcloth Premium,Dozen,8,$12.00,$96.00
+1,GIN1,UL0008,4/24/25,C0001,Thanh Tran - TT Nail Supply LLC,(314) 222-9482,8506 Olive Blvd,St. Louis,MO 63132,UL1313WC005,13x13 - Turquoise Washcloth Premium,Dozen,8,$12.00,$96.00
+1,GIN1,UL0008,4/24/25,C0001,Thanh Tran - TT Nail Supply LLC,(314) 222-9482,8506 Olive Blvd,St. Louis,MO 63132,UL1313WC006,13x13 - Orange Washcloth Premium,Dozen,8,$12.00,$96.00
+1,GIN1,UL0008,4/24/25,C0001,Thanh Tran - TT Nail Supply LLC,(314) 222-9482,8506 Olive Blvd,St. Louis,MO 63132,UL1313WC007,13x13 - Pink Washcloth Premium,Dozen,8,$12.00,$96.00
+1,GIN1,UL0008,4/24/25,C0001,Thanh Tran - TT Nail Supply LLC,(314) 222-9482,8506 Olive Blvd,St. Louis,MO 63132,UL1313WC008,13x13 - Teal Washcloth Premium,Dozen,8,$12.00,$96.00
+1,GIN1,UL0008,4/24/25,C0001,Thanh Tran - TT Nail Supply LLC,(314) 222-9482,8506 Olive Blvd,St. Louis,MO 63132,UL1313WC009,13x13 - Green Washcloth Premium,Dozen,8,$12.00,$96.00
+1,GIN1,UL0008,4/24/25,C0001,Thanh Tran - TT Nail Supply LLC,(314) 222-9482,8506 Olive Blvd,St. Louis,MO 63132,UL1313WC010,13x13 - Navy Washcloth Premium,Dozen,8,$12.00,$96.00
+1,GIN1,UL0008,4/24/25,C0001,Thanh Tran - TT Nail Supply LLC,(314) 222-9482,8506 Olive Blvd,St. Louis,MO 63132,UL1313WC011,13x13 - Brown Washcloth Premium,Dozen,8,$12.00,$96.00
+2,GIN2,UL0006,4/12/25,C0002,World Market,(314) 351-9495,3900 S Grand Blvd,St. Louis,MO 63118,UL1628T001,16x28 - White Hand Towel Premium,Dozen,16,$16.00,$256.00
+2,GIN2,UL0006,4/13/25,C0002,World Market,(314) 351-9495,3900 S Grand Blvd,St. Louis,MO 63118,UL1313WC001,13x13 - White Washcloth Premium,Dozen,36,$7.00,$252.00
+3,GIN3,UL0007,4/22/25,C0003,Lan Le,(682) 433-9342,2715 Meadow Lake Drive,Grand Prairie,TX 75050,UL1628T001,16x28 - White Hand Towel Premium,Dozen,1,$16.00,$16.00
+3,GIN3,UL0007,4/22/25,C0003,Lan Le,(682) 433-9342,2715 Meadow Lake Drive,Grand Prairie,TX 75050,UL1628T011,16x28 - Brown Hand Towel Premium,Dozen,1,$20.00,$20.00
+3,GIN3,UL0007,4/22/25,C0003,Lan Le,(682) 433-9342,2715 Meadow Lake Drive,Grand Prairie,TX 75050,UL1313WC011,13x13 - Brown Washcloth Premium,Dozen,3,$12.00,$36.00
+3,GIN3,UL0007,4/22/25,C0003,Lan Le,(682) 433-9342,2715 Meadow Lake Drive,Grand Prairie,TX 75050,UL1313WC001,13x13 - White Washcloth Premium,Dozen,10,$7.00,$70.00
+3,GIN3,UL0007,4/22/25,C0003,Lan Le,(682) 433-9342,2715 Meadow Lake Drive,Grand Prairie,TX 75050,UL1313WC002,13x13 - Black Washcloth Premium,Dozen,1,$12.00,$12.00
+3,GIN3,UL0007,4/22/25,C0003,Lan Le,(682) 433-9342,2715 Meadow Lake Drive,Grand Prairie,TX 75050,UL1313WC003,13x13 - Gray Washcloth Premium,Dozen,1,$12.00,$12.00
+3,GIN3,UL0007,4/22/25,C0003,Lan Le,(682) 433-9342,2715 Meadow Lake Drive,Grand Prairie,TX 75050,UL1313WC004,13x13 - Yellow Washcloth Premium,Dozen,1,$12.00,$12.00
+3,GIN3,UL0007,4/22/25,C0003,Lan Le,(682) 433-9342,2715 Meadow Lake Drive,Grand Prairie,TX 75050,UL1313WC005,13x13 - Turquoise Washcloth Premium,Dozen,1,$12.00,$12.00
+3,GIN3,UL0007,4/22/25,C0003,Lan Le,(682) 433-9342,2715 Meadow Lake Drive,Grand Prairie,TX 75050,UL1313WC006,13x13 - Orange Washcloth Premium,Dozen,1,$12.00,$12.00
+3,GIN3,UL0007,4/22/25,C0003,Lan Le,(682) 433-9342,2715 Meadow Lake Drive,Grand Prairie,TX 75050,UL1313WC007,13x13 - Pink Washcloth Premium,Dozen,1,$12.00,$12.00
+3,GIN3,UL0007,4/22/25,C0003,Lan Le,(682) 433-9342,2715 Meadow Lake Drive,Grand Prairie,TX 75050,UL1313WC010,13x13 - Navy Washcloth Premium,Dozen,1,$12.00,$12.00
+3,GIN3,UL0007,4/22/25,C0003,Lan Le,(682) 433-9342,2715 Meadow Lake Drive,Grand Prairie,TX 75050,UL1313WC009,13x13 - Green Washcloth Premium,Dozen,1,$12.00,$12.00
+4,GIN4,UL0009,4/17/25,C0002,World Market,(314) 351-9495,3900 S Grand Blvd,St. Louis,MO 63118,UL1628T010,16x28 - Navy Hand Towel Premium,Dozen,15,$20.00,$300.00
+4,GIN4,UL0009,4/17/25,C0002,World Market,(314) 351-9495,3900 S Grand Blvd,St. Louis,MO 63118,UL1628T005,16x28 - Turquoise Hand Towel Premium,Dozen,15,$20.00,$300.00
+4,GIN4,UL0009,4/17/25,C0002,World Market,(314) 351-9495,3900 S Grand Blvd,St. Louis,MO 63118,UL1628T007,16x28 - Pink Hand Towel Premium,Dozen,15,$20.00,$300.00
+4,GIN4,UL0009,4/17/25,C0002,World Market,(314) 351-9495,3900 S Grand Blvd,St. Louis,MO 63118,UL1628T001,16x28 - White Hand Towel Premium,Dozen,19,$16.00,$304.00
+4,GIN4,UL0009,4/17/25,C0002,World Market,(314) 351-9495,3900 S Grand Blvd,St. Louis,MO 63118,UL1628T003,16x28 - Gray Hand Towel Premium,Dozen,15,$20.00,$300.00
+4,GIN4,UL0009,4/17/25,C0002,World Market,(314) 351-9495,3900 S Grand Blvd,St. Louis,MO 63118,UL1313WC001,13x13 - White Washcloth Premium,Dozen,35,$7.00,$245.00
+5,GIN5,UL0010,4/30/25,C0002,World Market,(314) 351-9495,3900 S Grand Blvd,St. Louis,MO 63118,UL1628T005,16x28 - Turquoise Hand Towel Premium,Dozen,32,$20.00,$640.00
+5,GIN5,UL0010,4/30/25,C0002,World Market,(314) 351-9495,3900 S Grand Blvd,St. Louis,MO 63118,UL1313WC005,13x13 - Turquoise Washcloth Premium,Dozen,10,$12.00,$120.00
+6,GIN6,UL0011,5/23/25,C0004,Thuy Ta,(754) 265-1537,2244 Quail Run Road,Arlington,TX 76014,UL1628T011,16x28 - Brown Hand Towel Premium,Dozen,20,$20.00,$400.00
+6,GIN6,UL0011,5/23/25,C0004,Thuy Ta,(754) 265-1537,2244 Quail Run Road,Arlington,TX 76014,UL1628T001,16x28 - White Hand Towel Premium,Dozen,10,$16.00,$160.00
+6,GIN6,UL0011,5/23/25,C0004,Thuy Ta,(754) 265-1537,2244 Quail Run Road,Arlington,TX 76014,ULNND01,Nghia Cuticle Nipper D-01,Pc,30,$9.00,$270.00
+6,GIN6,UL0011,5/23/25,C0004,Thuy Ta,(754) 265-1537,2244 Quail Run Road,Arlington,TX 76014,ULF01J14,Flash Professional Cuticle Nipper F-01 Jaw 14,Pc,20,$6.00,$120.00
+7,GIN7,UL0012,6/2/25,C0001,Thanh Tran - TT Nail Supply LLC,(314) 222-9482,8506 Olive Blvd,St. Louis,MO 63132,UL1313WC010,13x13 - Navy Washcloth Premium,Dozen,36,$12.00,$432.00
+7,GIN7,UL0012,6/2/25,C0001,Thanh Tran - TT Nail Supply LLC,(314) 222-9482,8506 Olive Blvd,St. Louis,MO 63132,UL1313WC002,13x13 - Black Washcloth Premium,Dozen,36,$12.00,$432.00
+7,GIN7,UL0012,6/2/25,C0001,Thanh Tran - TT Nail Supply LLC,(314) 222-9482,8506 Olive Blvd,St. Louis,MO 63132,UL1628T010,16x28 - Navy Hand Towel Premium,Dozen,32,$20.00,$640.00
+7,GIN7,UL0012,6/2/25,C0001,Thanh Tran - TT Nail Supply LLC,(314) 222-9482,8506 Olive Blvd,St. Louis,MO 63132,UL1628T002,16x28 - Black Hand Towel Premium,Dozen,32,$20.00,$640.00
+8,GIN8,UL0013,7/9/25,C0001,Thanh Tran - TT Nail Supply LLC,(314) 222-9482,8506 Olive Blvd,St. Louis,MO 63132,ULPK4,PEDICURE KIT 4,Case,5,$28.00,$140.00
+9,GIN9,UL0014,7/16/25,C0005,Ms. Châu - Beauty Nails,(540) 323-4890,2180 South Loudoun St,Winchester,VA 22601,UL1628T001,16x28 - White Hand Towel Premium,Dozen,20,$15.99,$319.80
+9,GIN9,UL0014,7/16/25,C0005,Ms. Châu - Beauty Nails,(540) 323-4890,2180 South Loudoun St,Winchester,VA 22601,ULBL01,"SPA LINER BLUE 45""x45""",Case,10,$20.00,$200.00
+10,GIN10,UL0015,7/16/25,C0001,Thanh Tran - TT Nail Supply LLC,(314) 222-9482,8506 Olive Blvd,St. Louis,MO 63132,ULBL01,"SPA LINER BLUE 45""x45""",Case,100,$18.50,"$1,850.00"
+10,GIN10,UL0015,7/16/25,C0001,Thanh Tran - TT Nail Supply LLC,(314) 222-9482,8506 Olive Blvd,St. Louis,MO 63132,ULPL01,LDPE PARAFFIN LINER 12X17,Case,100,$13.50,"$1,350.00"
+10,GIN10,UL0015,7/16/25,C0001,Thanh Tran - TT Nail Supply LLC,(314) 222-9482,8506 Olive Blvd,St. Louis,MO 63132,ULPK4,PEDICURE KIT 4,Case,1,$28.00,$28.00
+11,GIN11,UL0016,7/21/25,C0002,World Market,(314) 351-9495,3900 S Grand Blvd,St. Louis,MO 63118,ULBL01,"SPA LINER BLUE 45""x45""",Case,5,$18.50,$92.50
+11,GIN11,UL0016,7/21/25,C0002,World Market,(314) 351-9495,3900 S Grand Blvd,St. Louis,MO 63118,ULPL02,HDPE PARAFFIN LINER 12X17,Case,10,$13.00,$130.00
+11,GIN11,UL0016,7/21/25,C0002,World Market,(314) 351-9495,3900 S Grand Blvd,St. Louis,MO 63118,ULTOWELS1628,GENERIC TOWELS 16x28,Dozen,16,$20.00,$320.00
+11,GIN11,UL0016,7/21/25,C0002,World Market,(314) 351-9495,3900 S Grand Blvd,St. Louis,MO 63118,UL1628T010,16x28 - Navy Hand Towel Premium,Dozen,16,$20.00,$320.00
+12,GIN12,UL0017,7/28/25,C0001,Thanh Tran - TT Nail Supply LLC,(314) 222-9482,8506 Olive Blvd,St. Louis,MO 63132,UL1628T001,16x28 - White Hand Towel Premium,Dozen,16,$16.00,$256.00
+12,GIN12,UL0017,7/28/25,C0001,Thanh Tran - TT Nail Supply LLC,(314) 222-9482,8506 Olive Blvd,St. Louis,MO 63132,ULBL01,"SPA LINER BLUE 45""x45""",Case,-30,$18.50,-$555.00
+12,GIN12,UL0017,7/28/25,C0001,Thanh Tran - TT Nail Supply LLC,(314) 222-9482,8506 Olive Blvd,St. Louis,MO 63132,ULPL02,HDPE PARAFFIN LINER 12X17,Case,80,$13.00,"$1,040.00"
+13,GIN13,UL0018,8/19/25,C0006,Affton Nail Supply,(314) 405-8000,8805 Gravois Rd,Affton,MO 63123,ULBL01,"SPA LINER BLUE 45""x45""",Case,112,$17.00,"$1,904.00"
+13,GIN13,UL0018,8/19/25,C0006,Affton Nail Supply,(314) 405-8000,8805 Gravois Rd,Affton,MO 63123,ULPL02,HDPE PARAFFIN LINER 12X17,Case,143,$15.00,"$2,145.00"
+13,GIN13,UL0018,8/19/25,C0006,Affton Nail Supply,(314) 405-8000,8805 Gravois Rd,Affton,MO 63123,ULPK4,PEDICURE KIT 4,Case,50,$28.00,"$1,400.00"
+13,GIN13,UL0018,8/19/25,C0006,Affton Nail Supply,(314) 405-8000,8805 Gravois Rd,Affton,MO 63123,ULTS01,EVA TOE SEPARATORS,Case,20,$25.00,$500.00
+13,GIN13,UL0018,8/19/25,C0006,Affton Nail Supply,(314) 405-8000,8805 Gravois Rd,Affton,MO 63123,ULPL03,"HDPE PARAFFIN LINER HEADER BAG 13X17""",Case,10,$17.50,$175.00
+13,GIN13,UL0018,8/19/25,C0006,Affton Nail Supply,(314) 405-8000,8805 Gravois Rd,Affton,MO 63123,ULTOWELS1628,GENERIC TOWELS 16x28,Dozen,160,$20.00,"$3,200.00"
+13,GIN13,UL0018,8/19/25,C0006,Affton Nail Supply,(314) 405-8000,8805 Gravois Rd,Affton,MO 63123,ULTOWELS1313,GENERIC TOWELS 13x13,Dozen,216,$12.00,"$2,592.00"
+14,GIN14,UL0019,8/19/25,C0007,Michelle & Jeff,(314) 542-2005,31 Forum Shopping Center,Chesterfield,MO 63017,ULBL01,"SPA LINER BLUE 45""x45""",Case,5,$23.00,$115.00
+14,GIN14,UL0019,8/19/25,C0007,Michelle & Jeff,(314) 542-2005,31 Forum Shopping Center,Chesterfield,MO 63017,ULPL01,LDPE PARAFFIN LINER 12X17,Case,4,$16.50,$66.00
+14,GIN14,UL0019,8/19/25,C0007,Michelle & Jeff,(314) 542-2005,31 Forum Shopping Center,Chesterfield,MO 63017,ULPK4,PEDICURE KIT 4,Case,5,$34.50,$172.50
+14,GIN14,UL0019,8/19/25,C0007,Michelle & Jeff,(314) 542-2005,31 Forum Shopping Center,Chesterfield,MO 63017,ULSLIPPER,SLIPPERS 2.5MM,Case,2,$35.00,$70.00
+15,GIN15,UL0021,8/19/25,C0008,Cee Cee Nail And Spa St. Louis,(636) 517-1779,2961 Dougherty Ferry Rd Suite 107,St. Louis,MO 63122,ULPK4,PEDICURE KIT 4,Case,5,$34.50,$172.50
+16,GIN16,UL0022,11/4/25,C0008,Cee Cee Nail And Spa St. Louis,(636) 517-1779,2961 Dougherty Ferry Rd Suite 107,St. Louis,MO 63122,ULPK4,PEDICURE KIT 4,Case,5,$34.50,$172.50
+16,GIN16,UL0022,11/4/25,C0008,Cee Cee Nail And Spa St. Louis,(636) 517-1779,2961 Dougherty Ferry Rd Suite 107,St. Louis,MO 63122,ULBL01,"SPA LINER BLUE 45""x45""",Case,1,$20.50,$20.50
+16,GIN16,UL0022,11/4/25,C0008,Cee Cee Nail And Spa St. Louis,(636) 517-1779,2961 Dougherty Ferry Rd Suite 107,St. Louis,MO 63122,ULPL03,"HDPE PARAFFIN LINER HEADER BAG 13X17""",Case,1,$23.00,$23.00
+16,GIN16,UL0022,11/4/25,C0008,Cee Cee Nail And Spa St. Louis,(636) 517-1779,2961 Dougherty Ferry Rd Suite 107,St. Louis,MO 63122,ULF03J14,Flash Professional Cuticle Nipper F-03 Jaw 14,Pc,10,$8.00,$80.00
+16,GIN16,UL0022,11/4/25,C0008,Cee Cee Nail And Spa St. Louis,(636) 517-1779,2961 Dougherty Ferry Rd Suite 107,St. Louis,MO 63122,ULF03J16,Flash Professional Cuticle Nipper F-03 Jaw 16,Pc,10,$8.00,$80.00
+17,GIN17,UL0023,11/12/25,C0001,Thanh Tran - TT Nail Supply LLC,(314) 222-9482,8506 Olive Blvd,St. Louis,MO 63132,UL1628T001,16x28 - White Hand Towel Premium,Dozen,16,$16.00,$256.00
+17,GIN17,UL0023,11/12/25,C0001,Thanh Tran - TT Nail Supply LLC,(314) 222-9482,8506 Olive Blvd,St. Louis,MO 63132,UL1628T003,16x28 - Gray Hand Towel Premium,Dozen,16,$20.00,$320.00
+17,GIN17,UL0023,11/12/25,C0001,Thanh Tran - TT Nail Supply LLC,(314) 222-9482,8506 Olive Blvd,St. Louis,MO 63132,UL1628T005,16x28 - Turquoise Hand Towel Premium,Dozen,16,$20.00,$320.00
+17,GIN17,UL0023,11/12/25,C0001,Thanh Tran - TT Nail Supply LLC,(314) 222-9482,8506 Olive Blvd,St. Louis,MO 63132,UL1628T007,16x28 - Pink Hand Towel Premium,Dozen,16,$20.00,$320.00
+18,GIN18,UL0024,12/17/25,C0006,Affton Nail Supply,(314) 405-8000,8805 Gravois Rd,Affton,MO 63123,ULBL01,"SPA LINER BLUE 45""x45""",Case,168,$17.00,"$2,856.00"
+18,GIN18,UL0024,12/17/25,C0006,Affton Nail Supply,(314) 405-8000,8805 Gravois Rd,Affton,MO 63123,ULPK3,PEDICURE KIT 3,Case,32,$25.50,$816.00
+18,GIN18,UL0024,12/17/25,C0006,Affton Nail Supply,(314) 405-8000,8805 Gravois Rd,Affton,MO 63123,ULPK4,PEDICURE KIT 4,Case,68,$28.00,"$1,904.00"
+20,GIN20,UL0026,1/5/26,C0009,FIRST CLASS NAILS & SPA II,(310) 337-0829,6949 La Tijera Blvd Ste B,Los Angeles,CA 90045-1916,UL1628T011,16x28 - Brown Hand Towel Premium,Dozen,10,$20.00,$200.00
+21,GIN21,UL0027,1/10/26,C0008,Cee Cee Nail And Spa St. Louis,(636) 517-1779,2961 Dougherty Ferry Rd Suite 107,St. Louis,MO 63122,ULPK3,PEDICURE KIT 3,Case,2,$25.50,$51.00
+21,GIN21,UL0027,1/10/26,C0008,Cee Cee Nail And Spa St. Louis,(636) 517-1779,2961 Dougherty Ferry Rd Suite 107,St. Louis,MO 63122,ULSLIPPER,SLIPPERS 2.5MM,Case,3,$28.50,$85.50
+22,GIN22,UL0028,1/24/26,C0009,FIRST CLASS NAILS & SPA II,(310) 337-0829,6949 La Tijera Blvd Ste B,Los Angeles,CA 90045-1916,UL1628T008,16x28 - Teal Hand Towel Premium,Dozen,12,$20.00,$240.00
+22,GIN22,UL0028,1/24/26,C0009,FIRST CLASS NAILS & SPA II,(310) 337-0829,6949 La Tijera Blvd Ste B,Los Angeles,CA 90045-1916,UL1313WC008,13x13 - Teal Washcloth Premium,Dozen,6,$15.00,$90.00
