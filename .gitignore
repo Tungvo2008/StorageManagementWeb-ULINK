@@ -4,3 +4,17 @@ backend/.env
 backend/storage.db
 frontend/dist/
 .DS_Store
+
+# Python cache artifacts
+**/__pycache__/
+*.pyc
+*.pyo
+
+# Frontend local env/build cache
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+frontend/tsconfig.tsbuildinfo
+
+# Local database backups
+backend/storage.db.bak.*
