@@ -1,6 +1,28 @@
 import { getToken } from "../auth";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
+function resolveApiBaseUrl(): string {
+  const raw = String(import.meta.env.VITE_API_BASE_URL ?? "").trim();
+  if (!raw) {
+    return import.meta.env.DEV ? "http://localhost:8000" : "";
+  }
+  try {
+    const parsed = new URL(raw, window.location.origin);
+    if (window.location.protocol === "https:" && parsed.protocol === "http:") {
+      return "";
+    }
+    const pathname = parsed.pathname.replace(/\/+$/, "");
+    return `${parsed.origin}${pathname === "/" ? "" : pathname}`;
+  } catch {
+    return import.meta.env.DEV ? "http://localhost:8000" : "";
+  }
+}
+
+const API_BASE_URL = resolveApiBaseUrl();
+
+function buildApiUrl(path: string): string {
+  if (!API_BASE_URL) return path;
+  return `${API_BASE_URL}${path}`;
+}
 
 function authHeaders(): Record<string, string> {
   const token = getToken();
@@ -15,7 +37,7 @@ async function parseJsonIfAny<T>(res: Response): Promise<T> {
 }
 
 export async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_BASE_URL}${path}`, {
+  const res = await fetch(buildApiUrl(path), {
     ...init,
     headers: {
       ...authHeaders(),
@@ -33,7 +55,7 @@ export async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export async function apiUpload<T>(path: string, formData: FormData, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_BASE_URL}${path}`, {
+  const res = await fetch(buildApiUrl(path), {
     method: "POST",
     ...(init ?? {}),
     headers: {
@@ -52,11 +74,11 @@ export async function apiUpload<T>(path: string, formData: FormData, init?: Requ
 }
 
 export function apiUrl(path: string): string {
-  return `${API_BASE_URL}${path}`;
+  return buildApiUrl(path);
 }
 
 export async function downloadFile(path: string, filename: string): Promise<void> {
-  const res = await fetch(`${API_BASE_URL}${path}`, { headers: { ...authHeaders() } });
+  const res = await fetch(buildApiUrl(path), { headers: { ...authHeaders() } });
   if (!res.ok) {
     const text = await res.text();
     throw new Error(text || res.statusText);
