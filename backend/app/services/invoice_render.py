@@ -162,11 +162,18 @@ def render_invoice_pdf(invoice: Invoice, customer: Customer | None) -> bytes:
             regular_candidates.append(Path(user_regular).expanduser())
         regular_candidates.extend(
             [
+                # macOS
                 Path("/System/Library/Fonts/Supplemental/Arial Unicode.ttf"),
                 Path("/System/Library/Fonts/Supplemental/Arial Unicode MS.ttf"),
                 Path("/System/Library/Fonts/Supplemental/Arial.ttf"),
                 Path("/System/Library/Fonts/Supplemental/Times New Roman.ttf"),
                 Path("/Library/Fonts/Arial Unicode.ttf"),
+                # Linux (Debian/Ubuntu common)
+                Path("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"),
+                Path("/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf"),
+                Path("/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc"),
+                Path("/usr/share/fonts/truetype/liberation2/LiberationSans-Regular.ttf"),
+                Path("/usr/share/fonts/truetype/freefont/FreeSans.ttf"),
             ]
         )
 
@@ -193,6 +200,14 @@ def render_invoice_pdf(invoice: Invoice, customer: Customer | None) -> bytes:
                         Path("/Library/Fonts/Arial Bold.ttf"),
                     ]
                 )
+            if "DejaVuSans" in base_name:
+                inferred_bold.append(font_path.with_name("DejaVuSans-Bold.ttf"))
+            if "NotoSans-Regular" in base_name:
+                inferred_bold.append(font_path.with_name("NotoSans-Bold.ttf"))
+            if "LiberationSans-Regular" in base_name:
+                inferred_bold.append(font_path.with_name("LiberationSans-Bold.ttf"))
+            if "FreeSans" in base_name:
+                inferred_bold.append(font_path.with_name("FreeSansBold.ttf"))
             if base_name.lower().endswith(".ttf"):
                 inferred_bold.append(font_path.with_name(base_name[:-4] + " Bold.ttf"))
             if base_name.lower().endswith(".otf"):
@@ -242,23 +257,20 @@ def render_invoice_pdf(invoice: Invoice, customer: Customer | None) -> bytes:
         c.drawImage(logo, x0, y - desired_h + 0.1 * inch, width=desired_w, height=desired_h, mask="auto")
         logo_w = desired_w + 0.2 * inch
 
-    # Nếu chưa set COMPANY_NAME (mặc định "My Company") thì không in chữ này (chỉ dùng logo).
     company_name = (company.name or "").strip()
-    if company_name and company_name.lower() != "my company":
+    if company_name:
         set_font(18, bold=True)
         c.drawString(x0 + logo_w, y, company_name)
 
     set_font(10)
-    info_lines: list[str] = []
-    info_lines += split_lines(company.address)
-    info_lines += split_lines(company.phone)
-    if company.email:
-        info_lines.append(company.email)
-    if company.tax_code:
-        info_lines.append(company.tax_code)
+    info_lines: list[tuple[str, str]] = []
+    info_lines += [("⌂", line) for line in split_lines(company.address)]
+    info_lines += [("☎", line) for line in split_lines(company.phone)]
+    info_lines += [("✉", line) for line in split_lines(company.email)]
+    info_lines += [("№", line) for line in split_lines(company.tax_code)]
     info_y = y - 0.28 * inch
-    for line in info_lines[:4]:
-        c.drawString(x0 + logo_w, info_y, line)
+    for icon, line in info_lines[:4]:
+        c.drawString(x0 + logo_w, info_y, f"{icon} {line}")
         info_y -= 0.2 * inch
 
     # Invoice title + fields (right side)
