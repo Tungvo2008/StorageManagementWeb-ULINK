@@ -5,6 +5,8 @@ import type { InventoryIssue, Invoice, Product } from "../types";
 import { NavLink } from "react-router-dom";
 import { getCurrentUsername } from "../auth";
 import Modal from "../components/Modal";
+import type { SortState } from "../utils/table";
+import { matchesQuery, sortBy, toggleSort } from "../utils/table";
 
 type IssueLineDraft = {
   product_id: number | null;
@@ -93,6 +95,13 @@ export default function InventoryIssuePage() {
   const [importBusy, setImportBusy] = useState(false);
   const [sourceFilter, setSourceFilter] = useState<"ALL" | "ISSUE" | "INVOICE">("ALL");
   const [purposeFilter, setPurposeFilter] = useState<string>("ALL");
+  const [query, setQuery] = useState("");
+  const [sort, setSort] = useState<
+    SortState<"kind" | "idText" | "refText" | "issued_at" | "issued_by" | "issued_to" | "purpose" | "line_count">
+  >({
+    key: "issued_at",
+    dir: "desc",
+  });
   const [detailOpen, setDetailOpen] = useState(false);
   const [selectedIssue, setSelectedIssue] = useState<InventoryIssue | null>(null);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
@@ -168,6 +177,52 @@ export default function InventoryIssuePage() {
       return true;
     });
   }, [listRows, sourceFilter, purposeFilter]);
+  const displayedRows = useMemo(() => {
+    const queryFiltered = filteredRows.filter((row) =>
+      matchesQuery(
+        query,
+        row.kind,
+        row.idText,
+        row.refText,
+        row.issued_at,
+        row.issued_by,
+        row.issued_to,
+        row.purpose,
+        row.line_count,
+      ),
+    );
+    return sortBy(
+      queryFiltered,
+      (row) => {
+        switch (sort.key) {
+          case "kind":
+            return row.kind;
+          case "idText":
+            return Number(row.idText);
+          case "refText":
+            return row.refText;
+          case "issued_at":
+            return new Date(row.issued_at).getTime();
+          case "issued_by":
+            return row.issued_by;
+          case "issued_to":
+            return row.issued_to;
+          case "purpose":
+            return row.purpose;
+          case "line_count":
+            return row.line_count;
+          default:
+            return new Date(row.issued_at).getTime();
+        }
+      },
+      sort.dir,
+    );
+  }, [filteredRows, query, sort]);
+
+  function mark(col: typeof sort.key): string {
+    if (sort.key !== col) return "";
+    return sort.dir === "asc" ? " ↑" : " ↓";
+  }
 
   async function load() {
     setLoading(true);
@@ -438,6 +493,15 @@ export default function InventoryIssuePage() {
         </div>
         {error && <div className="error">{error}</div>}
         <div className="row" style={{ gap: 8, marginTop: 8 }}>
+          <div className="field" style={{ minWidth: 280, flex: 1 }}>
+            <label>Search</label>
+            <input
+              className="input"
+              placeholder="Search issue/invoice..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+          </div>
           <div className="field" style={{ width: 180 }}>
             <label>Type</label>
             <select className="input" value={sourceFilter} onChange={(e) => setSourceFilter(e.target.value as "ALL" | "ISSUE" | "INVOICE")}>
@@ -463,19 +527,19 @@ export default function InventoryIssuePage() {
           <table>
             <thead>
               <tr>
-                <th>Type</th>
-                <th>ID</th>
-                <th>Ref #</th>
-                <th>Issued at</th>
-                <th>By</th>
-                <th>To</th>
-                <th>Purpose</th>
-                <th className="right">Lines</th>
+                <th><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "kind"))}>Type{mark("kind")}</button></th>
+                <th><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "idText"))}>ID{mark("idText")}</button></th>
+                <th><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "refText"))}>Ref #{mark("refText")}</button></th>
+                <th><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "issued_at"))}>Issued at{mark("issued_at")}</button></th>
+                <th><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "issued_by"))}>By{mark("issued_by")}</button></th>
+                <th><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "issued_to"))}>To{mark("issued_to")}</button></th>
+                <th><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "purpose"))}>Purpose{mark("purpose")}</button></th>
+                <th className="right"><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "line_count"))}>Lines{mark("line_count")}</button></th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {filteredRows.map((row) => (
+              {displayedRows.map((row) => (
                 <tr
                   key={row.key}
                   className="click-row"
@@ -545,7 +609,7 @@ export default function InventoryIssuePage() {
                   </td>
                 </tr>
               ))}
-              {!loading && filteredRows.length === 0 && (
+              {!loading && displayedRows.length === 0 && (
                 <tr>
                   <td colSpan={9} className="muted">
                     Không có dữ liệu theo filter hiện tại.
@@ -557,7 +621,7 @@ export default function InventoryIssuePage() {
         </div>
       </div>
 
-      <div className="card" style={{ width: 520 }}>
+      <div className="card" style={{ width: "100%", maxWidth: 520 }}>
         <h3 style={{ marginTop: 0 }}>Tạo phiếu xuất</h3>
         <form onSubmit={onSubmit} className="row" style={{ alignItems: "stretch" }}>
           <div className="row" style={{ gap: 8 }}>

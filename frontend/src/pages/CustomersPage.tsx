@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { apiJson } from "../api/client";
 import type { Customer } from "../types";
 import type { FormEvent } from "react";
 import { Link } from "react-router-dom";
 import Modal from "../components/Modal";
+import type { SortState } from "../utils/table";
+import { matchesQuery, sortBy, toggleSort } from "../utils/table";
 
 type CustomerCreate = {
   name: string;
@@ -18,6 +20,11 @@ export default function CustomersPage() {
   const [items, setItems] = useState<Customer[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [query, setQuery] = useState("");
+  const [sort, setSort] = useState<SortState<"id" | "name" | "email" | "phone" | "address" | "city" | "zip">>({
+    key: "id",
+    dir: "asc",
+  });
 
   const [form, setForm] = useState<CustomerCreate>({ name: "" });
   const [addOpen, setAddOpen] = useState(false);
@@ -38,6 +45,42 @@ export default function CustomersPage() {
   useEffect(() => {
     void load();
   }, []);
+
+  const displayed = useMemo(() => {
+    const filtered = items.filter((c) =>
+      matchesQuery(query, c.id, c.name, c.email, c.phone, c.address, c.city, c.zip_code),
+    );
+    const sorted = sortBy(
+      filtered,
+      (c) => {
+        switch (sort.key) {
+          case "id":
+            return c.id;
+          case "name":
+            return c.name;
+          case "email":
+            return c.email ?? "";
+          case "phone":
+            return c.phone ?? "";
+          case "address":
+            return c.address ?? "";
+          case "city":
+            return c.city ?? "";
+          case "zip":
+            return c.zip_code ?? "";
+          default:
+            return c.id;
+        }
+      },
+      sort.dir,
+    );
+    return sorted;
+  }, [items, query, sort]);
+
+  function mark(col: typeof sort.key): string {
+    if (sort.key !== col) return "";
+    return sort.dir === "asc" ? " ↑" : " ↓";
+  }
 
   async function onCreate(e: FormEvent) {
     e.preventDefault();
@@ -60,7 +103,14 @@ export default function CustomersPage() {
       <div className="card" style={{ flex: 1, minWidth: 340 }}>
         <div className="row" style={{ justifyContent: "space-between" }}>
           <h2 style={{ margin: 0 }}>Customers</h2>
-          <div className="row" style={{ justifyContent: "flex-end" }}>
+          <div className="tableTools">
+            <input
+              className="input"
+              style={{ minWidth: 260 }}
+              placeholder="Search customer..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
             <button className="btn primary" type="button" onClick={() => setAddOpen(true)}>
               + Customer
             </button>
@@ -74,18 +124,18 @@ export default function CustomersPage() {
           <table>
             <thead>
               <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Address</th>
-                <th>City</th>
-                <th>ZIP</th>
+                <th><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "id"))}>ID{mark("id")}</button></th>
+                <th><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "name"))}>Name{mark("name")}</button></th>
+                <th><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "email"))}>Email{mark("email")}</button></th>
+                <th><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "phone"))}>Phone{mark("phone")}</button></th>
+                <th><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "address"))}>Address{mark("address")}</button></th>
+                <th><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "city"))}>City{mark("city")}</button></th>
+                <th><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "zip"))}>ZIP{mark("zip")}</button></th>
                 <th></th>
               </tr>
             </thead>
             <tbody>
-              {items.map((c) => (
+              {displayed.map((c) => (
                 <tr key={c.id}>
                   <td>{c.id}</td>
                   <td>{c.name}</td>
@@ -101,10 +151,10 @@ export default function CustomersPage() {
                   </td>
                 </tr>
               ))}
-              {!loading && items.length === 0 && (
+              {!loading && displayed.length === 0 && (
                 <tr>
                   <td colSpan={8} className="muted">
-                    No customers yet.
+                    No matching customers.
                   </td>
                 </tr>
               )}

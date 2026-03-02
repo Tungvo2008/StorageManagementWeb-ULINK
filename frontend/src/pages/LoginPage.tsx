@@ -43,11 +43,11 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="card" style={{ maxWidth: 420, margin: "0 auto" }}>
+    <div className="card loginCard" style={{ maxWidth: 420, margin: "0 auto" }}>
       <h2 style={{ marginTop: 0 }}>Login</h2>
       <div className="muted">Đăng nhập để sử dụng hệ thống.</div>
       {error && <div className="error" style={{ marginTop: 12 }}>{error}</div>}
-      <form onSubmit={onSubmit} className="row" style={{ marginTop: 12 }}>
+      <form onSubmit={onSubmit} className="row loginForm" style={{ marginTop: 12 }}>
         <input className="input" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
         <input className="input" placeholder="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
         <button className="btn primary" type="submit" disabled={loading}>

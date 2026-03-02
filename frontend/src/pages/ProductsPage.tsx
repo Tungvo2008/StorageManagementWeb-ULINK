@@ -3,6 +3,8 @@ import { apiJson, apiUpload, downloadFile } from "../api/client";
 import type { Category, Product } from "../types";
 import type { FormEvent } from "react";
 import Modal from "../components/Modal";
+import type { SortState } from "../utils/table";
+import { compareValues, matchesQuery, toggleSort } from "../utils/table";
 
 type ProductCreate = {
   sku: string;
@@ -40,6 +42,11 @@ export default function ProductsPage() {
   const [addCategoryOpen, setAddCategoryOpen] = useState(false);
   const [importBusy, setImportBusy] = useState(false);
   const [importInfo, setImportInfo] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const [sort, setSort] = useState<SortState<"id" | "sku" | "name" | "unit_price" | "quantity_on_hand" | "is_active">>({
+    key: "sku",
+    dir: "asc",
+  });
 
   const [form, setForm] = useState<ProductCreate>({
     sku: "",
@@ -128,6 +135,8 @@ export default function ProductsPage() {
   const grouped = useMemo(() => {
     const byKey = new Map<string, { key: string; categoryId: number | null; name: string; items: Product[] }>();
     for (const p of items) {
+      const categoryNameForFilter = p.category_id != null ? categoryNameById.get(p.category_id) ?? "" : "Uncategorized";
+      if (!matchesQuery(query, p.id, p.sku, p.name, categoryNameForFilter, p.currency, p.uom)) continue;
       const key = p.category_id != null ? String(p.category_id) : "uncat";
       const name =
         p.category_id != null ? categoryNameById.get(p.category_id) ?? `Category #${p.category_id}` : "Uncategorized";
@@ -141,10 +150,42 @@ export default function ProductsPage() {
       return a.name.localeCompare(b.name);
     });
     for (const g of groups) {
-      g.items.sort((a, b) => a.sku.localeCompare(b.sku));
+      g.items.sort((a, b) => {
+        const av =
+          sort.key === "id"
+            ? a.id
+            : sort.key === "sku"
+              ? a.sku
+              : sort.key === "name"
+                ? a.name
+                : sort.key === "unit_price"
+                  ? Number(a.unit_price)
+                  : sort.key === "quantity_on_hand"
+                    ? a.quantity_on_hand
+                    : a.is_active ? 1 : 0;
+        const bv =
+          sort.key === "id"
+            ? b.id
+            : sort.key === "sku"
+              ? b.sku
+              : sort.key === "name"
+                ? b.name
+                : sort.key === "unit_price"
+                  ? Number(b.unit_price)
+                  : sort.key === "quantity_on_hand"
+                    ? b.quantity_on_hand
+                    : b.is_active ? 1 : 0;
+        const base = compareValues(av, bv);
+        return sort.dir === "asc" ? base : -base;
+      });
     }
     return groups;
-  }, [items, categoryNameById]);
+  }, [items, categoryNameById, query, sort]);
+
+  function mark(col: typeof sort.key): string {
+    if (sort.key !== col) return "";
+    return sort.dir === "asc" ? " ↑" : " ↓";
+  }
 
   function isExpanded(key: string): boolean {
     return expanded[key] ?? true;
@@ -201,7 +242,14 @@ export default function ProductsPage() {
       <div className="card" style={{ flex: 1, minWidth: 340 }}>
         <div className="row" style={{ justifyContent: "space-between" }}>
           <h2 style={{ margin: 0 }}>Products</h2>
-          <div className="row" style={{ justifyContent: "flex-end" }}>
+          <div className="tableTools">
+            <input
+              className="input"
+              style={{ minWidth: 260 }}
+              placeholder="Search product..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
             <button
               className="btn"
               type="button"
@@ -250,17 +298,17 @@ export default function ProductsPage() {
           <table>
             <thead>
               <tr>
-                <th>ID</th>
+                <th><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "id"))}>ID{mark("id")}</button></th>
                 <th>Image</th>
-                <th>SKU</th>
-                <th>Name</th>
+                <th><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "sku"))}>SKU{mark("sku")}</button></th>
+                <th><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "name"))}>Name{mark("name")}</button></th>
                 <th>Category</th>
                 <th>UOM</th>
-                <th className="right">Price</th>
+                <th className="right"><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "unit_price"))}>Price{mark("unit_price")}</button></th>
                 <th>Currency</th>
-                <th className="right">On hand (base)</th>
+                <th className="right"><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "quantity_on_hand"))}>On hand (base){mark("quantity_on_hand")}</button></th>
                 <th className="right">On hand (UOM)</th>
-                <th>Active</th>
+                <th><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "is_active"))}>Active{mark("is_active")}</button></th>
                 <th></th>
               </tr>
             </thead>
@@ -326,10 +374,10 @@ export default function ProductsPage() {
                   </Fragment>
                 );
               })}
-              {!loading && items.length === 0 && (
+              {!loading && grouped.length === 0 && (
                 <tr>
                   <td colSpan={12} className="muted">
-                    No products yet.
+                    No matching products.
                   </td>
                 </tr>
               )}

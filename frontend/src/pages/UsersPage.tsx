@@ -4,6 +4,8 @@ import { apiJson } from "../api/client";
 import { getCurrentUsername } from "../auth";
 import Modal from "../components/Modal";
 import type { UserAccount } from "../types";
+import type { SortState } from "../utils/table";
+import { matchesQuery, sortBy, toggleSort } from "../utils/table";
 
 type UserCreateDraft = {
   username: string;
@@ -21,6 +23,11 @@ export default function UsersPage() {
   const [users, setUsers] = useState<UserAccount[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [query, setQuery] = useState("");
+  const [sort, setSort] = useState<SortState<"id" | "username" | "active" | "updated_at">>({
+    key: "id",
+    dir: "asc",
+  });
 
   const [addOpen, setAddOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -55,6 +62,33 @@ export default function UsersPage() {
   useEffect(() => {
     void load();
   }, []);
+
+  const displayed = useMemo(() => {
+    const filtered = users.filter((u) => matchesQuery(query, u.id, u.username, u.is_active ? "yes" : "no", u.updated_at));
+    return sortBy(
+      filtered,
+      (u) => {
+        switch (sort.key) {
+          case "id":
+            return u.id;
+          case "username":
+            return u.username;
+          case "active":
+            return u.is_active ? 1 : 0;
+          case "updated_at":
+            return new Date(u.updated_at).getTime();
+          default:
+            return u.id;
+        }
+      },
+      sort.dir,
+    );
+  }, [users, query, sort]);
+
+  function mark(col: typeof sort.key): string {
+    if (sort.key !== col) return "";
+    return sort.dir === "asc" ? " ↑" : " ↓";
+  }
 
   function openEdit(user: UserAccount) {
     setSelected(user);
@@ -123,7 +157,14 @@ export default function UsersPage() {
     <div className="card">
       <div className="row" style={{ justifyContent: "space-between" }}>
         <h2 style={{ margin: 0 }}>Users</h2>
-        <div className="row" style={{ justifyContent: "flex-end" }}>
+        <div className="tableTools">
+          <input
+            className="input"
+            style={{ minWidth: 240 }}
+            placeholder="Search user..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
           <button className="btn primary" type="button" onClick={() => setAddOpen(true)}>
             + User
           </button>
@@ -141,15 +182,15 @@ export default function UsersPage() {
         <table>
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Username</th>
-              <th>Active</th>
-              <th>Updated</th>
+              <th><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "id"))}>ID{mark("id")}</button></th>
+              <th><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "username"))}>Username{mark("username")}</button></th>
+              <th><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "active"))}>Active{mark("active")}</button></th>
+              <th><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "updated_at"))}>Updated{mark("updated_at")}</button></th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {users.map((user) => {
+            {displayed.map((user) => {
               const isSelf = Boolean(currentUsername) && user.username.toLowerCase() === currentUsername.toLowerCase();
               return (
                 <tr key={user.id}>
@@ -170,10 +211,10 @@ export default function UsersPage() {
                 </tr>
               );
             })}
-            {!loading && users.length === 0 && (
+            {!loading && displayed.length === 0 && (
               <tr>
                 <td colSpan={5} className="muted">
-                  Chưa có user nào.
+                  Không có dữ liệu theo filter hiện tại.
                 </td>
               </tr>
             )}

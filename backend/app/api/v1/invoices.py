@@ -66,7 +66,10 @@ def _load_invoice(db: Session, invoice_id: int) -> Invoice | None:
 def list_invoices(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)) -> list[Invoice]:
     stmt = (
         select(Invoice)
-        .options(selectinload(Invoice.lines))
+        .options(
+            selectinload(Invoice.lines),
+            selectinload(Invoice.sale_order).selectinload(SaleOrder.customer),
+        )
         .order_by(Invoice.id.desc())
         .offset(skip)
         .limit(limit)

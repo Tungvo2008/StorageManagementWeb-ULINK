@@ -42,7 +42,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             </div>
           </div>
           {authed ? (
-            <>
+            <div className="nav-links">
               <NavLink to="/products" className={({ isActive }) => (isActive ? "active" : "")}>
                 Products
               </NavLink>
@@ -64,13 +64,15 @@ export default function Layout({ children }: { children: ReactNode }) {
               <NavLink to="/invoices" className={({ isActive }) => (isActive ? "active" : "")}>
                 Invoices
               </NavLink>
-            </>
+            </div>
           ) : (
-            <NavLink to="/login" className={({ isActive }) => (isActive ? "active" : "")}>
-              Login
-            </NavLink>
+            <div className="nav-links">
+              <NavLink to="/login" className={({ isActive }) => (isActive ? "active" : "")}>
+                Login
+              </NavLink>
+            </div>
           )}
-          <div style={{ marginLeft: "auto" }} className="muted">
+          <div className="nav-actions muted">
             {authed ? (
               <button
                 className="btn"

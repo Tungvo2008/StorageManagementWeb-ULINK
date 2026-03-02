@@ -5,6 +5,8 @@ import type { InventoryReceipt, Product } from "../types";
 import { NavLink } from "react-router-dom";
 import { getCurrentUsername } from "../auth";
 import Modal from "../components/Modal";
+import type { SortState } from "../utils/table";
+import { matchesQuery, sortBy, toggleSort } from "../utils/table";
 
 type ReceiptLineDraft = {
   product_id: number | null;
@@ -39,6 +41,11 @@ export default function InventoryReceivePage() {
   const [selectedReceipt, setSelectedReceipt] = useState<InventoryReceipt | null>(null);
   const [importBusy, setImportBusy] = useState(false);
   const currentUsername = useMemo(() => getCurrentUsername(), []);
+  const [query, setQuery] = useState("");
+  const [sort, setSort] = useState<SortState<"id" | "received_at" | "received_by" | "receipt_number" | "line_count">>({
+    key: "id",
+    dir: "desc",
+  });
 
   const [form, setForm] = useState<ReceiptDraft>({
     receipt_number: "",
@@ -70,6 +77,37 @@ export default function InventoryReceivePage() {
   useEffect(() => {
     void load();
   }, []);
+
+  const displayedReceipts = useMemo(() => {
+    const filtered = receipts.filter((r) =>
+      matchesQuery(query, r.id, r.received_at, r.received_by, r.receipt_number, r.lines.length),
+    );
+    return sortBy(
+      filtered,
+      (r) => {
+        switch (sort.key) {
+          case "id":
+            return r.id;
+          case "received_at":
+            return new Date(r.received_at).getTime();
+          case "received_by":
+            return r.received_by ?? "";
+          case "receipt_number":
+            return r.receipt_number ?? "";
+          case "line_count":
+            return r.lines.length;
+          default:
+            return r.id;
+        }
+      },
+      sort.dir,
+    );
+  }, [receipts, query, sort]);
+
+  function mark(col: typeof sort.key): string {
+    if (sort.key !== col) return "";
+    return sort.dir === "asc" ? " ↑" : " ↓";
+  }
 
   async function onImportFile(f: File) {
     setImportBusy(true);
@@ -164,7 +202,14 @@ export default function InventoryReceivePage() {
       <div className="card" style={{ flex: 1, minWidth: 360 }}>
         <div className="row" style={{ justifyContent: "space-between" }}>
           <h2 style={{ margin: 0 }}>Receipt log</h2>
-          <div className="row" style={{ justifyContent: "flex-end" }}>
+          <div className="tableTools">
+            <input
+              className="input"
+              style={{ minWidth: 260 }}
+              placeholder="Search receipt..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
             <button
               className="btn"
               type="button"
@@ -219,16 +264,16 @@ export default function InventoryReceivePage() {
           <table>
             <thead>
               <tr>
-                <th>ID</th>
-                <th>Received at</th>
-                <th>By</th>
-                <th>Receipt #</th>
-                <th className="right">Lines</th>
+                <th><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "id"))}>ID{mark("id")}</button></th>
+                <th><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "received_at"))}>Received at{mark("received_at")}</button></th>
+                <th><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "received_by"))}>By{mark("received_by")}</button></th>
+                <th><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "receipt_number"))}>Receipt #{mark("receipt_number")}</button></th>
+                <th className="right"><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "line_count"))}>Lines{mark("line_count")}</button></th>
                 <th></th>
               </tr>
             </thead>
             <tbody>
-              {receipts.map((r) => (
+              {displayedReceipts.map((r) => (
                 <tr key={r.id} className="click-row" onClick={() => openReceiptDetail(r)}>
                   <td>{r.id}</td>
                   <td>{new Date(r.received_at).toLocaleString()}</td>
@@ -249,10 +294,10 @@ export default function InventoryReceivePage() {
                   </td>
                 </tr>
               ))}
-              {!loading && receipts.length === 0 && (
+              {!loading && displayedReceipts.length === 0 && (
                 <tr>
                   <td colSpan={6} className="muted">
-                    Chưa có phiếu nhập.
+                    Không có dữ liệu theo filter hiện tại.
                   </td>
                 </tr>
               )}

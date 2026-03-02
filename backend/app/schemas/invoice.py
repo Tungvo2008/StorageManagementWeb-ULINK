@@ -39,6 +39,7 @@ class InvoiceRead(BaseModel):
     id: int
     sale_order_id: int
     invoice_number: str
+    customer_name: str | None = None
     issued_at: datetime
     due_at: datetime | None
     status: InvoiceStatus

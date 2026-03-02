@@ -89,6 +89,7 @@ export type Invoice = {
   id: number;
   sale_order_id: number;
   invoice_number: string;
+  customer_name: string | null;
   issued_at: string;
   due_at: string | null;
   status: "ISSUED" | "PAID" | "VOID";

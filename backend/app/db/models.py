@@ -298,6 +298,18 @@ class Invoice(TimestampMixin, Base):
         cascade="all, delete-orphan",
     )
 
+    @property
+    def customer_name(self) -> str | None:
+        if self.client_name_snapshot and self.client_name_snapshot.strip():
+            return self.client_name_snapshot.strip()
+        sale = getattr(self, "sale_order", None)
+        if sale is None:
+            return None
+        customer = getattr(sale, "customer", None)
+        if customer is None or not customer.name:
+            return None
+        return customer.name
+
 
 class InvoiceLine(Base):
     __tablename__ = "invoice_lines"

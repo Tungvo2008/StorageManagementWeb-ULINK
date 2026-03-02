@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { apiJson } from "../api/client";
 import type { Category, Product } from "../types";
+import type { SortState } from "../utils/table";
+import { sortBy, toggleSort } from "../utils/table";
 
 type PriceDraft = {
   unit_price: string;
@@ -23,6 +25,12 @@ export default function PricingPage() {
   const [query, setQuery] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [sort, setSort] = useState<
+    SortState<"id" | "sku" | "name" | "category" | "cost_base" | "cost_sale" | "sale_base" | "sale_sale" | "currency">
+  >({
+    key: "id",
+    dir: "asc",
+  });
 
   const categoryNameById = useMemo(() => new Map(categories.map((c) => [c.id, c.name])), [categories]);
 
@@ -63,6 +71,45 @@ export default function PricingPage() {
       );
     });
   }, [products, query, categoryNameById]);
+  const displayed = useMemo(() => {
+    return sortBy(
+      filtered,
+      (p) => {
+        const draft = drafts[p.id] ?? { unit_price: p.unit_price };
+        const multiplier = Math.max(1, Number(p.uom_multiplier || 1));
+        const costBase = toNumber(p.cost_price);
+        const saleSale = toNumber(draft.unit_price);
+        switch (sort.key) {
+          case "id":
+            return p.id;
+          case "sku":
+            return p.sku;
+          case "name":
+            return p.name;
+          case "category":
+            return p.category_id ? categoryNameById.get(p.category_id) ?? "" : "";
+          case "cost_base":
+            return costBase;
+          case "cost_sale":
+            return costBase * multiplier;
+          case "sale_base":
+            return saleSale / multiplier;
+          case "sale_sale":
+            return saleSale;
+          case "currency":
+            return p.currency;
+          default:
+            return p.id;
+        }
+      },
+      sort.dir,
+    );
+  }, [filtered, drafts, categoryNameById, sort]);
+
+  function mark(col: typeof sort.key): string {
+    if (sort.key !== col) return "";
+    return sort.dir === "asc" ? " ↑" : " ↓";
+  }
 
   async function saveProductPrice(product: Product) {
     const draft = drafts[product.id];
@@ -110,20 +157,20 @@ export default function PricingPage() {
         <table>
           <thead>
             <tr>
-              <th>ID</th>
-              <th>SKU</th>
-              <th>Product</th>
-              <th>Category</th>
-              <th className="right">Cost (Base UOM)</th>
-              <th className="right">Cost (Sale UOM)</th>
-              <th className="right">Sale (Base UOM)</th>
-              <th className="right">Sale (Sale UOM)</th>
-              <th>Currency</th>
+              <th><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "id"))}>ID{mark("id")}</button></th>
+              <th><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "sku"))}>SKU{mark("sku")}</button></th>
+              <th><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "name"))}>Product{mark("name")}</button></th>
+              <th><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "category"))}>Category{mark("category")}</button></th>
+              <th className="right"><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "cost_base"))}>Cost (Base UOM){mark("cost_base")}</button></th>
+              <th className="right"><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "cost_sale"))}>Cost (Sale UOM){mark("cost_sale")}</button></th>
+              <th className="right"><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "sale_base"))}>Sale (Base UOM){mark("sale_base")}</button></th>
+              <th className="right"><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "sale_sale"))}>Sale (Sale UOM){mark("sale_sale")}</button></th>
+              <th><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "currency"))}>Currency{mark("currency")}</button></th>
               <th></th>
             </tr>
           </thead>
           <tbody>
-            {filtered.map((p) => {
+            {displayed.map((p) => {
               const draft = drafts[p.id] ?? { unit_price: p.unit_price };
               const multiplier = Math.max(1, Number(p.uom_multiplier || 1));
               const costBase = toNumber(p.cost_price);
@@ -175,7 +222,7 @@ export default function PricingPage() {
                 </tr>
               );
             })}
-            {!loading && filtered.length === 0 && (
+            {!loading && displayed.length === 0 && (
               <tr>
                 <td colSpan={10} className="muted">
                   Không có sản phẩm nào.
