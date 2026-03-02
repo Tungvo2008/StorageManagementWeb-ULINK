@@ -259,19 +259,19 @@ def render_invoice_pdf(invoice: Invoice, customer: Customer | None) -> bytes:
 
     company_name = (company.name or "").strip()
     if company_name:
-        set_font(18, bold=True)
+        set_font(16, bold=True)
         c.drawString(x0 + logo_w, y, company_name)
 
-    set_font(10)
+    set_font(9)
     info_lines: list[tuple[str, str]] = []
-    info_lines += [("⌂", line) for line in split_lines(company.address)]
-    info_lines += [("☎", line) for line in split_lines(company.phone)]
+    info_lines += [("➤", line) for line in split_lines(company.address)]
+    info_lines += [("✆", line) for line in split_lines(company.phone)]
     info_lines += [("✉", line) for line in split_lines(company.email)]
-    info_lines += [("№", line) for line in split_lines(company.tax_code)]
+    info_lines += [("#", line) for line in split_lines(company.tax_code)]
     info_y = y - 0.28 * inch
     for icon, line in info_lines[:4]:
         c.drawString(x0 + logo_w, info_y, f"{icon} {line}")
-        info_y -= 0.2 * inch
+        info_y -= 0.18 * inch
 
     # Invoice title + fields (right side)
     set_font(20, bold=True)
