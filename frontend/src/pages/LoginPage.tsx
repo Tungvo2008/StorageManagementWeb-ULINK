@@ -14,7 +14,12 @@ export default function LoginPage() {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const next = (location.state as { from?: string } | null)?.from ?? "/products";
+  const nextFromState = (location.state as { from?: string } | null)?.from;
+  const nextFromQuery = new URLSearchParams(location.search).get("next");
+  const next =
+    (nextFromState && nextFromState.startsWith("/") ? nextFromState : null) ??
+    (nextFromQuery && nextFromQuery.startsWith("/") ? nextFromQuery : null) ??
+    "/products";
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();

@@ -12,13 +12,19 @@ import PricingPage from "./pages/PricingPage";
 import ProductsPage from "./pages/ProductsPage";
 import SalesPage from "./pages/SalesPage";
 import UsersPage from "./pages/UsersPage";
-import { getToken } from "./auth";
+import { hasValidToken } from "./auth";
 
 function RequireAuth({ children }: { children: JSX.Element }) {
-  const token = getToken();
+  const token = hasValidToken();
   const location = useLocation();
   if (!token) {
-    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+    return (
+      <Navigate
+        to="/login"
+        replace
+        state={{ from: `${location.pathname}${location.search}${location.hash}` }}
+      />
+    );
   }
   return children;
 }

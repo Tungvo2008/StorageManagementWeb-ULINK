@@ -1,4 +1,4 @@
-import { getToken } from "../auth";
+import { getValidToken, logout } from "../auth";
 
 function resolveApiBaseUrl(): string {
   const raw = String(import.meta.env.VITE_API_BASE_URL ?? "").trim();
@@ -25,8 +25,26 @@ function buildApiUrl(path: string): string {
 }
 
 function authHeaders(): Record<string, string> {
-  const token = getToken();
+  const token = getValidToken();
   return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+function getCurrentPath(): string {
+  return `${window.location.pathname}${window.location.search}${window.location.hash}`;
+}
+
+function ensureAuthenticated(): void {
+  if (getValidToken()) return;
+  logout({ redirectToLogin: true, nextPath: getCurrentPath() });
+  throw new Error("Session expired");
+}
+
+async function throwIfUnauthorized(res: Response): Promise<void> {
+  if (res.status !== 401) return;
+
+  await res.text().catch(() => "");
+  logout({ redirectToLogin: true, nextPath: getCurrentPath() });
+  throw new Error("Session expired");
 }
 
 async function parseJsonIfAny<T>(res: Response): Promise<T> {
@@ -37,6 +55,7 @@ async function parseJsonIfAny<T>(res: Response): Promise<T> {
 }
 
 export async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
+  ensureAuthenticated();
   const res = await fetch(buildApiUrl(path), {
     ...init,
     headers: {
@@ -45,6 +64,8 @@ export async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
       ...(init?.body ? { "Content-Type": "application/json" } : {}),
     },
   });
+
+  await throwIfUnauthorized(res);
 
   if (!res.ok) {
     const text = await res.text();
@@ -55,6 +76,7 @@ export async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export async function apiUpload<T>(path: string, formData: FormData, init?: RequestInit): Promise<T> {
+  ensureAuthenticated();
   const res = await fetch(buildApiUrl(path), {
     method: "POST",
     ...(init ?? {}),
@@ -64,6 +86,8 @@ export async function apiUpload<T>(path: string, formData: FormData, init?: Requ
     },
     body: formData,
   });
+
+  await throwIfUnauthorized(res);
 
   if (!res.ok) {
     const text = await res.text();
@@ -78,7 +102,9 @@ export function apiUrl(path: string): string {
 }
 
 export async function downloadFile(path: string, filename: string): Promise<void> {
+  ensureAuthenticated();
   const res = await fetch(buildApiUrl(path), { headers: { ...authHeaders() } });
+  await throwIfUnauthorized(res);
   if (!res.ok) {
     const text = await res.text();
     throw new Error(text || res.statusText);

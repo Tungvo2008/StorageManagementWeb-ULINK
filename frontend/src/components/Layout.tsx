@@ -1,7 +1,7 @@
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import type { ReactNode } from "react";
-import { clearToken, getToken } from "../auth";
+import { hasValidToken, logout } from "../auth";
 import BrandLogo from "./BrandLogo";
 
 const APP_NAME = "ULINK LLC";
@@ -26,7 +26,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
   const inventoryActive = location.pathname.startsWith("/inventory");
-  const authed = Boolean(getToken());
+  const authed = hasValidToken();
   useEffect(() => {
     document.title = `${pageTitle(location.pathname)} | ${APP_NAME}`;
   }, [location.pathname]);
@@ -77,7 +77,7 @@ export default function Layout({ children }: { children: ReactNode }) {
               <button
                 className="btn"
                 onClick={() => {
-                  clearToken();
+                  logout();
                   navigate("/login", { replace: true });
                 }}
               >
