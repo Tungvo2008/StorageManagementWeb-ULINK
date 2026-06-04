@@ -63,10 +63,16 @@ export async function downloadFile(path: string, filename: string): Promise<void
   }
 
   const blob = await res.blob();
+  const disposition = res.headers.get("content-disposition") ?? "";
+  const matchedFilenameStar = disposition.match(/filename\*\s*=\s*UTF-8''([^;]+)/i);
+  const matchedFilename = disposition.match(/filename\s*=\s*"?([^";]+)"?/i);
+  const downloadedFilename = matchedFilenameStar?.[1]
+    ? decodeURIComponent(matchedFilenameStar[1])
+    : matchedFilename?.[1] ?? filename;
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = filename;
+  a.download = downloadedFilename;
   document.body.appendChild(a);
   a.click();
   a.remove();

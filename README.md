@@ -55,4 +55,28 @@ cd backend
 source .venv/bin/activate
 python scripts/import_storage_management.py --file "/Users/thanhtungvo/Storage Management.xlsm" --reset-db
 ```
+
+## Deploy chuẩn lên server
+
+Trên server, sau khi `git pull`, chỉ cần chạy:
+
+```bash
+cd ~/StorageManagementWeb-ULINK
+bash deploy.sh
+```
+
+Mặc định script sẽ:
+
+1. `git pull --rebase`
+2. cài backend dependencies và restart `storage-backend`
+3. build frontend bằng `npm ci && npm run build`
+4. copy `dist/` vào `/var/www/storage`
+5. reload `nginx`
+
+Nếu muốn build frontend trỏ sang API khác, truyền thêm biến:
+
+```bash
+VITE_API_BASE_URL_VALUE=https://storage.thanhtungvo.id.vn bash deploy.sh
+```
+
 # StorageManagementWeb-ULINK

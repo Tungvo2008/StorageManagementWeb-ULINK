@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
+import re
+from urllib.parse import quote
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy import select
@@ -60,6 +62,12 @@ def _load_invoice(db: Session, invoice_id: int) -> Invoice | None:
         )
     )
     return db.scalar(stmt)
+
+
+def _safe_filename_part(value: str) -> str:
+    cleaned = re.sub(r"[^\w\s.-]+", " ", value, flags=re.UNICODE)
+    cleaned = re.sub(r"\s+", " ", cleaned).strip().strip(".")
+    return cleaned or "customer"
 
 
 @router.get("", response_model=list[InvoiceRead])
@@ -199,11 +207,14 @@ def download_invoice_pdf(invoice_id: int, db: Session = Depends(get_db)) -> Resp
     except RuntimeError as e:
         raise HTTPException(status_code=501, detail=str(e)) from e
 
-    filename = f"invoice-{invoice.invoice_number}.pdf"
+    buyer_name = invoice.client_name_snapshot or (customer.name if customer else "Walk-in customer")
+    buyer_slug = _safe_filename_part(buyer_name)
+    filename = f"{invoice.invoice_number} - {buyer_slug}.pdf"
+    content_disposition = f"attachment; filename=\"{filename}\"; filename*=UTF-8''{quote(filename)}"
     return Response(
         content=pdf_bytes,
         media_type="application/pdf",
-        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+        headers={"Content-Disposition": content_disposition},
     )
 
 
