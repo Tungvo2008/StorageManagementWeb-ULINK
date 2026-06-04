@@ -4,18 +4,6 @@ import type { Invoice } from "../types";
 import type { SortState } from "../utils/table";
 import { matchesQuery, sortBy, toggleSort } from "../utils/table";
 
-function sanitizeFilenamePart(value: string | null | undefined, fallback: string): string {
-  const normalized = (value ?? "").trim().replace(/[\\/:*?"<>|]+/g, "-").replace(/\s+/g, " ").trim();
-  const safe = normalized.replace(/^[.\s]+|[.\s]+$/g, "");
-  return safe || fallback;
-}
-
-function buildInvoiceFilename(inv: Invoice): string {
-  const invoiceNumber = sanitizeFilenamePart(inv.invoice_number, `invoice-${inv.id}`);
-  const customerName = sanitizeFilenamePart(inv.customer_name, "Walk-in customer");
-  return `${invoiceNumber} - ${customerName}.pdf`;
-}
-
 export default function InvoicesPage() {
   const [items, setItems] = useState<Invoice[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -133,7 +121,7 @@ export default function InvoicesPage() {
                   <div className="row">
                     <button
                       className="btn"
-                      onClick={() => void downloadFile(`/api/v1/invoices/${inv.id}/pdf`, buildInvoiceFilename(inv))}
+                      onClick={() => void downloadFile(`/api/v1/invoices/${inv.id}/pdf`, `invoice-${inv.invoice_number}.pdf`)}
                     >
                       Download PDF
                     </button>

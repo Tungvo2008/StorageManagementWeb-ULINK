@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
-import re
-from urllib.parse import quote
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy import select
@@ -21,24 +19,6 @@ router = APIRouter(prefix="/invoices")
 
 def _utcnow() -> datetime:
     return datetime.now(timezone.utc)
-
-
-def _sanitize_filename_part(value: str | None, fallback: str) -> str:
-    normalized = re.sub(r'[\\/:*?"<>|]+', "-", (value or "").strip())
-    normalized = re.sub(r"\s+", " ", normalized).strip(" .")
-    return normalized or fallback
-
-
-def _build_attachment_header(filename: str) -> str:
-    ascii_fallback = filename.encode("ascii", "ignore").decode("ascii").replace('"', "")
-    ascii_fallback = ascii_fallback.strip() or "invoice.pdf"
-    return f'attachment; filename="{ascii_fallback}"; filename*=UTF-8\'\'{quote(filename)}'
-
-
-def _build_invoice_pdf_filename(invoice: Invoice) -> str:
-    invoice_number = _sanitize_filename_part(invoice.invoice_number, f"invoice-{invoice.id}")
-    customer_name = _sanitize_filename_part(invoice.customer_name, "Walk-in customer")
-    return f"{invoice_number} - {customer_name}.pdf"
 
 
 def _parse_invoice_seq(invoice_number: str, prefix: str) -> int | None:
@@ -219,11 +199,11 @@ def download_invoice_pdf(invoice_id: int, db: Session = Depends(get_db)) -> Resp
     except RuntimeError as e:
         raise HTTPException(status_code=501, detail=str(e)) from e
 
-    filename = _build_invoice_pdf_filename(invoice)
+    filename = f"invoice-{invoice.invoice_number}.pdf"
     return Response(
         content=pdf_bytes,
         media_type="application/pdf",
-        headers={"Content-Disposition": _build_attachment_header(filename)},
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
 
 

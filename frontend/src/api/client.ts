@@ -1,50 +1,10 @@
-import { getValidToken, logout } from "../auth";
+import { getToken } from "../auth";
 
-function resolveApiBaseUrl(): string {
-  const raw = String(import.meta.env.VITE_API_BASE_URL ?? "").trim();
-  if (!raw) {
-    return import.meta.env.DEV ? "http://localhost:8000" : "";
-  }
-  try {
-    const parsed = new URL(raw, window.location.origin);
-    if (window.location.protocol === "https:" && parsed.protocol === "http:") {
-      return "";
-    }
-    const pathname = parsed.pathname.replace(/\/+$/, "");
-    return `${parsed.origin}${pathname === "/" ? "" : pathname}`;
-  } catch {
-    return import.meta.env.DEV ? "http://localhost:8000" : "";
-  }
-}
-
-const API_BASE_URL = resolveApiBaseUrl();
-
-function buildApiUrl(path: string): string {
-  if (!API_BASE_URL) return path;
-  return `${API_BASE_URL}${path}`;
-}
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
 function authHeaders(): Record<string, string> {
-  const token = getValidToken();
+  const token = getToken();
   return token ? { Authorization: `Bearer ${token}` } : {};
-}
-
-function getCurrentPath(): string {
-  return `${window.location.pathname}${window.location.search}${window.location.hash}`;
-}
-
-function ensureAuthenticated(): void {
-  if (getValidToken()) return;
-  logout({ redirectToLogin: true, nextPath: getCurrentPath() });
-  throw new Error("Session expired");
-}
-
-async function throwIfUnauthorized(res: Response): Promise<void> {
-  if (res.status !== 401) return;
-
-  await res.text().catch(() => "");
-  logout({ redirectToLogin: true, nextPath: getCurrentPath() });
-  throw new Error("Session expired");
 }
 
 async function parseJsonIfAny<T>(res: Response): Promise<T> {
@@ -55,8 +15,7 @@ async function parseJsonIfAny<T>(res: Response): Promise<T> {
 }
 
 export async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
-  ensureAuthenticated();
-  const res = await fetch(buildApiUrl(path), {
+  const res = await fetch(`${API_BASE_URL}${path}`, {
     ...init,
     headers: {
       ...authHeaders(),
@@ -64,8 +23,6 @@ export async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
       ...(init?.body ? { "Content-Type": "application/json" } : {}),
     },
   });
-
-  await throwIfUnauthorized(res);
 
   if (!res.ok) {
     const text = await res.text();
@@ -76,8 +33,7 @@ export async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export async function apiUpload<T>(path: string, formData: FormData, init?: RequestInit): Promise<T> {
-  ensureAuthenticated();
-  const res = await fetch(buildApiUrl(path), {
+  const res = await fetch(`${API_BASE_URL}${path}`, {
     method: "POST",
     ...(init ?? {}),
     headers: {
@@ -86,8 +42,6 @@ export async function apiUpload<T>(path: string, formData: FormData, init?: Requ
     },
     body: formData,
   });
-
-  await throwIfUnauthorized(res);
 
   if (!res.ok) {
     const text = await res.text();
@@ -98,13 +52,11 @@ export async function apiUpload<T>(path: string, formData: FormData, init?: Requ
 }
 
 export function apiUrl(path: string): string {
-  return buildApiUrl(path);
+  return `${API_BASE_URL}${path}`;
 }
 
 export async function downloadFile(path: string, filename: string): Promise<void> {
-  ensureAuthenticated();
-  const res = await fetch(buildApiUrl(path), { headers: { ...authHeaders() } });
-  await throwIfUnauthorized(res);
+  const res = await fetch(`${API_BASE_URL}${path}`, { headers: { ...authHeaders() } });
   if (!res.ok) {
     const text = await res.text();
     throw new Error(text || res.statusText);

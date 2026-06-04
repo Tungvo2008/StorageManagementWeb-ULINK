@@ -2,9 +2,10 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { setCurrentUsername, setToken } from "../auth";
-import { apiUrl } from "../api/client";
 
 type TokenResponse = { access_token: string; token_type: string };
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("admin");
@@ -14,19 +15,14 @@ export default function LoginPage() {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const nextFromState = (location.state as { from?: string } | null)?.from;
-  const nextFromQuery = new URLSearchParams(location.search).get("next");
-  const next =
-    (nextFromState && nextFromState.startsWith("/") ? nextFromState : null) ??
-    (nextFromQuery && nextFromQuery.startsWith("/") ? nextFromQuery : null) ??
-    "/products";
+  const next = (location.state as { from?: string } | null)?.from ?? "/products";
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
     setLoading(true);
     try {
-      const res = await fetch(apiUrl("/api/v1/auth/login"), {
+      const res = await fetch(`${API_BASE_URL}/api/v1/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
