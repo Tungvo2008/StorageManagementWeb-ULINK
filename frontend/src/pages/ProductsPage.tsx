@@ -69,6 +69,11 @@ export default function ProductsPage() {
   const [editId, setEditId] = useState<number | "">("");
   const [editForm, setEditForm] = useState<ProductUpdate>({});
   const [editOpen, setEditOpen] = useState(false);
+  const [adjustProduct, setAdjustProduct] = useState<Product | null>(null);
+  const [adjustOpen, setAdjustOpen] = useState(false);
+  const [adjustQuantity, setAdjustQuantity] = useState("");
+  const [adjustNote, setAdjustNote] = useState("");
+  const [adjustInfo, setAdjustInfo] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   async function load() {
@@ -145,6 +150,35 @@ export default function ProductsPage() {
       await apiJson<Category>("/api/v1/categories", { method: "POST", body: JSON.stringify({ name }) });
       setNewCategoryName("");
       setAddCategoryOpen(false);
+      await load();
+    } catch (err) {
+      setError((err as Error).message);
+    }
+  }
+
+  function onSelectAdjust(product: Product) {
+    setAdjustProduct(product);
+    setAdjustQuantity(String(product.quantity_on_hand ?? 0));
+    setAdjustNote("");
+    setAdjustInfo(null);
+    setAdjustOpen(true);
+  }
+
+  async function onAdjustStock(e: FormEvent) {
+    e.preventDefault();
+    setError(null);
+    if (!adjustProduct) return;
+    try {
+      const updated = await apiJson<Product>(`/api/v1/inventory/products/${adjustProduct.id}/stock`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          quantity_on_hand: Number(adjustQuantity),
+          note: adjustNote || null,
+        }),
+      });
+      setAdjustInfo(`Updated ${updated.sku}: ${updated.quantity_on_hand} base units`);
+      setAdjustOpen(false);
+      setAdjustProduct(null);
       await load();
     } catch (err) {
       setError((err as Error).message);
@@ -312,6 +346,7 @@ export default function ProductsPage() {
         </div>
         {error && <div className="error">{error}</div>}
         {importInfo && <div className="muted">{importInfo}</div>}
+        {adjustInfo && <div className="muted">{adjustInfo}</div>}
         <div className="muted" style={{ marginTop: 6 }}>
           Quản lý danh mục hàng hoá + tồn kho hiện tại.
         </div>
@@ -385,9 +420,14 @@ export default function ProductsPage() {
                             </td>
                             <td>{p.is_active ? "Yes" : "No"}</td>
                             <td className="right">
-                              <button className="btn" type="button" onClick={() => onSelectEdit(String(p.id))}>
-                                Sửa
-                              </button>
+                              <div className="row" style={{ justifyContent: "flex-end" }}>
+                                <button className="btn" type="button" onClick={() => onSelectAdjust(p)}>
+                                  Sửa tồn
+                                </button>
+                                <button className="btn" type="button" onClick={() => onSelectEdit(String(p.id))}>
+                                  Sửa
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         ))
@@ -647,6 +687,44 @@ export default function ProductsPage() {
           <div className="row" style={{ justifyContent: "flex-end" }}>
             <button className="btn primary" type="submit">
               Create
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      <Modal open={adjustOpen} title="Adjust stock" onClose={() => setAdjustOpen(false)}>
+        {error && <div className="error">{error}</div>}
+        <form onSubmit={onAdjustStock} className="row" style={{ alignItems: "stretch" }}>
+          <div className="field" style={{ flex: 1, minWidth: 280 }}>
+            <label>Product</label>
+            <input className="input" value={adjustProduct ? `${adjustProduct.sku} - ${adjustProduct.name}` : ""} readOnly />
+          </div>
+          <div className="field" style={{ width: 180 }}>
+            <label>Current stock</label>
+            <input className="input" value={adjustProduct ? String(adjustProduct.quantity_on_hand) : ""} readOnly />
+          </div>
+          <div className="field" style={{ width: 180 }}>
+            <label>New stock</label>
+            <input
+              className="input"
+              type="number"
+              value={adjustQuantity}
+              onChange={(e) => setAdjustQuantity(e.target.value)}
+              required
+            />
+          </div>
+          <div className="field" style={{ flex: 1, minWidth: 280 }}>
+            <label>Note</label>
+            <input
+              className="input"
+              value={adjustNote}
+              onChange={(e) => setAdjustNote(e.target.value)}
+              placeholder="Reason for stock correction"
+            />
+          </div>
+          <div className="row" style={{ justifyContent: "flex-end", width: "100%" }}>
+            <button className="btn primary" type="submit" disabled={!adjustProduct}>
+              Save stock
             </button>
           </div>
         </form>

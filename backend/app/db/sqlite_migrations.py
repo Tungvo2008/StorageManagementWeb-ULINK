@@ -76,3 +76,25 @@ def _ensure_columns(conn: Connection) -> None:
 
     if "sale_order_lines" in tables:
         _add_column_if_missing(conn, "sale_order_lines", "discount_amount", "discount_amount NUMERIC NOT NULL DEFAULT 0")
+
+    if "invoice_payments" not in tables:
+        conn.execute(
+            text(
+                """
+                CREATE TABLE invoice_payments (
+                    id INTEGER NOT NULL PRIMARY KEY,
+                    invoice_id INTEGER NOT NULL,
+                    paid_at DATETIME NOT NULL,
+                    amount NUMERIC NOT NULL DEFAULT 0,
+                    method VARCHAR(64),
+                    note TEXT,
+                    created_by VARCHAR(64),
+                    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY(invoice_id) REFERENCES invoices (id)
+                )
+                """
+            )
+        )
+        conn.execute(text("CREATE INDEX IF NOT EXISTS ix_invoice_payments_invoice_id ON invoice_payments (invoice_id)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS ix_invoice_payments_paid_at ON invoice_payments (paid_at)"))

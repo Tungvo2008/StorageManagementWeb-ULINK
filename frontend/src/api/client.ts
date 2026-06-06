@@ -115,3 +115,26 @@ export async function downloadFile(path: string, filename: string): Promise<void
   a.remove();
   URL.revokeObjectURL(url);
 }
+
+export async function previewFile(path: string): Promise<void> {
+  const res = await fetch(apiHref(path), { headers: { ...authHeaders() } });
+  if (!res.ok) {
+    const text = await res.text();
+    if (res.status === 401) {
+      handleUnauthorized();
+    }
+    throw new Error(text || res.statusText);
+  }
+
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const opened = window.open(url, "_blank", "noopener,noreferrer");
+  if (!opened) {
+    URL.revokeObjectURL(url);
+    throw new Error("Popup bị chặn. Hãy cho phép mở tab mới để xem invoice.");
+  }
+
+  setTimeout(() => {
+    URL.revokeObjectURL(url);
+  }, 60_000);
+}

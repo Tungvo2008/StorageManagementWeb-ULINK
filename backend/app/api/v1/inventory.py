@@ -28,9 +28,11 @@ from app.schemas.inventory import (
     InventoryReceiptCreate,
     InventoryReceiptRead,
     InventoryReceiptSummaryRead,
+    StockAdjustmentCreate,
     StockMovementCreate,
     StockMovementRead,
 )
+from app.schemas.product import ProductRead
 from app.services.money import quantize_money
 from app.services.excel_inventory import (
     XLSX_MIME,
@@ -139,6 +141,40 @@ def create_stock_movement(movement_in: StockMovementCreate, db: Session = Depend
     db.commit()
     db.refresh(movement)
     return movement
+
+
+@router.patch("/products/{product_id}/stock", response_model=ProductRead)
+def set_product_stock(
+    product_id: int,
+    body: StockAdjustmentCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> Product:
+    product = db.get(Product, product_id)
+    if product is None:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    target_qty = int(body.quantity_on_hand)
+    current_qty = int(product.quantity_on_hand or 0)
+    delta = target_qty - current_qty
+    note = (body.note or "").strip() or None
+
+    product.quantity_on_hand = target_qty
+    if delta != 0:
+        movement_note = f"Stock adjust by {current_user.username}: {current_qty} -> {target_qty}"
+        if note:
+            movement_note = f"{movement_note} | {note}"
+        db.add(
+            StockMovement(
+                product_id=product.id,
+                movement_type=StockMovementType.ADJUST,
+                quantity_delta=delta,
+                note=movement_note,
+            )
+        )
+    db.commit()
+    db.refresh(product)
+    return product
 
 
 @router.get("/receipts", response_model=list[InventoryReceiptRead])

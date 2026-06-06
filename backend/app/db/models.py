@@ -42,6 +42,13 @@ class InvoiceStatus(str, enum.Enum):
     VOID = "VOID"
 
 
+class InvoicePaymentStatus(str, enum.Enum):
+    UNPAID = "UNPAID"
+    PARTIAL = "PARTIAL"
+    PAID = "PAID"
+    VOID = "VOID"
+
+
 class User(TimestampMixin, Base):
     __tablename__ = "users"
 
@@ -297,6 +304,11 @@ class Invoice(TimestampMixin, Base):
         back_populates="invoice",
         cascade="all, delete-orphan",
     )
+    payments: Mapped[list["InvoicePayment"]] = relationship(
+        back_populates="invoice",
+        cascade="all, delete-orphan",
+        order_by="InvoicePayment.paid_at",
+    )
 
     @property
     def customer_name(self) -> str | None:
@@ -309,6 +321,27 @@ class Invoice(TimestampMixin, Base):
         if customer is None or not customer.name:
             return None
         return customer.name
+
+    @property
+    def amount_paid(self) -> Decimal:
+        total = Decimal("0")
+        for payment in getattr(self, "payments", []) or []:
+            total += Decimal(payment.amount or 0)
+        return total.quantize(Decimal("0.01"))
+
+    @property
+    def balance_due(self) -> Decimal:
+        return (Decimal(self.total_amount or 0) - self.amount_paid).quantize(Decimal("0.01"))
+
+    @property
+    def payment_status(self) -> InvoicePaymentStatus:
+        if self.status == InvoiceStatus.VOID:
+            return InvoicePaymentStatus.VOID
+        if self.amount_paid <= Decimal("0"):
+            return InvoicePaymentStatus.UNPAID
+        if self.balance_due <= Decimal("0"):
+            return InvoicePaymentStatus.PAID
+        return InvoicePaymentStatus.PARTIAL
 
 
 class InvoiceLine(Base):
@@ -331,3 +364,17 @@ class InvoiceLine(Base):
 
     invoice: Mapped[Invoice] = relationship(back_populates="lines")
     product: Mapped[Product] = relationship()
+
+
+class InvoicePayment(TimestampMixin, Base):
+    __tablename__ = "invoice_payments"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    invoice_id: Mapped[int] = mapped_column(ForeignKey("invoices.id"), nullable=False, index=True)
+    paid_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False, index=True)
+    amount: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False, default=Decimal("0"))
+    method: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    note: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_by: Mapped[str | None] = mapped_column(String(64), nullable=True)
+
+    invoice: Mapped[Invoice] = relationship(back_populates="payments")

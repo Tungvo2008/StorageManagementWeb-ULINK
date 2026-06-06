@@ -85,14 +85,32 @@ export type InvoiceLine = {
   line_total: string;
 };
 
+export type InvoicePayment = {
+  id: number;
+  invoice_id: number;
+  paid_at: string;
+  amount: string;
+  method: string | null;
+  note: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type Invoice = {
   id: number;
   sale_order_id: number;
   invoice_number: string;
   customer_name: string | null;
+  client_name_snapshot?: string | null;
+  tele_snapshot?: string | null;
+  address_snapshot?: string | null;
+  city_snapshot?: string | null;
+  zip_code_snapshot?: string | null;
   issued_at: string;
   due_at: string | null;
   status: "ISSUED" | "PAID" | "VOID";
+  payment_status: "UNPAID" | "PARTIAL" | "PAID" | "VOID";
   currency: string;
   tax_rate: string;
   subtotal_amount: string;
@@ -101,9 +119,12 @@ export type Invoice = {
   shipping_amount: string;
   tax_amount: string;
   total_amount: string;
+  amount_paid: string;
+  balance_due: string;
   created_at: string;
   updated_at: string;
   lines: InvoiceLine[];
+  payments: InvoicePayment[];
 };
 
 export type StockMovement = {

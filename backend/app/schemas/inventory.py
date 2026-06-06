@@ -20,6 +20,11 @@ class StockMovementCreate(BaseModel):
     note: str | None = None
 
 
+class StockAdjustmentCreate(BaseModel):
+    quantity_on_hand: int = Field(..., description="Target absolute stock quantity (base units)")
+    note: str | None = None
+
+
 class StockMovementRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

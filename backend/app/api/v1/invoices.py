@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
+from decimal import Decimal
 import re
 from urllib.parse import quote
 
@@ -9,10 +10,11 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, selectinload
 
-from app.api.deps import get_db
+from app.api.deps import get_current_user, get_db
 from app.core.config import settings
-from app.db.models import Customer, Invoice, InvoiceLine, InvoiceStatus, Product, SaleOrder, SaleStatus
-from app.schemas.invoice import InvoiceCreateFromSale, InvoiceRead, InvoiceUpdate
+from app.db.models import Customer, Invoice, InvoiceLine, InvoicePayment, InvoiceStatus, Product, SaleOrder, SaleStatus, User
+from app.schemas.invoice import InvoiceCreateFromSale, InvoicePaymentCreate, InvoicePaymentRead, InvoiceRead, InvoiceUpdate
+from app.services.money import quantize_money
 from app.services.invoice_render import render_invoice_pdf
 
 
@@ -58,6 +60,7 @@ def _load_invoice(db: Session, invoice_id: int) -> Invoice | None:
         .where(Invoice.id == invoice_id)
         .options(
             selectinload(Invoice.lines),
+            selectinload(Invoice.payments),
             selectinload(Invoice.sale_order).selectinload(SaleOrder.customer),
         )
     )
@@ -70,12 +73,49 @@ def _safe_filename_part(value: str) -> str:
     return cleaned or "customer"
 
 
+def _sync_invoice_totals(invoice: Invoice) -> None:
+    subtotal = Decimal("0")
+    line_discounts_total = Decimal("0")
+
+    for line in invoice.lines:
+        unit_price = quantize_money(Decimal(line.unit_price or 0))
+        line_discount = quantize_money(Decimal(line.discount_amount or 0))
+        line_subtotal = quantize_money(unit_price * Decimal(line.quantity))
+        if line_discount > line_subtotal:
+            raise HTTPException(status_code=400, detail=f"Line discount exceeds subtotal for SKU {line.sku}")
+        line.unit_price = unit_price
+        line.discount_amount = line_discount
+        line.line_total = quantize_money(line_subtotal - line_discount)
+        subtotal += line_subtotal
+        line_discounts_total += line_discount
+
+    invoice.subtotal_amount = quantize_money(subtotal)
+    invoice.order_discount_amount = quantize_money(Decimal(invoice.order_discount_amount or 0))
+    invoice.shipping_amount = quantize_money(Decimal(invoice.shipping_amount or 0))
+    invoice.tax_rate = Decimal(invoice.tax_rate or 0)
+    invoice.discount_amount = quantize_money(invoice.order_discount_amount + line_discounts_total)
+
+    net = invoice.subtotal_amount - invoice.discount_amount
+    if net < 0:
+        raise HTTPException(status_code=400, detail="discount_amount cannot exceed subtotal")
+
+    invoice.tax_amount = quantize_money(net * invoice.tax_rate)
+    invoice.total_amount = quantize_money(net + invoice.tax_amount + invoice.shipping_amount)
+
+
+def _sync_invoice_status(invoice: Invoice) -> None:
+    if invoice.status == InvoiceStatus.VOID:
+        return
+    invoice.status = InvoiceStatus.PAID if invoice.balance_due <= Decimal("0") else InvoiceStatus.ISSUED
+
+
 @router.get("", response_model=list[InvoiceRead])
 def list_invoices(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)) -> list[Invoice]:
     stmt = (
         select(Invoice)
         .options(
             selectinload(Invoice.lines),
+            selectinload(Invoice.payments),
             selectinload(Invoice.sale_order).selectinload(SaleOrder.customer),
         )
         .order_by(Invoice.id.desc())
@@ -94,8 +134,13 @@ def get_invoice(invoice_id: int, db: Session = Depends(get_db)) -> Invoice:
 
 
 @router.patch("/{invoice_id}", response_model=InvoiceRead)
-def patch_invoice(invoice_id: int, body: InvoiceUpdate, db: Session = Depends(get_db)) -> Invoice:
-    invoice = db.get(Invoice, invoice_id)
+def patch_invoice(
+    invoice_id: int,
+    body: InvoiceUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> Invoice:
+    invoice = _load_invoice(db, invoice_id)
     if invoice is None:
         raise HTTPException(status_code=404, detail="Invoice not found")
 
@@ -111,6 +156,32 @@ def patch_invoice(invoice_id: int, body: InvoiceUpdate, db: Session = Depends(ge
         invoice.due_at = data["due_at"]
     if "status" in data and data["status"] is not None:
         invoice.status = data["status"]
+    for field in ("client_name_snapshot", "tele_snapshot", "address_snapshot", "city_snapshot", "zip_code_snapshot"):
+        if field in data:
+            setattr(invoice, field, data[field])
+    if "tax_rate" in data and data["tax_rate"] is not None:
+        invoice.tax_rate = Decimal(data["tax_rate"])
+    if "order_discount_amount" in data and data["order_discount_amount"] is not None:
+        invoice.order_discount_amount = Decimal(data["order_discount_amount"])
+    if "shipping_amount" in data and data["shipping_amount"] is not None:
+        invoice.shipping_amount = Decimal(data["shipping_amount"])
+    if "lines" in data and data["lines"] is not None:
+        payload_lines = data["lines"]
+        existing_lines = {line.id: line for line in invoice.lines}
+        missing_ids = [str(line_data["id"]) for line_data in payload_lines if line_data["id"] not in existing_lines]
+        if missing_ids:
+            raise HTTPException(status_code=400, detail=f"Unknown invoice line id(s): {', '.join(missing_ids)}")
+        for line_data in payload_lines:
+            line = existing_lines[line_data["id"]]
+            line.sku = line_data["sku"].strip()
+            line.product_name = line_data["product_name"].strip()
+            line.uom = line_data["uom"].strip()
+            line.quantity = int(line_data["quantity"])
+            line.unit_price = Decimal(line_data["unit_price"])
+            line.discount_amount = Decimal(line_data["discount_amount"])
+
+    _sync_invoice_totals(invoice)
+    _sync_invoice_status(invoice)
 
     try:
         db.commit()
@@ -121,6 +192,36 @@ def patch_invoice(invoice_id: int, body: InvoiceUpdate, db: Session = Depends(ge
     updated = _load_invoice(db, invoice.id)
     assert updated is not None
     return updated
+
+
+@router.post("/{invoice_id}/payments", response_model=InvoicePaymentRead, status_code=status.HTTP_201_CREATED)
+def create_invoice_payment(
+    invoice_id: int,
+    body: InvoicePaymentCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> InvoicePayment:
+    invoice = _load_invoice(db, invoice_id)
+    if invoice is None:
+        raise HTTPException(status_code=404, detail="Invoice not found")
+    if invoice.status == InvoiceStatus.VOID:
+        raise HTTPException(status_code=400, detail="Cannot record payment for a VOID invoice")
+
+    payment = InvoicePayment(
+        invoice_id=invoice.id,
+        paid_at=body.paid_at or _utcnow(),
+        amount=quantize_money(Decimal(body.amount)),
+        method=(body.method or "").strip() or None,
+        note=(body.note or "").strip() or None,
+        created_by=current_user.username,
+    )
+    db.add(payment)
+    db.flush()
+    invoice.payments.append(payment)
+    _sync_invoice_status(invoice)
+    db.commit()
+    db.refresh(payment)
+    return payment
 
 
 @router.post("/from-sale/{sale_order_id}", response_model=InvoiceRead, status_code=status.HTTP_201_CREATED)
