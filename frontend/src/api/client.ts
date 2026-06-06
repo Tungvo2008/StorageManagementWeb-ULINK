@@ -1,10 +1,38 @@
-import { getToken } from "../auth";
+import { clearToken, getToken } from "../auth";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
+function resolveApiBaseUrl(): string {
+  const configured = (import.meta.env.VITE_API_BASE_URL ?? "").trim();
+  if (!configured) {
+    return import.meta.env.DEV ? "http://localhost:8000" : "";
+  }
+
+  if (typeof window !== "undefined") {
+    const current = window.location;
+    const configuredUrl = new URL(configured, current.origin);
+    if (current.protocol === "https:" && configuredUrl.protocol === "http:") {
+      return "";
+    }
+  }
+
+  return configured;
+}
+
+const API_BASE_URL = resolveApiBaseUrl();
 
 function authHeaders(): Record<string, string> {
   const token = getToken();
   return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+function apiHref(path: string): string {
+  return API_BASE_URL ? `${API_BASE_URL}${path}` : path;
+}
+
+function handleUnauthorized(): void {
+  clearToken();
+  if (typeof window !== "undefined" && window.location.pathname !== "/login") {
+    window.location.href = "/login";
+  }
 }
 
 async function parseJsonIfAny<T>(res: Response): Promise<T> {
@@ -15,7 +43,7 @@ async function parseJsonIfAny<T>(res: Response): Promise<T> {
 }
 
 export async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_BASE_URL}${path}`, {
+  const res = await fetch(apiHref(path), {
     ...init,
     headers: {
       ...authHeaders(),
@@ -26,6 +54,9 @@ export async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
 
   if (!res.ok) {
     const text = await res.text();
+    if (res.status === 401) {
+      handleUnauthorized();
+    }
     throw new Error(text || res.statusText);
   }
 
@@ -33,7 +64,7 @@ export async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export async function apiUpload<T>(path: string, formData: FormData, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_BASE_URL}${path}`, {
+  const res = await fetch(apiHref(path), {
     method: "POST",
     ...(init ?? {}),
     headers: {
@@ -45,6 +76,9 @@ export async function apiUpload<T>(path: string, formData: FormData, init?: Requ
 
   if (!res.ok) {
     const text = await res.text();
+    if (res.status === 401) {
+      handleUnauthorized();
+    }
     throw new Error(text || res.statusText);
   }
 
@@ -52,13 +86,16 @@ export async function apiUpload<T>(path: string, formData: FormData, init?: Requ
 }
 
 export function apiUrl(path: string): string {
-  return `${API_BASE_URL}${path}`;
+  return apiHref(path);
 }
 
 export async function downloadFile(path: string, filename: string): Promise<void> {
-  const res = await fetch(`${API_BASE_URL}${path}`, { headers: { ...authHeaders() } });
+  const res = await fetch(apiHref(path), { headers: { ...authHeaders() } });
   if (!res.ok) {
     const text = await res.text();
+    if (res.status === 401) {
+      handleUnauthorized();
+    }
     throw new Error(text || res.statusText);
   }
 

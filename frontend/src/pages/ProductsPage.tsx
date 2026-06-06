@@ -9,8 +9,13 @@ import { compareValues, matchesQuery, toggleSort } from "../utils/table";
 type ProductCreate = {
   sku: string;
   name: string;
+  category_id?: number | null;
   base_uom?: string | null;
   uom?: string | null;
+  uom_multiplier?: number | null;
+  cost_price?: string | null;
+  unit_price?: string | null;
+  currency?: string | null;
   is_active: boolean;
 };
 
@@ -51,8 +56,13 @@ export default function ProductsPage() {
   const [form, setForm] = useState<ProductCreate>({
     sku: "",
     name: "",
+    category_id: null,
     base_uom: "Pc",
     uom: "Dozen",
+    uom_multiplier: 12,
+    cost_price: "0",
+    unit_price: "0",
+    currency: "USD",
     is_active: true,
   });
 
@@ -90,7 +100,18 @@ export default function ProductsPage() {
         method: "POST",
         body: JSON.stringify(form),
       });
-      setForm({ sku: "", name: "", base_uom: "Pc", uom: "Dozen", is_active: true });
+      setForm({
+        sku: "",
+        name: "",
+        category_id: null,
+        base_uom: "Pc",
+        uom: "Dozen",
+        uom_multiplier: 12,
+        cost_price: "0",
+        unit_price: "0",
+        currency: "USD",
+        is_active: true,
+      });
       setAddProductOpen(false);
       await load();
     } catch (err) {
@@ -513,6 +534,23 @@ export default function ProductsPage() {
         {error && <div className="error">{error}</div>}
         <form onSubmit={onCreate} className="row" style={{ alignItems: "stretch" }}>
           <div className="row" style={{ gap: 8 }}>
+            <div className="field" style={{ flex: 1, minWidth: 260 }}>
+              <label>Category</label>
+              <select
+                className="input"
+                value={form.category_id ?? ""}
+                onChange={(e) => setForm((s) => ({ ...s, category_id: e.target.value ? Number(e.target.value) : null }))}
+              >
+                <option value="">-- None --</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <div className="row" style={{ gap: 8 }}>
             <div className="field" style={{ minWidth: 140 }}>
               <label>Status</label>
               <label className="row" style={{ gap: 8, marginTop: 2 }}>
@@ -564,6 +602,45 @@ export default function ProductsPage() {
                 onChange={(e) => setForm((s) => ({ ...s, uom: e.target.value || null }))}
                 placeholder="Dozen"
                 required
+              />
+            </div>
+            <div className="field" style={{ width: 150 }}>
+              <label>Sale multiplier</label>
+              <input
+                className="input"
+                type="number"
+                min={1}
+                value={form.uom_multiplier ?? 1}
+                onChange={(e) => setForm((s) => ({ ...s, uom_multiplier: Number(e.target.value) }))}
+              />
+            </div>
+          </div>
+          <div className="row" style={{ gap: 8 }}>
+            <div className="field" style={{ width: 160 }}>
+              <label>Cost price</label>
+              <input
+                className="input"
+                value={form.cost_price ?? ""}
+                onChange={(e) => setForm((s) => ({ ...s, cost_price: e.target.value }))}
+                placeholder="0"
+              />
+            </div>
+            <div className="field" style={{ width: 160 }}>
+              <label>Sale price</label>
+              <input
+                className="input"
+                value={form.unit_price ?? ""}
+                onChange={(e) => setForm((s) => ({ ...s, unit_price: e.target.value }))}
+                placeholder="0"
+              />
+            </div>
+            <div className="field" style={{ width: 120 }}>
+              <label>Currency</label>
+              <input
+                className="input"
+                value={form.currency ?? ""}
+                onChange={(e) => setForm((s) => ({ ...s, currency: e.target.value }))}
+                placeholder="USD"
               />
             </div>
           </div>

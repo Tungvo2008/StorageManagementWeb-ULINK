@@ -8,6 +8,7 @@ WEB_ROOT="${WEB_ROOT:-/var/www/storage}"
 BACKEND_SERVICE="${BACKEND_SERVICE:-storage-backend}"
 NGINX_SERVICE="${NGINX_SERVICE:-nginx}"
 VITE_API_BASE_URL_VALUE="${VITE_API_BASE_URL_VALUE:-}"
+APP_VERSION="${APP_VERSION:-$(git -C "$ROOT_DIR" rev-parse --short HEAD)}"
 
 echo "==> Pull latest code"
 git -C "$ROOT_DIR" pull --rebase
@@ -25,6 +26,7 @@ if [[ -n "$VITE_API_BASE_URL_VALUE" ]]; then
 else
   printf "VITE_API_BASE_URL=\n" > .env.production
 fi
+printf "VITE_APP_VERSION=%s\n" "$APP_VERSION" >> .env.production
 npm ci
 npm run build
 

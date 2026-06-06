@@ -1,5 +1,7 @@
+import { useEffect, useState } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import Layout from "./components/Layout";
+import { apiJson } from "./api/client";
 import CustomersPage from "./pages/CustomersPage";
 import CustomerEditPage from "./pages/CustomerEditPage";
 import InventoryIssuePage from "./pages/InventoryIssuePage";
@@ -12,12 +14,48 @@ import PricingPage from "./pages/PricingPage";
 import ProductsPage from "./pages/ProductsPage";
 import SalesPage from "./pages/SalesPage";
 import UsersPage from "./pages/UsersPage";
-import { getToken } from "./auth";
+import { clearToken, getToken } from "./auth";
 
 function RequireAuth({ children }: { children: JSX.Element }) {
   const token = getToken();
   const location = useLocation();
-  if (!token) {
+  const [verified, setVerified] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function checkSession() {
+      if (!token) {
+        clearToken();
+        if (!cancelled) setVerified(false);
+        return;
+      }
+
+      try {
+        await apiJson("/api/v1/auth/me");
+        if (!cancelled) setVerified(true);
+      } catch {
+        clearToken();
+        if (!cancelled) setVerified(false);
+      }
+    }
+
+    void checkSession();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
+
+  if (verified === null) {
+    return (
+      <div className="card" style={{ maxWidth: 420 }}>
+        Checking session...
+      </div>
+    );
+  }
+
+  if (!verified) {
     return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   }
   return children;

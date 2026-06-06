@@ -1,10 +1,11 @@
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import type { ReactNode } from "react";
-import { clearToken, getToken } from "../auth";
+import { clearToken, getCurrentUsername, getToken } from "../auth";
 import BrandLogo from "./BrandLogo";
 
 const APP_NAME = "ULINK LLC";
+const APP_VERSION = import.meta.env.VITE_APP_VERSION?.trim() || "dev";
 
 function pageTitle(pathname: string): string {
   if (pathname === "/login") return "Login";
@@ -27,6 +28,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const inventoryActive = location.pathname.startsWith("/inventory");
   const authed = Boolean(getToken());
+  const currentUsername = getCurrentUsername();
   useEffect(() => {
     document.title = `${pageTitle(location.pathname)} | ${APP_NAME}`;
   }, [location.pathname]);
@@ -74,17 +76,25 @@ export default function Layout({ children }: { children: ReactNode }) {
           )}
           <div className="nav-actions muted">
             {authed ? (
-              <button
-                className="btn"
-                onClick={() => {
-                  clearToken();
-                  navigate("/login", { replace: true });
-                }}
-              >
-                Logout
-              </button>
+              <div className="row" style={{ gap: 10, alignItems: "center" }}>
+                <span className="versionPill" title="App version">
+                  v{APP_VERSION}
+                </span>
+                {currentUsername ? <span className="muted">Hi, {currentUsername}</span> : null}
+                <button
+                  className="btn"
+                  onClick={() => {
+                    clearToken();
+                    navigate("/login", { replace: true });
+                  }}
+                >
+                  Logout
+                </button>
+              </div>
             ) : (
-              "MVP"
+              <span className="versionPill" title="App version">
+                v{APP_VERSION}
+              </span>
             )}
           </div>
         </div>
