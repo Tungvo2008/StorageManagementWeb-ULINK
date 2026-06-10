@@ -12,6 +12,13 @@ class InvoiceCreateFromSale(BaseModel):
     due_days: int = Field(default=0, ge=0, le=365)
 
 
+class InvoiceMergeCreate(BaseModel):
+    invoice_ids: list[int] = Field(min_length=2)
+    invoice_number: str | None = Field(default=None, min_length=1, max_length=64)
+    issued_at: datetime | None = None
+    due_at: datetime | None = None
+
+
 class InvoiceUpdate(BaseModel):
     invoice_number: str | None = Field(default=None, min_length=1, max_length=64)
     issued_at: datetime | None = None
@@ -78,6 +85,7 @@ class InvoiceRead(BaseModel):
 
     id: int
     sale_order_id: int
+    merged_into_invoice_id: int | None = None
     invoice_number: str
     customer_name: str | None = None
     client_name_snapshot: str | None = None

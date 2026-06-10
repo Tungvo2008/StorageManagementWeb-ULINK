@@ -12,8 +12,8 @@ from sqlalchemy.orm import Session, selectinload
 
 from app.api.deps import get_current_user, get_db
 from app.core.config import settings
-from app.db.models import Customer, Invoice, InvoiceLine, InvoicePayment, InvoiceStatus, Product, SaleOrder, SaleStatus, User
-from app.schemas.invoice import InvoiceCreateFromSale, InvoicePaymentCreate, InvoicePaymentRead, InvoiceRead, InvoiceUpdate
+from app.db.models import Customer, Invoice, InvoiceLine, InvoicePayment, InvoiceStatus, Product, SaleOrder, SaleOrderLine, SaleStatus, User
+from app.schemas.invoice import InvoiceCreateFromSale, InvoiceMergeCreate, InvoicePaymentCreate, InvoicePaymentRead, InvoiceRead, InvoiceUpdate
 from app.services.money import quantize_money
 from app.services.invoice_render import render_invoice_pdf
 
@@ -109,6 +109,34 @@ def _sync_invoice_status(invoice: Invoice) -> None:
     invoice.status = InvoiceStatus.PAID if invoice.balance_due <= Decimal("0") else InvoiceStatus.ISSUED
 
 
+def _resolved_customer_name(invoice: Invoice) -> str:
+    return (invoice.customer_name or "").strip()
+
+
+def _validate_merge_candidates(invoices: list[Invoice]) -> None:
+    if len(invoices) < 2:
+        raise HTTPException(status_code=400, detail="Select at least 2 invoices to merge")
+
+    first = invoices[0]
+    customer_name = _resolved_customer_name(first).casefold()
+    currency = (first.currency or "").upper()
+    tax_rate = Decimal(first.tax_rate or 0)
+
+    for invoice in invoices:
+        if invoice.merged_into_invoice_id is not None:
+            raise HTTPException(status_code=400, detail=f"Invoice {invoice.invoice_number} has already been merged")
+        if invoice.status == InvoiceStatus.VOID:
+            raise HTTPException(status_code=400, detail=f"Invoice {invoice.invoice_number} is VOID and cannot be merged")
+        if invoice.amount_paid > Decimal("0"):
+            raise HTTPException(status_code=400, detail=f"Invoice {invoice.invoice_number} already has payments")
+        if _resolved_customer_name(invoice).casefold() != customer_name:
+            raise HTTPException(status_code=400, detail="All selected invoices must belong to the same customer")
+        if (invoice.currency or "").upper() != currency:
+            raise HTTPException(status_code=400, detail="All selected invoices must use the same currency")
+        if Decimal(invoice.tax_rate or 0) != tax_rate:
+            raise HTTPException(status_code=400, detail="All selected invoices must use the same tax rate")
+
+
 @router.get("", response_model=list[InvoiceRead])
 def list_invoices(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)) -> list[Invoice]:
     stmt = (
@@ -143,6 +171,8 @@ def patch_invoice(
     invoice = _load_invoice(db, invoice_id)
     if invoice is None:
         raise HTTPException(status_code=404, detail="Invoice not found")
+    if invoice.merged_into_invoice_id is not None:
+        raise HTTPException(status_code=400, detail="Merged source invoices cannot be edited")
 
     data = body.model_dump(exclude_unset=True)
     if "invoice_number" in data:
@@ -294,6 +324,124 @@ def create_invoice_from_sale(
         return created
 
     raise HTTPException(status_code=500, detail="Failed to generate a unique invoice number")
+
+
+@router.post("/merge", response_model=InvoiceRead, status_code=status.HTTP_201_CREATED)
+def merge_invoices(
+    body: InvoiceMergeCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> Invoice:
+    invoice_ids = list(dict.fromkeys(body.invoice_ids))
+    stmt = (
+        select(Invoice)
+        .where(Invoice.id.in_(invoice_ids))
+        .options(
+            selectinload(Invoice.lines),
+            selectinload(Invoice.payments),
+            selectinload(Invoice.sale_order).selectinload(SaleOrder.customer),
+        )
+    )
+    invoices = db.scalars(stmt).all()
+    if len(invoices) != len(invoice_ids):
+        found_ids = {invoice.id for invoice in invoices}
+        missing = [str(invoice_id) for invoice_id in invoice_ids if invoice_id not in found_ids]
+        raise HTTPException(status_code=404, detail=f"Invoice not found: {', '.join(missing)}")
+
+    invoices_by_id = {invoice.id: invoice for invoice in invoices}
+    ordered_invoices = [invoices_by_id[invoice_id] for invoice_id in invoice_ids]
+    _validate_merge_candidates(ordered_invoices)
+
+    first = ordered_invoices[0]
+    merged_sale = SaleOrder(
+        customer_id=first.sale_order.customer_id if first.sale_order else None,
+        status=SaleStatus.CONFIRMED,
+        currency=first.currency,
+        tax_rate=first.tax_rate,
+        subtotal_amount=quantize_money(sum(Decimal(inv.subtotal_amount or 0) for inv in ordered_invoices)),
+        order_discount_amount=quantize_money(sum(Decimal(inv.order_discount_amount or 0) for inv in ordered_invoices)),
+        discount_amount=quantize_money(sum(Decimal(inv.discount_amount or 0) for inv in ordered_invoices)),
+        shipping_amount=quantize_money(sum(Decimal(inv.shipping_amount or 0) for inv in ordered_invoices)),
+        tax_amount=quantize_money(sum(Decimal(inv.tax_amount or 0) for inv in ordered_invoices)),
+        total_amount=quantize_money(sum(Decimal(inv.total_amount or 0) for inv in ordered_invoices)),
+    )
+    db.add(merged_sale)
+    db.flush()
+
+    merged_sale.lines = [
+        SaleOrderLine(
+            sale_order_id=merged_sale.id,
+            product_id=line.product_id,
+            sku=line.sku,
+            product_name=line.product_name,
+            quantity=line.quantity,
+            unit_price=line.unit_price,
+            discount_amount=line.discount_amount,
+            line_total=line.line_total,
+        )
+        for invoice in ordered_invoices
+        for line in invoice.lines
+    ]
+
+    invoice_number = (body.invoice_number or "").strip() or _generate_invoice_number(
+        db,
+        settings.INVOICE_PREFIX,
+        settings.INVOICE_NUMBER_DIGITS,
+    )
+    merged_invoice = Invoice(
+        sale_order_id=merged_sale.id,
+        invoice_number=invoice_number,
+        issued_at=body.issued_at or max(invoice.issued_at for invoice in ordered_invoices),
+        due_at=body.due_at
+        if body.due_at is not None
+        else max((invoice.due_at for invoice in ordered_invoices if invoice.due_at is not None), default=None),
+        status=InvoiceStatus.ISSUED,
+        currency=first.currency,
+        tax_rate=first.tax_rate,
+        subtotal_amount=merged_sale.subtotal_amount,
+        order_discount_amount=merged_sale.order_discount_amount,
+        discount_amount=merged_sale.discount_amount,
+        shipping_amount=merged_sale.shipping_amount,
+        tax_amount=merged_sale.tax_amount,
+        total_amount=merged_sale.total_amount,
+        client_code_snapshot=first.client_code_snapshot,
+        client_name_snapshot=first.client_name_snapshot or first.customer_name,
+        tele_snapshot=first.tele_snapshot,
+        address_snapshot=first.address_snapshot,
+        city_snapshot=first.city_snapshot,
+        zip_code_snapshot=first.zip_code_snapshot,
+        lines=[
+            InvoiceLine(
+                product_id=line.product_id,
+                sku=line.sku,
+                product_name=line.product_name,
+                uom=line.uom,
+                quantity=line.quantity,
+                unit_price=line.unit_price,
+                discount_amount=line.discount_amount,
+                line_total=line.line_total,
+                line_date=line.line_date,
+            )
+            for invoice in ordered_invoices
+            for line in invoice.lines
+        ],
+    )
+    db.add(merged_invoice)
+    db.flush()
+
+    for invoice in ordered_invoices:
+        invoice.status = InvoiceStatus.VOID
+        invoice.merged_into_invoice_id = merged_invoice.id
+
+    try:
+        db.commit()
+    except IntegrityError as e:
+        db.rollback()
+        raise HTTPException(status_code=409, detail="Invoice number already exists") from e
+
+    created = _load_invoice(db, merged_invoice.id)
+    assert created is not None
+    return created
 
 
 @router.get("/{invoice_id}/pdf")

@@ -100,6 +100,7 @@ export type InvoicePayment = {
 export type Invoice = {
   id: number;
   sale_order_id: number;
+  merged_into_invoice_id: number | null;
   invoice_number: string;
   customer_name: string | null;
   client_name_snapshot?: string | null;

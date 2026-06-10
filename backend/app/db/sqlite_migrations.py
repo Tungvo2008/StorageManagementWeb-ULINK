@@ -45,6 +45,7 @@ def _ensure_columns(conn: Connection) -> None:
         _add_column_if_missing(conn, "customers", "zip_code", "zip_code TEXT")
 
     if "invoices" in tables:
+        _add_column_if_missing(conn, "invoices", "merged_into_invoice_id", "merged_into_invoice_id INTEGER")
         _add_column_if_missing(conn, "invoices", "gin_number", "gin_number TEXT")
         _add_column_if_missing(conn, "invoices", "issue_log_no", "issue_log_no INTEGER")
         _add_column_if_missing(conn, "invoices", "client_code_snapshot", "client_code_snapshot TEXT")

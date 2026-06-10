@@ -273,6 +273,7 @@ class Invoice(TimestampMixin, Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     sale_order_id: Mapped[int] = mapped_column(ForeignKey("sale_orders.id"), nullable=False, index=True)
+    merged_into_invoice_id: Mapped[int | None] = mapped_column(ForeignKey("invoices.id"), nullable=True, index=True)
     invoice_number: Mapped[str] = mapped_column(String(64), nullable=False)
     gin_number: Mapped[str | None] = mapped_column(String(64), nullable=True)
 
@@ -300,6 +301,11 @@ class Invoice(TimestampMixin, Base):
     total_amount: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False, default=Decimal("0"))
 
     sale_order: Mapped[SaleOrder] = relationship(back_populates="invoice")
+    merged_into_invoice: Mapped["Invoice | None"] = relationship(
+        remote_side="Invoice.id",
+        back_populates="merged_source_invoices",
+    )
+    merged_source_invoices: Mapped[list["Invoice"]] = relationship(back_populates="merged_into_invoice")
     lines: Mapped[list[InvoiceLine]] = relationship(
         back_populates="invoice",
         cascade="all, delete-orphan",

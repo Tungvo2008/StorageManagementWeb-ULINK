@@ -710,6 +710,8 @@ export default function InventoryIssuePage() {
                           type="number"
                           min={1}
                           value={l.quantity}
+                          onFocus={(e) => e.currentTarget.select()}
+                          onClick={(e) => e.currentTarget.select()}
                           onChange={(e) =>
                             setForm((s) => ({
                               ...s,

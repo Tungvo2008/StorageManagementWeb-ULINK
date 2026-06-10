@@ -48,6 +48,12 @@ type PaymentForm = {
   note: string;
 };
 
+type MergeForm = {
+  invoice_number: string;
+  issued_at: string;
+  due_at: string;
+};
+
 function toInputDateTime(value: string | null | undefined): string {
   if (!value) return "";
   const date = new Date(value);
@@ -110,6 +116,27 @@ function buildPaymentForm(invoice: Invoice): PaymentForm {
   };
 }
 
+function buildMergeForm(invoices: Invoice[]): MergeForm {
+  const issuedAt = invoices.reduce((latest, invoice) => {
+    if (!latest) return invoice.issued_at;
+    return new Date(invoice.issued_at).getTime() > new Date(latest).getTime() ? invoice.issued_at : latest;
+  }, "");
+  const dueAt = invoices.reduce((latest, invoice) => {
+    if (!invoice.due_at) return latest;
+    if (!latest) return invoice.due_at;
+    return new Date(invoice.due_at).getTime() > new Date(latest).getTime() ? invoice.due_at : latest;
+  }, "");
+  return {
+    invoice_number: "",
+    issued_at: toInputDateTime(issuedAt),
+    due_at: toInputDateTime(dueAt),
+  };
+}
+
+function canMergeInvoice(invoice: Invoice): boolean {
+  return invoice.status !== "VOID" && invoice.merged_into_invoice_id == null && Number(invoice.amount_paid || 0) <= 0;
+}
+
 export default function InvoicesPage() {
   const [items, setItems] = useState<Invoice[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -124,10 +151,14 @@ export default function InvoicesPage() {
   const [paymentForm, setPaymentForm] = useState<PaymentForm | null>(null);
   const [editOpen, setEditOpen] = useState(false);
   const [paymentOpen, setPaymentOpen] = useState(false);
+  const [mergeOpen, setMergeOpen] = useState(false);
   const [modalError, setModalError] = useState<string | null>(null);
   const [savingEdit, setSavingEdit] = useState(false);
   const [savingPayment, setSavingPayment] = useState(false);
+  const [savingMerge, setSavingMerge] = useState(false);
   const [loadingDetail, setLoadingDetail] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [mergeForm, setMergeForm] = useState<MergeForm>({ invoice_number: "", issued_at: "", due_at: "" });
 
   async function load() {
     setLoading(true);
@@ -220,6 +251,21 @@ export default function InvoicesPage() {
     };
   }, [editForm]);
 
+  const selectedInvoices = useMemo(
+    () => selectedIds.map((id) => items.find((item) => item.id === id)).filter(Boolean) as Invoice[],
+    [items, selectedIds],
+  );
+  const mergeSummary = useMemo(() => {
+    if (selectedInvoices.length === 0) return null;
+    return {
+      customer: selectedInvoices[0].customer_name || selectedInvoices[0].client_name_snapshot || "-",
+      currency: selectedInvoices[0].currency,
+      total: selectedInvoices.reduce((sum, invoice) => sum + Number(invoice.total_amount || 0), 0),
+      paid: selectedInvoices.reduce((sum, invoice) => sum + Number(invoice.amount_paid || 0), 0),
+      balance: selectedInvoices.reduce((sum, invoice) => sum + Number(invoice.balance_due || 0), 0),
+    };
+  }, [selectedInvoices]);
+
   function mark(col: InvoiceSortKey): string {
     if (sort.key !== col) return "";
     return sort.dir === "asc" ? " ↑" : " ↓";
@@ -255,7 +301,7 @@ export default function InvoicesPage() {
     }
   }
 
-  async function submitEdit() {
+  async function submitEdit(statusOverride?: "ISSUED" | "VOID") {
     if (!selectedInvoice || !editForm) return;
     setSavingEdit(true);
     setModalError(null);
@@ -266,7 +312,7 @@ export default function InvoicesPage() {
           invoice_number: editForm.invoice_number.trim(),
           issued_at: fromInputDateTime(editForm.issued_at),
           due_at: fromInputDateTime(editForm.due_at),
-          status: editForm.status,
+          status: statusOverride ?? editForm.status,
           client_name_snapshot: editForm.client_name_snapshot.trim(),
           tele_snapshot: editForm.tele_snapshot.trim(),
           address_snapshot: editForm.address_snapshot.trim(),
@@ -297,6 +343,13 @@ export default function InvoicesPage() {
     }
   }
 
+  async function cancelInvoice() {
+    if (!selectedInvoice) return;
+    const ok = window.confirm(`Huỷ invoice ${selectedInvoice.invoice_number}?`);
+    if (!ok) return;
+    await submitEdit("VOID");
+  }
+
   async function submitPayment() {
     if (!selectedInvoice || !paymentForm) return;
     setSavingPayment(true);
@@ -322,6 +375,76 @@ export default function InvoicesPage() {
     }
   }
 
+  async function submitFullPayment(invoice: Invoice) {
+    setLoadingDetail(true);
+    setError(null);
+    try {
+      const detailed = await loadInvoiceDetail(invoice.id);
+      const balance = Math.max(Number(detailed.balance_due || 0), 0);
+      if (balance <= 0) return;
+      await apiJson(`/api/v1/invoices/${invoice.id}/payments`, {
+        method: "POST",
+        body: JSON.stringify({
+          amount: balance,
+          paid_at: new Date().toISOString(),
+          method: "Full payment",
+          note: "Paid in full",
+        }),
+      });
+      await loadInvoiceDetail(invoice.id);
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setLoadingDetail(false);
+    }
+  }
+
+  function toggleSelectInvoice(invoiceId: number, checked: boolean) {
+    setSelectedIds((curr) => {
+      if (checked) return curr.includes(invoiceId) ? curr : [...curr, invoiceId];
+      return curr.filter((id) => id !== invoiceId);
+    });
+  }
+
+  function openMerge() {
+    if (selectedInvoices.length < 2) return;
+    setModalError(null);
+    setMergeForm(buildMergeForm(selectedInvoices));
+    setMergeOpen(true);
+  }
+
+  async function submitMerge() {
+    if (selectedInvoices.length < 2) return;
+    setSavingMerge(true);
+    setModalError(null);
+    try {
+      const merged = await apiJson<Invoice>("/api/v1/invoices/merge", {
+        method: "POST",
+        body: JSON.stringify({
+          invoice_ids: selectedInvoices.map((invoice) => invoice.id),
+          invoice_number: mergeForm.invoice_number.trim() || null,
+          issued_at: fromInputDateTime(mergeForm.issued_at),
+          due_at: fromInputDateTime(mergeForm.due_at),
+        }),
+      });
+      setSelectedIds([]);
+      setMergeOpen(false);
+      setItems((curr) => {
+        const next = curr.map((invoice) =>
+          selectedInvoices.some((selected) => selected.id === invoice.id)
+            ? { ...invoice, status: "VOID" as const, merged_into_invoice_id: merged.id }
+            : invoice,
+        );
+        return [merged, ...next.filter((invoice) => invoice.id !== merged.id)];
+      });
+      await load();
+    } catch (e) {
+      setModalError((e as Error).message);
+    } finally {
+      setSavingMerge(false);
+    }
+  }
+
   return (
     <div className="card">
       <div className="row" style={{ justifyContent: "space-between" }}>
@@ -337,6 +460,9 @@ export default function InvoicesPage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
+          <button className="btn" onClick={openMerge} disabled={selectedInvoices.length < 2}>
+            Gộp invoice
+          </button>
           <button className="btn" onClick={() => void load()} disabled={loading}>
             Refresh
           </button>
@@ -347,6 +473,7 @@ export default function InvoicesPage() {
         <table>
           <thead>
             <tr>
+              <th style={{ width: 44 }} />
               <th><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "id"))}>ID{mark("id")}</button></th>
               <th><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "invoice_number"))}>No{mark("invoice_number")}</button></th>
               <th><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "customer_name"))}>Customer{mark("customer_name")}</button></th>
@@ -362,22 +489,52 @@ export default function InvoicesPage() {
           <tbody>
             {displayed.map((inv) => (
               <tr key={inv.id}>
+                <td>
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.includes(inv.id)}
+                    disabled={!canMergeInvoice(inv)}
+                    onChange={(e) => toggleSelectInvoice(inv.id, e.target.checked)}
+                  />
+                </td>
                 <td>{inv.id}</td>
                 <td>{inv.invoice_number}</td>
                 <td>{inv.customer_name || "-"}</td>
                 <td>{inv.sale_order_id}</td>
-                <td>{inv.status}</td>
+                <td>
+                  {inv.status}
+                  {inv.merged_into_invoice_id ? (
+                    <div className="muted" style={{ fontSize: 12 }}>MERGED → #{inv.merged_into_invoice_id}</div>
+                  ) : null}
+                </td>
                 <td>{inv.payment_status}</td>
                 <td className="right">{formatMoney(inv.total_amount, inv.currency)}</td>
                 <td className="right">{formatMoney(inv.amount_paid, inv.currency)}</td>
                 <td className="right">{formatMoney(inv.balance_due, inv.currency)}</td>
                 <td>
                   <div className="row">
-                    <button className="btn" onClick={() => void openEdit(inv)} disabled={loadingDetail}>
+                    <button
+                      className="btn"
+                      onClick={() => void openEdit(inv)}
+                      disabled={loadingDetail || inv.merged_into_invoice_id != null}
+                    >
                       Sửa invoice
                     </button>
-                    <button className="btn" onClick={() => void openPayment(inv)} disabled={loadingDetail || inv.status === "VOID"}>
+                    <button
+                      className="btn"
+                      onClick={() => void openPayment(inv)}
+                      disabled={loadingDetail || inv.status === "VOID" || inv.merged_into_invoice_id != null}
+                    >
                       Thanh toán
+                    </button>
+                    <button
+                      className="btn"
+                      onClick={() => void submitFullPayment(inv)}
+                      disabled={
+                        loadingDetail || inv.status === "VOID" || inv.merged_into_invoice_id != null || Number(inv.balance_due) <= 0
+                      }
+                    >
+                      Thanh toán 100%
                     </button>
                     <button className="btn" onClick={() => void previewFile(`/api/v1/invoices/${inv.id}/pdf`)}>
                       Xem PDF
@@ -394,7 +551,7 @@ export default function InvoicesPage() {
             ))}
             {!loading && displayed.length === 0 && (
               <tr>
-                <td colSpan={10} className="muted">
+                <td colSpan={11} className="muted">
                   No matching invoices.
                 </td>
               </tr>
@@ -402,6 +559,91 @@ export default function InvoicesPage() {
           </tbody>
         </table>
       </div>
+
+      {mergeOpen && mergeSummary && (
+        <div className="modal-backdrop" onClick={() => !savingMerge && setMergeOpen(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <div>
+                <h3 style={{ margin: 0 }}>Gộp invoice</h3>
+                <div className="muted">Mình sẽ tạo invoice mới và giữ invoice cũ dưới dạng đã merge.</div>
+              </div>
+              <button className="btn" onClick={() => setMergeOpen(false)} disabled={savingMerge}>Close</button>
+            </div>
+            {modalError && <div className="error">{modalError}</div>}
+            <div className="row" style={{ alignItems: "flex-start" }}>
+              <div className="field">
+                <label>Customer</label>
+                <div className="input" style={{ display: "flex", alignItems: "center" }}>{mergeSummary.customer}</div>
+              </div>
+              <div className="field">
+                <label>Invoice number (optional)</label>
+                <input
+                  className="input"
+                  value={mergeForm.invoice_number}
+                  onChange={(e) => setMergeForm((curr) => ({ ...curr, invoice_number: e.target.value }))}
+                />
+              </div>
+              <div className="field">
+                <label>Issued at</label>
+                <input
+                  className="input"
+                  type="datetime-local"
+                  value={mergeForm.issued_at}
+                  onChange={(e) => setMergeForm((curr) => ({ ...curr, issued_at: e.target.value }))}
+                />
+              </div>
+              <div className="field">
+                <label>Due at</label>
+                <input
+                  className="input"
+                  type="datetime-local"
+                  value={mergeForm.due_at}
+                  onChange={(e) => setMergeForm((curr) => ({ ...curr, due_at: e.target.value }))}
+                />
+              </div>
+            </div>
+
+            <div className="totalsBox" style={{ marginTop: 16 }}>
+              <div className="totalsRow"><span>Total</span><strong>{formatMoney(mergeSummary.total, mergeSummary.currency)}</strong></div>
+              <div className="totalsRow"><span>Paid</span><strong>{formatMoney(mergeSummary.paid, mergeSummary.currency)}</strong></div>
+              <div className="totalsRow totalsGrand"><span>Balance</span><strong>{formatMoney(mergeSummary.balance, mergeSummary.currency)}</strong></div>
+            </div>
+
+            <div style={{ marginTop: 16, overflowX: "auto" }}>
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>No</th>
+                    <th>Status</th>
+                    <th>Payment</th>
+                    <th className="right">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {selectedInvoices.map((invoice) => (
+                    <tr key={invoice.id}>
+                      <td>{invoice.id}</td>
+                      <td>{invoice.invoice_number}</td>
+                      <td>{invoice.status}</td>
+                      <td>{invoice.payment_status}</td>
+                      <td className="right">{formatMoney(invoice.total_amount, invoice.currency)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="row" style={{ justifyContent: "flex-end", marginTop: 16 }}>
+              <button className="btn" onClick={() => setMergeOpen(false)} disabled={savingMerge}>Cancel</button>
+              <button className="btn primary" onClick={() => void submitMerge()} disabled={savingMerge}>
+                {savingMerge ? "Merging..." : "Merge invoices"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {editOpen && selectedInvoice && editForm && (
         <div className="modal-backdrop" onClick={() => !savingEdit && setEditOpen(false)}>
@@ -692,6 +934,9 @@ export default function InvoicesPage() {
             )}
 
             <div className="row" style={{ justifyContent: "flex-end", marginTop: 16 }}>
+              <button className="btn" onClick={() => void cancelInvoice()} disabled={savingEdit}>
+                Huỷ invoice
+              </button>
               <button className="btn" onClick={() => setEditOpen(false)} disabled={savingEdit}>Cancel</button>
               <button className="btn primary" onClick={() => void submitEdit()} disabled={savingEdit}>
                 {savingEdit ? "Saving..." : "Save invoice"}
@@ -805,6 +1050,24 @@ export default function InvoicesPage() {
             </div>
 
             <div className="row" style={{ justifyContent: "flex-end", marginTop: 16 }}>
+              <button
+                className="btn"
+                onClick={() =>
+                  setPaymentForm((curr) =>
+                    curr && selectedInvoice
+                      ? {
+                          ...curr,
+                          amount: Math.max(Number(selectedInvoice.balance_due || 0), 0).toFixed(2),
+                          method: curr.method || "Full payment",
+                          note: curr.note || "Paid in full",
+                        }
+                      : curr,
+                  )
+                }
+                disabled={savingPayment}
+              >
+                Điền 100%
+              </button>
               <button className="btn" onClick={() => setPaymentOpen(false)} disabled={savingPayment}>Cancel</button>
               <button className="btn primary" onClick={() => void submitPayment()} disabled={savingPayment}>
                 {savingPayment ? "Saving..." : "Record payment"}
