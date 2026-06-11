@@ -1,10 +1,29 @@
 import { useEffect, useMemo, useState } from "react";
 import { apiJson } from "../api/client";
+import Modal from "../components/Modal";
 import PosProductSearch from "../components/PosProductSearch";
 import type { Category, Customer, InventoryIssue, Product, SaleOrder } from "../types";
 import type { FormEvent } from "react";
 
 type LineDraft = { product_id: number; quantity: number; discount_amount: string };
+
+type ParsedIssueLine = {
+  raw_text: string;
+  quantity: number;
+  raw_name: string;
+  unit: "BASE" | "SALE";
+  product_id: number | null;
+  sku: string | null;
+  matched_product_name: string | null;
+  confidence: number;
+  match_source: string;
+};
+
+type ParsedIssueNoteResponse = {
+  title: string | null;
+  lines: ParsedIssueLine[];
+  warnings: string[];
+};
 
 export default function SalesPage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -24,6 +43,10 @@ export default function SalesPage() {
 
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [aiOpen, setAiOpen] = useState(false);
+  const [aiBusy, setAiBusy] = useState(false);
+  const [aiNoteText, setAiNoteText] = useState("");
+  const [aiParsed, setAiParsed] = useState<ParsedIssueNoteResponse | null>(null);
 
   const productMap = useMemo(() => new Map(products.map((p) => [p.id, p])), [products]);
 
@@ -79,6 +102,64 @@ export default function SalesPage() {
     });
   }
 
+  async function onParseAiNote() {
+    if (!aiNoteText.trim()) {
+      setError("Dán note vào trước đã.");
+      return;
+    }
+    setAiBusy(true);
+    setError(null);
+    try {
+      const parsed = await apiJson<ParsedIssueNoteResponse>("/api/v1/inventory/issues/parse-note", {
+        method: "POST",
+        body: JSON.stringify({ note_text: aiNoteText.trim() }),
+      });
+      setAiParsed(parsed);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setAiBusy(false);
+    }
+  }
+
+  function applyAiParsed() {
+    if (!aiParsed) return;
+    const matchedLines = aiParsed.lines.filter((line) => line.product_id != null);
+    if (matchedLines.length === 0) {
+      setError("AI chưa match được sản phẩm nào để đưa vào phiếu xuất.");
+      return;
+    }
+
+    setLines((current) => {
+      const merged = [...current];
+      for (const line of matchedLines) {
+        const idx = merged.findIndex((item) => item.product_id === line.product_id);
+        if (idx >= 0) {
+          merged[idx] = {
+            ...merged[idx],
+            quantity: merged[idx].quantity + line.quantity,
+          };
+        } else if (line.product_id != null) {
+          merged.push({
+            product_id: line.product_id,
+            quantity: line.quantity,
+            discount_amount: "0",
+          });
+        }
+      }
+      return merged;
+    });
+
+    if (!isSalePurpose && !issuedTo.trim() && aiParsed.title) {
+      setIssuedTo(aiParsed.title);
+    }
+    if (!note.trim()) {
+      setNote(aiNoteText.trim());
+    }
+
+    setAiOpen(false);
+  }
+
   const isSalePurpose = outPurpose === "SALE";
 
   async function onCreateSale(e: FormEvent) {
@@ -131,7 +212,19 @@ export default function SalesPage() {
       <div className="card">
         <div className="row" style={{ justifyContent: "space-between" }}>
           <h2 style={{ marginTop: 0, marginBottom: 0 }}>Create Issue</h2>
-          <div className="muted">Chọn mục đích xuất, chọn SP, nhập thông tin cần thiết.</div>
+          <div className="row" style={{ justifyContent: "flex-end", gap: 8 }}>
+            <button
+              className="btn"
+              type="button"
+              onClick={() => {
+                setAiOpen(true);
+                setAiParsed(null);
+              }}
+            >
+              AI parse note
+            </button>
+            <div className="muted">Chọn mục đích xuất, chọn SP, nhập thông tin cần thiết.</div>
+          </div>
         </div>
         {error && <div className="error">{error}</div>}
       <form onSubmit={onCreateSale}>
@@ -387,6 +480,80 @@ export default function SalesPage() {
       </form>
       </div>
 
+      <Modal open={aiOpen} title="AI parse packing note" onClose={() => setAiOpen(false)}>
+        <div className="row" style={{ alignItems: "stretch" }}>
+          <div className="field" style={{ width: "100%" }}>
+            <label>Dán note đóng hàng</label>
+            <textarea
+              className="input"
+              rows={10}
+              placeholder={"Ví dụ:\nChợ qte\n32 xoài muối ớt 200g\n25 xoài dẻo 200g"}
+              value={aiNoteText}
+              onChange={(e) => setAiNoteText(e.target.value)}
+              style={{ width: "100%", resize: "vertical", paddingTop: 10 }}
+            />
+          </div>
+          <div className="row" style={{ justifyContent: "flex-end", marginTop: 8 }}>
+            <button className="btn" type="button" onClick={() => setAiParsed(null)} disabled={aiBusy}>
+              Clear result
+            </button>
+            <button className="btn primary" type="button" onClick={() => void onParseAiNote()} disabled={aiBusy}>
+              {aiBusy ? "Parsing..." : "Parse note"}
+            </button>
+          </div>
+
+          {aiParsed ? (
+            <>
+              <div className="card" style={{ width: "100%", marginTop: 8, padding: 12 }}>
+                <div><strong>Title:</strong> {aiParsed.title || "-"}</div>
+                <div className="muted" style={{ marginTop: 4 }}>
+                  Mình sẽ cộng dồn các dòng match được vào cart hiện tại. Dòng chưa chắc sẽ hiện cảnh báo để bạn kiểm tra thêm.
+                </div>
+              </div>
+              <div style={{ marginTop: 12, overflowX: "auto", width: "100%" }}>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Raw line</th>
+                      <th className="right">Qty</th>
+                      <th>Match</th>
+                      <th>Unit</th>
+                      <th className="right">Confidence</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {aiParsed.lines.map((line, idx) => (
+                      <tr key={`${line.raw_text}-${idx}`}>
+                        <td>{line.raw_text}</td>
+                        <td className="right">{line.quantity}</td>
+                        <td>{line.matched_product_name ? `${line.sku} - ${line.matched_product_name}` : <span className="error">Chưa match</span>}</td>
+                        <td>{line.unit}</td>
+                        <td className="right">{Math.round(line.confidence * 100)}%</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {aiParsed.warnings.length > 0 ? (
+                <div className="card" style={{ width: "100%", marginTop: 12, padding: 12, borderColor: "#fecaca", background: "#fff7f7" }}>
+                  <strong>Cần kiểm tra thêm:</strong>
+                  <ul style={{ margin: "8px 0 0 18px", padding: 0 }}>
+                    {aiParsed.warnings.map((warning) => (
+                      <li key={warning}>{warning}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+              <div className="row" style={{ justifyContent: "flex-end", marginTop: 12 }}>
+                <button className="btn" type="button" onClick={applyAiParsed} disabled={aiParsed.lines.filter((line) => line.product_id != null).length === 0}>
+                  Đổ vào cart
+                </button>
+              </div>
+            </>
+          ) : null}
+        </div>
+      </Modal>
+
       {created && (
         <div className="card">
           <h3 style={{ marginTop: 0 }}>Created</h3>
@@ -470,6 +637,10 @@ export default function SalesPage() {
 
 function IssueInvoice({ saleId }: { saleId: number }) {
   const [busy, setBusy] = useState(false);
+  const [aiOpen, setAiOpen] = useState(false);
+  const [aiBusy, setAiBusy] = useState(false);
+  const [aiNoteText, setAiNoteText] = useState("");
+  const [aiParsed, setAiParsed] = useState<ParsedIssueNoteResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [ok, setOk] = useState<string | null>(null);
 
