@@ -66,6 +66,24 @@ type InvoiceEditDraft = {
   status: Invoice["status"];
 };
 
+type ParsedIssueLine = {
+  raw_text: string;
+  quantity: number;
+  raw_name: string;
+  unit: "BASE" | "SALE";
+  product_id: number | null;
+  sku: string | null;
+  matched_product_name: string | null;
+  confidence: number;
+  match_source: string;
+};
+
+type ParsedIssueNoteResponse = {
+  title: string | null;
+  lines: ParsedIssueLine[];
+  warnings: string[];
+};
+
 function toIsoFromLocal(dtLocal: string | null | undefined): string | null {
   if (!dtLocal) return null;
   const d = new Date(dtLocal);
@@ -124,6 +142,10 @@ export default function InventoryIssuePage() {
     due_at: "",
     status: "ISSUED",
   });
+  const [aiOpen, setAiOpen] = useState(false);
+  const [aiBusy, setAiBusy] = useState(false);
+  const [aiNoteText, setAiNoteText] = useState("");
+  const [aiParsed, setAiParsed] = useState<ParsedIssueNoteResponse | null>(null);
   const currentUsername = useMemo(() => getCurrentUsername(), []);
 
   const [form, setForm] = useState<IssueDraft>({
@@ -438,12 +460,63 @@ export default function InventoryIssuePage() {
     }
   }
 
+  async function onParseAiNote() {
+    if (!aiNoteText.trim()) {
+      setError("Dán note vào trước đã.");
+      return;
+    }
+    setAiBusy(true);
+    setError(null);
+    try {
+      const parsed = await apiJson<ParsedIssueNoteResponse>("/api/v1/inventory/issues/parse-note", {
+        method: "POST",
+        body: JSON.stringify({ note_text: aiNoteText.trim() }),
+      });
+      setAiParsed(parsed);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setAiBusy(false);
+    }
+  }
+
+  function applyAiParsed() {
+    if (!aiParsed) return;
+    const matchedLines = aiParsed.lines.filter((line) => line.product_id != null);
+    if (matchedLines.length === 0) {
+      setError("AI chưa match được sản phẩm nào để đưa vào phiếu xuất.");
+      return;
+    }
+    setForm((s) => ({
+      ...s,
+      issued_to: s.issued_to?.trim() ? s.issued_to : aiParsed.title ?? "",
+      note: s.note?.trim() ? s.note : aiNoteText.trim(),
+      lines: matchedLines.map((line) => ({
+        product_id: line.product_id,
+        quantity: line.quantity,
+        unit: line.unit,
+        note: line.raw_text,
+      })),
+    }));
+    setAiOpen(false);
+  }
+
   return (
     <div className="row" style={{ alignItems: "flex-start" }}>
       <div className="card" style={{ flex: 1, minWidth: 360 }}>
         <div className="row" style={{ justifyContent: "space-between" }}>
           <h2 style={{ margin: 0 }}>Xuất hàng</h2>
           <div className="row" style={{ justifyContent: "flex-end" }}>
+            <button
+              className="btn"
+              type="button"
+              onClick={() => {
+                setAiOpen(true);
+                setAiParsed(null);
+              }}
+            >
+              AI parse note
+            </button>
             <button
               className="btn"
               type="button"
@@ -773,6 +846,80 @@ export default function InventoryIssuePage() {
           Note: hệ thống sẽ chặn nếu tồn kho không đủ.
         </div>
       </div>
+
+      <Modal open={aiOpen} title="AI parse packing note" onClose={() => setAiOpen(false)}>
+        <div className="row" style={{ alignItems: "stretch" }}>
+          <div className="field" style={{ width: "100%" }}>
+            <label>Dán note đóng hàng</label>
+            <textarea
+              className="input"
+              rows={10}
+              placeholder={"Ví dụ:\nChợ qte\n32 xoài muối ớt 200g\n25 xoài dẻo 200g"}
+              value={aiNoteText}
+              onChange={(e) => setAiNoteText(e.target.value)}
+              style={{ width: "100%", resize: "vertical", paddingTop: 10 }}
+            />
+          </div>
+          <div className="row" style={{ justifyContent: "flex-end", marginTop: 8 }}>
+            <button className="btn" type="button" onClick={() => setAiParsed(null)} disabled={aiBusy}>
+              Clear result
+            </button>
+            <button className="btn primary" type="button" onClick={() => void onParseAiNote()} disabled={aiBusy}>
+              {aiBusy ? "Parsing..." : "Parse note"}
+            </button>
+          </div>
+
+          {aiParsed ? (
+            <>
+              <div className="card" style={{ width: "100%", marginTop: 8, padding: 12 }}>
+                <div><strong>Title:</strong> {aiParsed.title || "-"}</div>
+                <div className="muted" style={{ marginTop: 4 }}>
+                  Mình sẽ chỉ auto-fill các dòng match được sản phẩm. Dòng chưa chắc sẽ hiện cảnh báo để bạn thêm tay.
+                </div>
+              </div>
+              <div style={{ marginTop: 12, overflowX: "auto", width: "100%" }}>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Raw line</th>
+                      <th className="right">Qty</th>
+                      <th>Match</th>
+                      <th>Unit</th>
+                      <th className="right">Confidence</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {aiParsed.lines.map((line, idx) => (
+                      <tr key={`${line.raw_text}-${idx}`}>
+                        <td>{line.raw_text}</td>
+                        <td className="right">{line.quantity}</td>
+                        <td>{line.matched_product_name ? `${line.sku} - ${line.matched_product_name}` : <span className="error">Chưa match</span>}</td>
+                        <td>{line.unit}</td>
+                        <td className="right">{Math.round(line.confidence * 100)}%</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {aiParsed.warnings.length > 0 ? (
+                <div className="card" style={{ width: "100%", marginTop: 12, padding: 12, borderColor: "#fecaca", background: "#fff7f7" }}>
+                  <strong>Cần kiểm tra thêm:</strong>
+                  <ul style={{ margin: "8px 0 0 18px", padding: 0 }}>
+                    {aiParsed.warnings.map((warning) => (
+                      <li key={warning}>{warning}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+              <div className="row" style={{ justifyContent: "flex-end", marginTop: 12 }}>
+                <button className="btn" type="button" onClick={applyAiParsed} disabled={aiParsed.lines.filter((line) => line.product_id != null).length === 0}>
+                  Đổ vào phiếu xuất
+                </button>
+              </div>
+            </>
+          ) : null}
+        </div>
+      </Modal>
 
       <Modal
         open={editIssueOpen && editIssueTarget != null}

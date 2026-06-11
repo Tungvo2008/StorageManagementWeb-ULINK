@@ -23,7 +23,10 @@ from app.db.models import (
 )
 from app.schemas.inventory import (
     InventoryIssueCreate,
+    InventoryIssueParseNoteRequest,
+    InventoryIssueParseNoteResponse,
     InventoryIssueRead,
+    InventoryIssueParsedLine,
     InventoryIssueUpdate,
     InventoryReceiptCreate,
     InventoryReceiptRead,
@@ -34,6 +37,7 @@ from app.schemas.inventory import (
 )
 from app.schemas.product import ProductRead
 from app.services.money import quantize_money
+from app.services.issue_note_ai import parse_issue_note
 from app.services.excel_inventory import (
     XLSX_MIME,
     ExcelImportError,
@@ -104,6 +108,22 @@ def _has_python_multipart() -> bool:
     except Exception:
         return False
     return True
+
+
+@router.post("/issues/parse-note", response_model=InventoryIssueParseNoteResponse)
+def parse_issue_note_endpoint(
+    body: InventoryIssueParseNoteRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> InventoryIssueParseNoteResponse:
+    _ = current_user
+    products = db.scalars(select(Product).where(Product.is_active.is_(True)).order_by(Product.name.asc())).all()
+    result = parse_issue_note(body.note_text, products)
+    return InventoryIssueParseNoteResponse(
+        title=result.get("title"),
+        lines=[InventoryIssueParsedLine(**line) for line in result.get("lines", [])],
+        warnings=list(result.get("warnings", [])),
+    )
 
 
 @router.get("/movements", response_model=list[StockMovementRead])

@@ -157,3 +157,25 @@ class InventoryIssueRead(BaseModel):
     created_at: datetime
     updated_at: datetime
     lines: list[InventoryIssueLineRead]
+
+
+class InventoryIssueParseNoteRequest(BaseModel):
+    note_text: str = Field(min_length=1)
+
+
+class InventoryIssueParsedLine(BaseModel):
+    raw_text: str
+    quantity: int
+    raw_name: str
+    unit: str
+    product_id: int | None = None
+    sku: str | None = None
+    matched_product_name: str | None = None
+    confidence: float = 0
+    match_source: str = "ai"
+
+
+class InventoryIssueParseNoteResponse(BaseModel):
+    title: str | None = None
+    lines: list[InventoryIssueParsedLine]
+    warnings: list[str] = Field(default_factory=list)
