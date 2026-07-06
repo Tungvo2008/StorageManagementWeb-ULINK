@@ -31,7 +31,7 @@ type EditInvoiceForm = {
   invoice_number: string;
   issued_at: string;
   due_at: string;
-  status: "ISSUED" | "VOID";
+  status: "DRAFT" | "ISSUED" | "VOID";
   client_name_snapshot: string;
   tele_snapshot: string;
   address_snapshot: string;
@@ -104,7 +104,7 @@ function buildEditForm(invoice: Invoice): EditInvoiceForm {
     invoice_number: invoice.invoice_number,
     issued_at: toInputDateTime(invoice.issued_at),
     due_at: toInputDateTime(invoice.due_at),
-    status: invoice.status === "VOID" ? "VOID" : "ISSUED",
+    status: invoice.status === "VOID" ? "VOID" : invoice.status === "DRAFT" ? "DRAFT" : "ISSUED",
     client_name_snapshot: invoice.client_name_snapshot ?? invoice.customer_name ?? "",
     tele_snapshot: invoice.tele_snapshot ?? "",
     address_snapshot: invoice.address_snapshot ?? "",
@@ -133,7 +133,7 @@ function buildCreateForm(): EditInvoiceForm {
     invoice_number: "",
     issued_at: toInputDateTime(new Date().toISOString()),
     due_at: "",
-    status: "ISSUED",
+    status: "DRAFT",
     client_name_snapshot: "",
     tele_snapshot: "",
     address_snapshot: "",
@@ -187,7 +187,12 @@ function buildMergeForm(invoices: Invoice[]): MergeForm {
 }
 
 function canMergeInvoice(invoice: Invoice): boolean {
-  return invoice.status !== "VOID" && invoice.merged_into_invoice_id == null && Number(invoice.amount_paid || 0) <= 0;
+  return (
+    invoice.status !== "VOID" &&
+    invoice.status !== "DRAFT" &&
+    invoice.merged_into_invoice_id == null &&
+    Number(invoice.amount_paid || 0) <= 0
+  );
 }
 
 export default function InvoicesPage() {
@@ -431,16 +436,21 @@ export default function InvoicesPage() {
     }
   }
 
-  async function submitEdit(statusOverride?: "ISSUED" | "VOID") {
+  async function submitEdit(options?: {
+    statusOverride?: "DRAFT" | "ISSUED" | "VOID";
+    previewAfterSave?: boolean;
+    closeAfterSave?: boolean;
+  }) {
     if (!editForm) return;
     setSavingEdit(true);
     setModalError(null);
     try {
+      const statusToSave = options?.statusOverride ?? editForm.status;
       const payload = {
         invoice_number: editForm.invoice_number.trim() || null,
         issued_at: fromInputDateTime(editForm.issued_at),
         due_at: fromInputDateTime(editForm.due_at),
-        status: statusOverride ?? editForm.status,
+        status: statusToSave,
         client_name_snapshot: editForm.client_name_snapshot.trim(),
         tele_snapshot: editForm.tele_snapshot.trim(),
         address_snapshot: editForm.address_snapshot.trim(),
@@ -478,8 +488,16 @@ export default function InvoicesPage() {
           : curr.map((item) => (item.id === updated.id ? updated : item)),
       );
       setSelectedInvoice(updated);
-      setEditOpen(false);
-      setEditForm(null);
+      if (options?.previewAfterSave) {
+        void previewFile(`/api/v1/invoices/${updated.id}/pdf`);
+      }
+      if (options?.closeAfterSave ?? statusToSave !== "DRAFT") {
+        setEditOpen(false);
+        setEditForm(null);
+      } else {
+        setEditMode("edit");
+        setEditForm(buildEditForm(updated));
+      }
     } catch (e) {
       setModalError((e as Error).message);
     } finally {
@@ -491,7 +509,7 @@ export default function InvoicesPage() {
     if (!selectedInvoice) return;
     const ok = window.confirm(`Huỷ invoice ${selectedInvoice.invoice_number}?`);
     if (!ok) return;
-    await submitEdit("VOID");
+    await submitEdit({ statusOverride: "VOID" });
   }
 
   async function submitPayment() {
@@ -670,7 +688,7 @@ export default function InvoicesPage() {
                     <button
                       className="btn"
                       onClick={() => void openPayment(inv)}
-                      disabled={loadingDetail || inv.status === "VOID" || inv.merged_into_invoice_id != null}
+                      disabled={loadingDetail || inv.status === "VOID" || inv.status === "DRAFT" || inv.merged_into_invoice_id != null}
                     >
                       Thanh toán
                     </button>
@@ -678,7 +696,7 @@ export default function InvoicesPage() {
                       className="btn"
                       onClick={() => void submitFullPayment(inv)}
                       disabled={
-                        loadingDetail || inv.status === "VOID" || inv.merged_into_invoice_id != null || Number(inv.balance_due) <= 0
+                        loadingDetail || inv.status === "VOID" || inv.status === "DRAFT" || inv.merged_into_invoice_id != null || Number(inv.balance_due) <= 0
                       }
                     >
                       Thanh toán 100%
@@ -802,8 +820,8 @@ export default function InvoicesPage() {
                 </h3>
                 <div className="muted">
                   {editMode === "create"
-                    ? "Tạo invoice thủ công với các dòng tự do như dịch vụ, phí hoặc hàng qua tay."
-                    : "Mình cho sửa header, thông tin khách và line item trực tiếp."}
+                    ? "Tạo invoice thủ công, lưu nháp nhiều lần rồi preview trước khi phát hành."
+                    : "Mình cho sửa header, thông tin khách và line item trực tiếp, kể cả draft."}
                 </div>
               </div>
               <button className="btn" onClick={() => setEditOpen(false)} disabled={savingEdit}>Close</button>
@@ -842,9 +860,10 @@ export default function InvoicesPage() {
                   className="select"
                   value={editForm.status}
                   onChange={(e) =>
-                    setEditForm((curr) => (curr ? { ...curr, status: e.target.value as "ISSUED" | "VOID" } : curr))
+                    setEditForm((curr) => (curr ? { ...curr, status: e.target.value as "DRAFT" | "ISSUED" | "VOID" } : curr))
                   }
                 >
+                  <option value="DRAFT">DRAFT</option>
                   <option value="ISSUED">ISSUED</option>
                   <option value="VOID">VOID</option>
                 </select>
@@ -1151,8 +1170,22 @@ export default function InvoicesPage() {
                 Huỷ invoice
               </button>
               <button className="btn" onClick={() => setEditOpen(false)} disabled={savingEdit}>Cancel</button>
-              <button className="btn primary" onClick={() => void submitEdit()} disabled={savingEdit}>
-                {savingEdit ? "Saving..." : editMode === "create" ? "Create invoice" : "Save invoice"}
+              <button
+                className="btn"
+                onClick={() => void submitEdit({ statusOverride: "DRAFT", closeAfterSave: false })}
+                disabled={savingEdit}
+              >
+                {savingEdit ? "Saving..." : "Save draft"}
+              </button>
+              <button
+                className="btn"
+                onClick={() => void submitEdit({ statusOverride: "DRAFT", closeAfterSave: false, previewAfterSave: true })}
+                disabled={savingEdit}
+              >
+                {savingEdit ? "Saving..." : "Preview draft"}
+              </button>
+              <button className="btn primary" onClick={() => void submitEdit({ statusOverride: "ISSUED" })} disabled={savingEdit}>
+                {savingEdit ? "Saving..." : editMode === "create" ? "Issue invoice" : "Save & issue"}
               </button>
             </div>
           </div>

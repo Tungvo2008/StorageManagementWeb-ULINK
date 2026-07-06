@@ -35,6 +35,7 @@ class InvoiceManualCreate(BaseModel):
     invoice_number: str | None = Field(default=None, min_length=1, max_length=64)
     issued_at: datetime | None = None
     due_at: datetime | None = None
+    status: InvoiceStatus = InvoiceStatus.DRAFT
     client_name_snapshot: str = Field(min_length=1, max_length=255)
     tele_snapshot: str | None = Field(default=None, max_length=64)
     address_snapshot: str | None = None

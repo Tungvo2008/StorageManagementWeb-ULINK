@@ -147,8 +147,13 @@ def _sync_invoice_totals(invoice: Invoice) -> None:
     invoice.total_amount = quantize_money(net + invoice.tax_amount + invoice.shipping_amount)
 
 
-def _sync_invoice_status(invoice: Invoice) -> None:
-    if invoice.status == InvoiceStatus.VOID:
+def _sync_invoice_status(invoice: Invoice, *, requested_status: InvoiceStatus | None = None) -> None:
+    target_status = requested_status or invoice.status
+    if target_status == InvoiceStatus.VOID:
+        invoice.status = InvoiceStatus.VOID
+        return
+    if target_status == InvoiceStatus.DRAFT:
+        invoice.status = InvoiceStatus.DRAFT
         return
     invoice.status = InvoiceStatus.PAID if invoice.balance_due <= Decimal("0") else InvoiceStatus.ISSUED
 
@@ -169,6 +174,8 @@ def _validate_merge_candidates(invoices: list[Invoice]) -> None:
     for invoice in invoices:
         if invoice.merged_into_invoice_id is not None:
             raise HTTPException(status_code=400, detail=f"Invoice {invoice.invoice_number} has already been merged")
+        if invoice.status == InvoiceStatus.DRAFT:
+            raise HTTPException(status_code=400, detail=f"Invoice {invoice.invoice_number} is still DRAFT")
         if invoice.status == InvoiceStatus.VOID:
             raise HTTPException(status_code=400, detail=f"Invoice {invoice.invoice_number} is VOID and cannot be merged")
         if invoice.amount_paid > Decimal("0"):
@@ -250,7 +257,7 @@ def create_manual_invoice(
         invoice_number=invoice_number,
         issued_at=body.issued_at or _utcnow(),
         due_at=body.due_at,
-        status=InvoiceStatus.ISSUED,
+        status=body.status,
         currency=(body.currency or settings.DEFAULT_CURRENCY).strip().upper(),
         tax_rate=Decimal(body.tax_rate),
         order_discount_amount=Decimal(body.order_discount_amount),
@@ -268,7 +275,7 @@ def create_manual_invoice(
         invoice.lines.append(line)
 
     _sync_invoice_totals(invoice)
-    _sync_invoice_status(invoice)
+    _sync_invoice_status(invoice, requested_status=body.status)
     db.add(invoice)
     try:
         db.commit()
@@ -344,8 +351,9 @@ def patch_invoice(
             next_lines.append(line)
         invoice.lines = next_lines
 
+    requested_status = data["status"] if "status" in data and data["status"] is not None else invoice.status
     _sync_invoice_totals(invoice)
-    _sync_invoice_status(invoice)
+    _sync_invoice_status(invoice, requested_status=requested_status)
 
     try:
         db.commit()
@@ -370,6 +378,8 @@ def create_invoice_payment(
         raise HTTPException(status_code=404, detail="Invoice not found")
     if invoice.status == InvoiceStatus.VOID:
         raise HTTPException(status_code=400, detail="Cannot record payment for a VOID invoice")
+    if invoice.status == InvoiceStatus.DRAFT:
+        raise HTTPException(status_code=400, detail="Cannot record payment for a DRAFT invoice")
 
     payment = InvoicePayment(
         invoice_id=invoice.id,

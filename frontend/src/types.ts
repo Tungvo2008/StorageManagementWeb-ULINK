@@ -111,7 +111,7 @@ export type Invoice = {
   zip_code_snapshot?: string | null;
   issued_at: string;
   due_at: string | null;
-  status: "ISSUED" | "PAID" | "VOID";
+  status: "DRAFT" | "ISSUED" | "PAID" | "VOID";
   payment_status: "UNPAID" | "PARTIAL" | "PAID" | "VOID";
   currency: string;
   tax_rate: string;

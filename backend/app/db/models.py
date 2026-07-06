@@ -37,6 +37,7 @@ class SaleStatus(str, enum.Enum):
 
 
 class InvoiceStatus(str, enum.Enum):
+    DRAFT = "DRAFT"
     ISSUED = "ISSUED"
     PAID = "PAID"
     VOID = "VOID"
