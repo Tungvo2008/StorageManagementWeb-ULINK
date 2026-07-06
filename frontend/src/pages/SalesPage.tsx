@@ -465,6 +465,84 @@ export default function SalesPage() {
                   : "Hệ thống sẽ trừ tồn kho và lưu phiếu xuất (Inventory Issue)."}
               </div>
             </div>
+
+            {created ? (
+              <div className="card" style={{ marginTop: 16 }}>
+                <h3 style={{ marginTop: 0 }}>Created</h3>
+                <div className="row">
+                  <div>
+                    <div>
+                      <b>Issue ID (sale):</b> {created.id}
+                    </div>
+                    <div className="muted">
+                      Subtotal: {created.subtotal_amount} • Discount: {created.discount_amount} (order:{" "}
+                      {created.order_discount_amount}) • Tax: {created.tax_amount} • Shipping: {created.shipping_amount} • Total:{" "}
+                      {created.total_amount} {created.currency}
+                    </div>
+                  </div>
+                  <a className="btn" href="/invoices">
+                    Go to Invoices
+                  </a>
+                </div>
+                <div style={{ marginTop: 10, overflowX: "auto" }}>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>SKU</th>
+                        <th>Product</th>
+                        <th className="right">Qty</th>
+                        <th className="right">Unit</th>
+                        <th className="right">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {created.lines.map((l) => (
+                        <tr key={l.id}>
+                          <td>{l.sku}</td>
+                          <td>{l.product_name}</td>
+                          <td className="right">{l.quantity}</td>
+                          <td className="right">{l.unit_price}</td>
+                          <td className="right">{l.line_total}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <IssueInvoice saleId={created.id} />
+              </div>
+            ) : null}
+
+            {createdIssue ? (
+              <div className="card" style={{ marginTop: 16 }}>
+                <h3 style={{ marginTop: 0 }}>Created Issue</h3>
+                <div className="muted">
+                  Issue ID: {createdIssue.id} • Purpose: {createdIssue.purpose} • Issued to: {createdIssue.issued_to ?? "—"}
+                </div>
+                <div style={{ marginTop: 10, overflowX: "auto" }}>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>SKU</th>
+                        <th>Product</th>
+                        <th className="right">Qty</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {createdIssue.lines.map((l) => (
+                        <tr key={l.id}>
+                          <td>{l.sku}</td>
+                          <td>{l.product_name}</td>
+                          <td className="right">{l.quantity}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="muted" style={{ marginTop: 10 }}>
+                  Bạn có thể xem log ở tab Inventory.
+                </div>
+              </div>
+            ) : null}
           </div>
 
           <div className="card">
@@ -553,94 +631,12 @@ export default function SalesPage() {
           ) : null}
         </div>
       </Modal>
-
-      {created && (
-        <div className="card">
-          <h3 style={{ marginTop: 0 }}>Created</h3>
-          <div className="row">
-            <div>
-              <div>
-                <b>Issue ID (sale):</b> {created.id}
-              </div>
-              <div className="muted">
-                Subtotal: {created.subtotal_amount} • Discount: {created.discount_amount} (order:{" "}
-                {created.order_discount_amount}) • Tax: {created.tax_amount} • Shipping: {created.shipping_amount} • Total:{" "}
-                {created.total_amount} {created.currency}
-              </div>
-            </div>
-            <a className="btn" href="/invoices">
-              Go to Invoices
-            </a>
-          </div>
-          <div style={{ marginTop: 10, overflowX: "auto" }}>
-            <table>
-              <thead>
-                <tr>
-                  <th>SKU</th>
-                  <th>Product</th>
-                  <th className="right">Qty</th>
-                  <th className="right">Unit</th>
-                  <th className="right">Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {created.lines.map((l) => (
-                  <tr key={l.id}>
-                    <td>{l.sku}</td>
-                    <td>{l.product_name}</td>
-                    <td className="right">{l.quantity}</td>
-                    <td className="right">{l.unit_price}</td>
-                    <td className="right">{l.line_total}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <IssueInvoice saleId={created.id} />
-        </div>
-      )}
-
-      {createdIssue && (
-        <div className="card">
-          <h3 style={{ marginTop: 0 }}>Created Issue</h3>
-          <div className="muted">
-            Issue ID: {createdIssue.id} • Purpose: {createdIssue.purpose} • Issued to: {createdIssue.issued_to ?? "—"}
-          </div>
-          <div style={{ marginTop: 10, overflowX: "auto" }}>
-            <table>
-              <thead>
-                <tr>
-                  <th>SKU</th>
-                  <th>Product</th>
-                  <th className="right">Qty</th>
-                </tr>
-              </thead>
-              <tbody>
-                {createdIssue.lines.map((l) => (
-                  <tr key={l.id}>
-                    <td>{l.sku}</td>
-                    <td>{l.product_name}</td>
-                    <td className="right">{l.quantity}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className="muted" style={{ marginTop: 10 }}>
-            Bạn có thể xem log ở tab Inventory.
-          </div>
-        </div>
-      )}
     </div>
   );
 }
 
 function IssueInvoice({ saleId }: { saleId: number }) {
   const [busy, setBusy] = useState(false);
-  const [aiOpen, setAiOpen] = useState(false);
-  const [aiBusy, setAiBusy] = useState(false);
-  const [aiNoteText, setAiNoteText] = useState("");
-  const [aiParsed, setAiParsed] = useState<ParsedIssueNoteResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [ok, setOk] = useState<string | null>(null);
 

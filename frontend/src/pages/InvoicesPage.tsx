@@ -16,7 +16,9 @@ type InvoiceSortKey =
   | "balance_due";
 
 type EditLineForm = {
-  id: number;
+  id: number | null;
+  line_type: "PRODUCT" | "FREE";
+  product_id: number | null;
   sku: string;
   product_name: string;
   uom: string;
@@ -38,6 +40,7 @@ type EditInvoiceForm = {
   tax_rate: string;
   order_discount_amount: string;
   shipping_amount: string;
+  currency: string;
   lines: EditLineForm[];
 };
 
@@ -94,8 +97,11 @@ function buildEditForm(invoice: Invoice): EditInvoiceForm {
     tax_rate: String(invoice.tax_rate ?? "0"),
     order_discount_amount: toMoneyString(invoice.order_discount_amount),
     shipping_amount: toMoneyString(invoice.shipping_amount),
+    currency: invoice.currency,
     lines: invoice.lines.map((line) => ({
       id: line.id,
+      line_type: line.line_type,
+      product_id: line.product_id,
       sku: line.sku,
       product_name: line.product_name,
       uom: line.uom,
@@ -103,6 +109,37 @@ function buildEditForm(invoice: Invoice): EditInvoiceForm {
       unit_price: toMoneyString(line.unit_price),
       discount_amount: toMoneyString(line.discount_amount),
     })),
+  };
+}
+
+function buildCreateForm(): EditInvoiceForm {
+  return {
+    invoice_number: "",
+    issued_at: toInputDateTime(new Date().toISOString()),
+    due_at: "",
+    status: "ISSUED",
+    client_name_snapshot: "",
+    tele_snapshot: "",
+    address_snapshot: "",
+    city_snapshot: "",
+    zip_code_snapshot: "",
+    tax_rate: "0",
+    order_discount_amount: "0.00",
+    shipping_amount: "0.00",
+    currency: "USD",
+    lines: [
+      {
+        id: null,
+        line_type: "FREE",
+        product_id: null,
+        sku: "",
+        product_name: "",
+        uom: "Pc",
+        quantity: "1",
+        unit_price: "0.00",
+        discount_amount: "0.00",
+      },
+    ],
   };
 }
 
@@ -148,6 +185,7 @@ export default function InvoicesPage() {
   });
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [editForm, setEditForm] = useState<EditInvoiceForm | null>(null);
+  const [editMode, setEditMode] = useState<"create" | "edit">("edit");
   const [paymentForm, setPaymentForm] = useState<PaymentForm | null>(null);
   const [editOpen, setEditOpen] = useState(false);
   const [paymentOpen, setPaymentOpen] = useState(false);
@@ -159,6 +197,37 @@ export default function InvoicesPage() {
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [mergeForm, setMergeForm] = useState<MergeForm>({ invoice_number: "", issued_at: "", due_at: "" });
+
+  function addFreeLine() {
+    setEditForm((curr) =>
+      curr
+        ? {
+            ...curr,
+            lines: [
+              ...curr.lines,
+              {
+                id: null,
+                line_type: "FREE",
+                product_id: null,
+                sku: "",
+                product_name: "",
+                uom: "Pc",
+                quantity: "1",
+                unit_price: "0.00",
+                discount_amount: "0.00",
+              },
+            ],
+          }
+        : curr,
+    );
+  }
+
+  function removeLine(lineIndex: number) {
+    setEditForm((curr) => {
+      if (!curr || curr.lines.length <= 1) return curr;
+      return { ...curr, lines: curr.lines.filter((_, index) => index !== lineIndex) };
+    });
+  }
 
   async function load() {
     setLoading(true);
@@ -278,12 +347,21 @@ export default function InvoicesPage() {
       const detailed = await loadInvoiceDetail(invoice.id);
       setSelectedInvoice(detailed);
       setEditForm(buildEditForm(detailed));
+      setEditMode("edit");
       setEditOpen(true);
     } catch (e) {
       setError((e as Error).message);
     } finally {
       setLoadingDetail(false);
     }
+  }
+
+  function openCreateInvoice() {
+    setSelectedInvoice(null);
+    setModalError(null);
+    setEditMode("create");
+    setEditForm(buildCreateForm());
+    setEditOpen(true);
   }
 
   async function openPayment(invoice: Invoice) {
@@ -302,37 +380,51 @@ export default function InvoicesPage() {
   }
 
   async function submitEdit(statusOverride?: "ISSUED" | "VOID") {
-    if (!selectedInvoice || !editForm) return;
+    if (!editForm) return;
     setSavingEdit(true);
     setModalError(null);
     try {
-      const updated = await apiJson<Invoice>(`/api/v1/invoices/${selectedInvoice.id}`, {
-        method: "PATCH",
-        body: JSON.stringify({
-          invoice_number: editForm.invoice_number.trim(),
-          issued_at: fromInputDateTime(editForm.issued_at),
-          due_at: fromInputDateTime(editForm.due_at),
-          status: statusOverride ?? editForm.status,
-          client_name_snapshot: editForm.client_name_snapshot.trim(),
-          tele_snapshot: editForm.tele_snapshot.trim(),
-          address_snapshot: editForm.address_snapshot.trim(),
-          city_snapshot: editForm.city_snapshot.trim(),
-          zip_code_snapshot: editForm.zip_code_snapshot.trim(),
-          tax_rate: Number(editForm.tax_rate || 0),
-          order_discount_amount: Number(editForm.order_discount_amount || 0),
-          shipping_amount: Number(editForm.shipping_amount || 0),
-          lines: editForm.lines.map((line) => ({
-            id: line.id,
-            sku: line.sku.trim(),
-            product_name: line.product_name.trim(),
-            uom: line.uom.trim(),
-            quantity: Number(line.quantity || 0),
-            unit_price: Number(line.unit_price || 0),
-            discount_amount: Number(line.discount_amount || 0),
-          })),
-        }),
-      });
-      setItems((curr) => curr.map((item) => (item.id === updated.id ? updated : item)));
+      const payload = {
+        invoice_number: editForm.invoice_number.trim() || null,
+        issued_at: fromInputDateTime(editForm.issued_at),
+        due_at: fromInputDateTime(editForm.due_at),
+        status: statusOverride ?? editForm.status,
+        client_name_snapshot: editForm.client_name_snapshot.trim(),
+        tele_snapshot: editForm.tele_snapshot.trim(),
+        address_snapshot: editForm.address_snapshot.trim(),
+        city_snapshot: editForm.city_snapshot.trim(),
+        zip_code_snapshot: editForm.zip_code_snapshot.trim(),
+        currency: editForm.currency.trim() || "USD",
+        tax_rate: Number(editForm.tax_rate || 0),
+        order_discount_amount: Number(editForm.order_discount_amount || 0),
+        shipping_amount: Number(editForm.shipping_amount || 0),
+        lines: editForm.lines.map((line) => ({
+          id: line.id,
+          line_type: line.line_type,
+          product_id: line.product_id,
+          sku: line.sku.trim(),
+          product_name: line.product_name.trim(),
+          uom: line.uom.trim(),
+          quantity: Number(line.quantity || 0),
+          unit_price: Number(line.unit_price || 0),
+          discount_amount: Number(line.discount_amount || 0),
+        })),
+      };
+      const updated =
+        editMode === "create"
+          ? await apiJson<Invoice>("/api/v1/invoices/manual", {
+              method: "POST",
+              body: JSON.stringify(payload),
+            })
+          : await apiJson<Invoice>(`/api/v1/invoices/${selectedInvoice?.id}`, {
+              method: "PATCH",
+              body: JSON.stringify(payload),
+            });
+      setItems((curr) =>
+        editMode === "create"
+          ? [updated, ...curr]
+          : curr.map((item) => (item.id === updated.id ? updated : item)),
+      );
       setSelectedInvoice(updated);
       setEditOpen(false);
       setEditForm(null);
@@ -463,6 +555,9 @@ export default function InvoicesPage() {
           <button className="btn" onClick={openMerge} disabled={selectedInvoices.length < 2}>
             Gộp invoice
           </button>
+          <button className="btn primary" onClick={openCreateInvoice}>
+            + Free invoice
+          </button>
           <button className="btn" onClick={() => void load()} disabled={loading}>
             Refresh
           </button>
@@ -500,7 +595,7 @@ export default function InvoicesPage() {
                 <td>{inv.id}</td>
                 <td>{inv.invoice_number}</td>
                 <td>{inv.customer_name || "-"}</td>
-                <td>{inv.sale_order_id}</td>
+                <td>{inv.sale_order_id ?? "-"}</td>
                 <td>
                   {inv.status}
                   {inv.merged_into_invoice_id ? (
@@ -645,13 +740,19 @@ export default function InvoicesPage() {
         </div>
       )}
 
-      {editOpen && selectedInvoice && editForm && (
+      {editOpen && editForm && (
         <div className="modal-backdrop" onClick={() => !savingEdit && setEditOpen(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <div>
-                <h3 style={{ margin: 0 }}>Sửa invoice {selectedInvoice.invoice_number}</h3>
-                <div className="muted">Mình cho sửa header, thông tin khách và line item trực tiếp.</div>
+                <h3 style={{ margin: 0 }}>
+                  {editMode === "create" ? "Tạo free invoice" : `Sửa invoice ${selectedInvoice?.invoice_number ?? ""}`}
+                </h3>
+                <div className="muted">
+                  {editMode === "create"
+                    ? "Tạo invoice thủ công với các dòng tự do như dịch vụ, phí hoặc hàng qua tay."
+                    : "Mình cho sửa header, thông tin khách và line item trực tiếp."}
+                </div>
               </div>
               <button className="btn" onClick={() => setEditOpen(false)} disabled={savingEdit}>Close</button>
             </div>
@@ -695,6 +796,14 @@ export default function InvoicesPage() {
                   <option value="ISSUED">ISSUED</option>
                   <option value="VOID">VOID</option>
                 </select>
+              </div>
+              <div className="field">
+                <label>Currency</label>
+                <input
+                  className="input"
+                  value={editForm.currency}
+                  onChange={(e) => setEditForm((curr) => curr ? { ...curr, currency: e.target.value.toUpperCase() } : curr)}
+                />
               </div>
             </div>
 
@@ -777,18 +886,27 @@ export default function InvoicesPage() {
               </div>
             </div>
 
-            <div style={{ marginTop: 16, overflowX: "auto" }}>
+            <div className="row" style={{ justifyContent: "space-between", marginTop: 16 }}>
+              <div className="muted">Bạn có thể thêm dòng tự do cho dịch vụ, phí hoặc hàng ngoài kho.</div>
+              <button className="btn" type="button" onClick={addFreeLine}>
+                + Dòng tự do
+              </button>
+            </div>
+
+            <div style={{ marginTop: 12, overflowX: "auto" }}>
               <table>
                 <thead>
                   <tr>
                     <th>#</th>
+                    <th>Type</th>
                     <th>SKU</th>
-                    <th>Product</th>
+                    <th>Description</th>
                     <th>UOM</th>
                     <th>Qty</th>
                     <th>Unit price</th>
                     <th>Discount</th>
                     <th className="right">Line total</th>
+                    <th />
                   </tr>
                 </thead>
                 <tbody>
@@ -796,8 +914,9 @@ export default function InvoicesPage() {
                     const lineSubtotal = Math.max(Number(line.quantity) || 0, 0) * Math.max(Number(line.unit_price) || 0, 0);
                     const lineTotal = Math.max(lineSubtotal - Math.max(Number(line.discount_amount) || 0, 0), 0);
                     return (
-                      <tr key={line.id}>
+                      <tr key={line.id ?? `free-${index}`}>
                         <td>{index + 1}</td>
+                        <td>{line.line_type}</td>
                         <td>
                           <input
                             className="input"
@@ -807,13 +926,16 @@ export default function InvoicesPage() {
                                 curr
                                   ? {
                                       ...curr,
-                                      lines: curr.lines.map((item) =>
-                                        item.id === line.id ? { ...item, sku: e.target.value } : item,
+                                      lines: curr.lines.map((item, itemIndex) =>
+                                        itemIndex === index
+                                          ? { ...item, sku: e.target.value }
+                                          : item,
                                       ),
                                     }
                                   : curr,
                               )
                             }
+                            placeholder={line.line_type === "FREE" ? "Optional" : ""}
                           />
                         </td>
                         <td>
@@ -825,13 +947,16 @@ export default function InvoicesPage() {
                                 curr
                                   ? {
                                       ...curr,
-                                      lines: curr.lines.map((item) =>
-                                        item.id === line.id ? { ...item, product_name: e.target.value } : item,
+                                      lines: curr.lines.map((item, itemIndex) =>
+                                        itemIndex === index
+                                          ? { ...item, product_name: e.target.value }
+                                          : item,
                                       ),
                                     }
                                   : curr,
                               )
                             }
+                            placeholder={line.line_type === "FREE" ? "Service / fee / custom item" : ""}
                           />
                         </td>
                         <td>
@@ -843,8 +968,10 @@ export default function InvoicesPage() {
                                 curr
                                   ? {
                                       ...curr,
-                                      lines: curr.lines.map((item) =>
-                                        item.id === line.id ? { ...item, uom: e.target.value } : item,
+                                      lines: curr.lines.map((item, itemIndex) =>
+                                        itemIndex === index
+                                          ? { ...item, uom: e.target.value }
+                                          : item,
                                       ),
                                     }
                                   : curr,
@@ -864,8 +991,10 @@ export default function InvoicesPage() {
                                 curr
                                   ? {
                                       ...curr,
-                                      lines: curr.lines.map((item) =>
-                                        item.id === line.id ? { ...item, quantity: e.target.value } : item,
+                                      lines: curr.lines.map((item, itemIndex) =>
+                                        itemIndex === index
+                                          ? { ...item, quantity: e.target.value }
+                                          : item,
                                       ),
                                     }
                                   : curr,
@@ -885,8 +1014,10 @@ export default function InvoicesPage() {
                                 curr
                                   ? {
                                       ...curr,
-                                      lines: curr.lines.map((item) =>
-                                        item.id === line.id ? { ...item, unit_price: e.target.value } : item,
+                                      lines: curr.lines.map((item, itemIndex) =>
+                                        itemIndex === index
+                                          ? { ...item, unit_price: e.target.value }
+                                          : item,
                                       ),
                                     }
                                   : curr,
@@ -906,8 +1037,10 @@ export default function InvoicesPage() {
                                 curr
                                   ? {
                                       ...curr,
-                                      lines: curr.lines.map((item) =>
-                                        item.id === line.id ? { ...item, discount_amount: e.target.value } : item,
+                                      lines: curr.lines.map((item, itemIndex) =>
+                                        itemIndex === index
+                                          ? { ...item, discount_amount: e.target.value }
+                                          : item,
                                       ),
                                     }
                                   : curr,
@@ -916,6 +1049,11 @@ export default function InvoicesPage() {
                           />
                         </td>
                         <td className="right">{lineTotal.toFixed(2)}</td>
+                        <td>
+                          <button className="btn" type="button" onClick={() => removeLine(index)} disabled={editForm.lines.length <= 1}>
+                            Remove
+                          </button>
+                        </td>
                       </tr>
                     );
                   })}
@@ -925,21 +1063,21 @@ export default function InvoicesPage() {
 
             {editSummary && (
               <div className="totalsBox" style={{ marginTop: 16 }}>
-                <div className="totalsRow"><span>Subtotal</span><strong>{formatMoney(editSummary.subtotal, selectedInvoice.currency)}</strong></div>
-                <div className="totalsRow"><span>Line discounts</span><strong>{formatMoney(editSummary.lineDiscounts, selectedInvoice.currency)}</strong></div>
-                <div className="totalsRow"><span>Order discount</span><strong>{formatMoney(editSummary.orderDiscount, selectedInvoice.currency)}</strong></div>
-                <div className="totalsRow"><span>Tax</span><strong>{formatMoney(editSummary.tax, selectedInvoice.currency)}</strong></div>
-                <div className="totalsRow totalsGrand"><span>Total</span><strong>{formatMoney(editSummary.total, selectedInvoice.currency)}</strong></div>
+                <div className="totalsRow"><span>Subtotal</span><strong>{formatMoney(editSummary.subtotal, editForm.currency)}</strong></div>
+                <div className="totalsRow"><span>Line discounts</span><strong>{formatMoney(editSummary.lineDiscounts, editForm.currency)}</strong></div>
+                <div className="totalsRow"><span>Order discount</span><strong>{formatMoney(editSummary.orderDiscount, editForm.currency)}</strong></div>
+                <div className="totalsRow"><span>Tax</span><strong>{formatMoney(editSummary.tax, editForm.currency)}</strong></div>
+                <div className="totalsRow totalsGrand"><span>Total</span><strong>{formatMoney(editSummary.total, editForm.currency)}</strong></div>
               </div>
             )}
 
             <div className="row" style={{ justifyContent: "flex-end", marginTop: 16 }}>
-              <button className="btn" onClick={() => void cancelInvoice()} disabled={savingEdit}>
+              <button className="btn" onClick={() => void cancelInvoice()} disabled={savingEdit || editMode === "create"}>
                 Huỷ invoice
               </button>
               <button className="btn" onClick={() => setEditOpen(false)} disabled={savingEdit}>Cancel</button>
               <button className="btn primary" onClick={() => void submitEdit()} disabled={savingEdit}>
-                {savingEdit ? "Saving..." : "Save invoice"}
+                {savingEdit ? "Saving..." : editMode === "create" ? "Create invoice" : "Save invoice"}
               </button>
             </div>
           </div>

@@ -5,7 +5,7 @@ from decimal import Decimal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from app.db.models import InvoicePaymentStatus, InvoiceStatus
+from app.db.models import InvoiceLineType, InvoicePaymentStatus, InvoiceStatus
 
 
 class InvoiceCreateFromSale(BaseModel):
@@ -19,11 +19,40 @@ class InvoiceMergeCreate(BaseModel):
     due_at: datetime | None = None
 
 
+class InvoiceLineInput(BaseModel):
+    id: int | None = None
+    line_type: InvoiceLineType = InvoiceLineType.PRODUCT
+    product_id: int | None = None
+    sku: str = Field(default="", max_length=64)
+    product_name: str = Field(min_length=1, max_length=255)
+    uom: str = Field(min_length=1, max_length=32)
+    quantity: int = Field(ge=1)
+    unit_price: Decimal = Field(ge=0)
+    discount_amount: Decimal = Field(default=Decimal("0"), ge=0)
+
+
+class InvoiceManualCreate(BaseModel):
+    invoice_number: str | None = Field(default=None, min_length=1, max_length=64)
+    issued_at: datetime | None = None
+    due_at: datetime | None = None
+    client_name_snapshot: str = Field(min_length=1, max_length=255)
+    tele_snapshot: str | None = Field(default=None, max_length=64)
+    address_snapshot: str | None = None
+    city_snapshot: str | None = Field(default=None, max_length=255)
+    zip_code_snapshot: str | None = Field(default=None, max_length=32)
+    currency: str = Field(default="USD", min_length=1, max_length=8)
+    tax_rate: Decimal = Field(default=Decimal("0"), ge=0)
+    order_discount_amount: Decimal = Field(default=Decimal("0"), ge=0)
+    shipping_amount: Decimal = Field(default=Decimal("0"), ge=0)
+    lines: list[InvoiceLineInput] = Field(min_length=1)
+
+
 class InvoiceUpdate(BaseModel):
     invoice_number: str | None = Field(default=None, min_length=1, max_length=64)
     issued_at: datetime | None = None
     due_at: datetime | None = None
     status: InvoiceStatus | None = None
+    currency: str | None = Field(default=None, min_length=1, max_length=8)
     client_name_snapshot: str | None = Field(default=None, max_length=255)
     tele_snapshot: str | None = Field(default=None, max_length=64)
     address_snapshot: str | None = None
@@ -32,17 +61,7 @@ class InvoiceUpdate(BaseModel):
     tax_rate: Decimal | None = Field(default=None, ge=0)
     order_discount_amount: Decimal | None = Field(default=None, ge=0)
     shipping_amount: Decimal | None = Field(default=None, ge=0)
-    lines: list["InvoiceLineUpdate"] | None = None
-
-
-class InvoiceLineUpdate(BaseModel):
-    id: int
-    sku: str = Field(min_length=1, max_length=64)
-    product_name: str = Field(min_length=1, max_length=255)
-    uom: str = Field(min_length=1, max_length=32)
-    quantity: int = Field(ge=1)
-    unit_price: Decimal = Field(ge=0)
-    discount_amount: Decimal = Field(default=Decimal("0"), ge=0)
+    lines: list[InvoiceLineInput] | None = None
 
 
 class InvoicePaymentCreate(BaseModel):
@@ -70,7 +89,8 @@ class InvoiceLineRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
-    product_id: int
+    line_type: InvoiceLineType
+    product_id: int | None
     sku: str
     product_name: str
     uom: str
@@ -84,7 +104,7 @@ class InvoiceRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
-    sale_order_id: int
+    sale_order_id: int | None
     merged_into_invoice_id: int | None = None
     invoice_number: str
     customer_name: str | None = None

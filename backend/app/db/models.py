@@ -49,6 +49,11 @@ class InvoicePaymentStatus(str, enum.Enum):
     VOID = "VOID"
 
 
+class InvoiceLineType(str, enum.Enum):
+    PRODUCT = "PRODUCT"
+    FREE = "FREE"
+
+
 class User(TimestampMixin, Base):
     __tablename__ = "users"
 
@@ -249,7 +254,7 @@ class SaleOrderLine(Base):
     __tablename__ = "sale_order_lines"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    sale_order_id: Mapped[int] = mapped_column(ForeignKey("sale_orders.id"), nullable=False, index=True)
+    sale_order_id: Mapped[int | None] = mapped_column(ForeignKey("sale_orders.id"), nullable=True, index=True)
     product_id: Mapped[int] = mapped_column(ForeignKey("products.id"), nullable=False, index=True)
 
     sku: Mapped[str] = mapped_column(String(64), nullable=False)
@@ -300,7 +305,7 @@ class Invoice(TimestampMixin, Base):
     tax_amount: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False, default=Decimal("0"))
     total_amount: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False, default=Decimal("0"))
 
-    sale_order: Mapped[SaleOrder] = relationship(back_populates="invoice")
+    sale_order: Mapped[SaleOrder | None] = relationship(back_populates="invoice")
     merged_into_invoice: Mapped["Invoice | None"] = relationship(
         remote_side="Invoice.id",
         back_populates="merged_source_invoices",
@@ -355,9 +360,14 @@ class InvoiceLine(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     invoice_id: Mapped[int] = mapped_column(ForeignKey("invoices.id"), nullable=False, index=True)
-    product_id: Mapped[int] = mapped_column(ForeignKey("products.id"), nullable=False, index=True)
+    product_id: Mapped[int | None] = mapped_column(ForeignKey("products.id"), nullable=True, index=True)
+    line_type: Mapped[InvoiceLineType] = mapped_column(
+        Enum(InvoiceLineType, name="invoice_line_type"),
+        nullable=False,
+        default=InvoiceLineType.PRODUCT,
+    )
 
-    sku: Mapped[str] = mapped_column(String(64), nullable=False)
+    sku: Mapped[str] = mapped_column(String(64), nullable=False, default="")
     product_name: Mapped[str] = mapped_column(String(255), nullable=False)
 
     uom: Mapped[str] = mapped_column(String(32), nullable=False, default="Pc")

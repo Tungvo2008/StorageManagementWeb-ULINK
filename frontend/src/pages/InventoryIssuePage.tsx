@@ -1135,7 +1135,7 @@ export default function InventoryIssuePage() {
               </div>
               <div className="field" style={{ minWidth: 150 }}>
                 <label>Sale #</label>
-                <input className="input" value={selectedInvoice.sale_order_id} readOnly />
+                <input className="input" value={selectedInvoice.sale_order_id ?? ""} readOnly />
               </div>
               <div className="field" style={{ minWidth: 180 }}>
                 <label>Total</label>

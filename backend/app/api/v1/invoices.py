@@ -12,8 +12,8 @@ from sqlalchemy.orm import Session, selectinload
 
 from app.api.deps import get_current_user, get_db
 from app.core.config import settings
-from app.db.models import Customer, Invoice, InvoiceLine, InvoicePayment, InvoiceStatus, Product, SaleOrder, SaleOrderLine, SaleStatus, User
-from app.schemas.invoice import InvoiceCreateFromSale, InvoiceMergeCreate, InvoicePaymentCreate, InvoicePaymentRead, InvoiceRead, InvoiceUpdate
+from app.db.models import Customer, Invoice, InvoiceLine, InvoiceLineType, InvoicePayment, InvoiceStatus, Product, SaleOrder, SaleStatus, User
+from app.schemas.invoice import InvoiceCreateFromSale, InvoiceLineInput, InvoiceManualCreate, InvoiceMergeCreate, InvoicePaymentCreate, InvoicePaymentRead, InvoiceRead, InvoiceUpdate
 from app.services.money import quantize_money
 from app.services.invoice_render import render_invoice_pdf
 
@@ -71,6 +71,49 @@ def _safe_filename_part(value: str) -> str:
     cleaned = re.sub(r"[^\w\s.-]+", " ", value, flags=re.UNICODE)
     cleaned = re.sub(r"\s+", " ", cleaned).strip().strip(".")
     return cleaned or "customer"
+
+
+def _normalize_line_type(value: object) -> InvoiceLineType:
+    if isinstance(value, InvoiceLineType):
+        return value
+    return InvoiceLineType(str(value or InvoiceLineType.PRODUCT.value).upper())
+
+
+def _apply_invoice_line(
+    line: InvoiceLine,
+    line_data: InvoiceLineInput | dict[str, object],
+    *,
+    default_product_id: int | None = None,
+) -> None:
+    payload = line_data.model_dump() if isinstance(line_data, InvoiceLineInput) else line_data
+    line_type = _normalize_line_type(payload.get("line_type"))
+    product_name = str(payload.get("product_name") or "").strip()
+    uom = str(payload.get("uom") or "").strip()
+    sku = str(payload.get("sku") or "").strip()
+    quantity = int(payload.get("quantity") or 0)
+    unit_price = Decimal(payload.get("unit_price") or 0)
+    discount_amount = Decimal(payload.get("discount_amount") or 0)
+    product_id = payload.get("product_id")
+
+    if not product_name:
+        raise HTTPException(status_code=400, detail="Invoice line description must not be empty")
+    if not uom:
+        raise HTTPException(status_code=400, detail=f"Invoice line UOM is required for {product_name}")
+    if quantity < 1:
+        raise HTTPException(status_code=400, detail=f"Invoice line quantity must be at least 1 for {product_name}")
+
+    resolved_product_id = int(product_id) if product_id is not None else default_product_id
+    if line_type == InvoiceLineType.PRODUCT and resolved_product_id is None:
+        raise HTTPException(status_code=400, detail=f"Product line must include product_id for {product_name}")
+
+    line.line_type = line_type
+    line.product_id = resolved_product_id if line_type == InvoiceLineType.PRODUCT else None
+    line.sku = sku if line_type == InvoiceLineType.PRODUCT else sku
+    line.product_name = product_name
+    line.uom = uom
+    line.quantity = quantity
+    line.unit_price = unit_price
+    line.discount_amount = discount_amount
 
 
 def _sync_invoice_totals(invoice: Invoice) -> None:
@@ -153,6 +196,54 @@ def list_invoices(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
     return db.scalars(stmt).all()
 
 
+@router.post("/manual", response_model=InvoiceRead, status_code=status.HTTP_201_CREATED)
+def create_manual_invoice(
+    body: InvoiceManualCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> Invoice:
+    _ = current_user
+    invoice_number = (body.invoice_number or "").strip() or _generate_invoice_number(
+        db,
+        settings.INVOICE_PREFIX,
+        settings.INVOICE_NUMBER_DIGITS,
+    )
+    invoice = Invoice(
+        sale_order_id=None,
+        invoice_number=invoice_number,
+        issued_at=body.issued_at or _utcnow(),
+        due_at=body.due_at,
+        status=InvoiceStatus.ISSUED,
+        currency=(body.currency or settings.DEFAULT_CURRENCY).strip().upper(),
+        tax_rate=Decimal(body.tax_rate),
+        order_discount_amount=Decimal(body.order_discount_amount),
+        shipping_amount=Decimal(body.shipping_amount),
+        client_name_snapshot=body.client_name_snapshot.strip(),
+        tele_snapshot=(body.tele_snapshot or "").strip() or None,
+        address_snapshot=(body.address_snapshot or "").strip() or None,
+        city_snapshot=(body.city_snapshot or "").strip() or None,
+        zip_code_snapshot=(body.zip_code_snapshot or "").strip() or None,
+    )
+    invoice.lines = []
+    for line_in in body.lines:
+        line = InvoiceLine()
+        _apply_invoice_line(line, line_in)
+        invoice.lines.append(line)
+
+    _sync_invoice_totals(invoice)
+    _sync_invoice_status(invoice)
+    db.add(invoice)
+    try:
+        db.commit()
+    except IntegrityError as e:
+        db.rollback()
+        raise HTTPException(status_code=409, detail="Invoice number already exists") from e
+
+    created = _load_invoice(db, invoice.id)
+    assert created is not None
+    return created
+
+
 @router.get("/{invoice_id}", response_model=InvoiceRead)
 def get_invoice(invoice_id: int, db: Session = Depends(get_db)) -> Invoice:
     invoice = _load_invoice(db, invoice_id)
@@ -168,6 +259,7 @@ def patch_invoice(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> Invoice:
+    _ = current_user
     invoice = _load_invoice(db, invoice_id)
     if invoice is None:
         raise HTTPException(status_code=404, detail="Invoice not found")
@@ -189,6 +281,8 @@ def patch_invoice(
     for field in ("client_name_snapshot", "tele_snapshot", "address_snapshot", "city_snapshot", "zip_code_snapshot"):
         if field in data:
             setattr(invoice, field, data[field])
+    if "currency" in data and data["currency"] is not None:
+        invoice.currency = str(data["currency"]).strip().upper()
     if "tax_rate" in data and data["tax_rate"] is not None:
         invoice.tax_rate = Decimal(data["tax_rate"])
     if "order_discount_amount" in data and data["order_discount_amount"] is not None:
@@ -196,19 +290,22 @@ def patch_invoice(
     if "shipping_amount" in data and data["shipping_amount"] is not None:
         invoice.shipping_amount = Decimal(data["shipping_amount"])
     if "lines" in data and data["lines"] is not None:
-        payload_lines = data["lines"]
+        payload_lines = [InvoiceLineInput.model_validate(line_data) for line_data in data["lines"]]
         existing_lines = {line.id: line for line in invoice.lines}
-        missing_ids = [str(line_data["id"]) for line_data in payload_lines if line_data["id"] not in existing_lines]
+        missing_ids = [str(line_data.id) for line_data in payload_lines if line_data.id is not None and line_data.id not in existing_lines]
         if missing_ids:
             raise HTTPException(status_code=400, detail=f"Unknown invoice line id(s): {', '.join(missing_ids)}")
+        next_lines: list[InvoiceLine] = []
         for line_data in payload_lines:
-            line = existing_lines[line_data["id"]]
-            line.sku = line_data["sku"].strip()
-            line.product_name = line_data["product_name"].strip()
-            line.uom = line_data["uom"].strip()
-            line.quantity = int(line_data["quantity"])
-            line.unit_price = Decimal(line_data["unit_price"])
-            line.discount_amount = Decimal(line_data["discount_amount"])
+            if line_data.id is not None:
+                line = existing_lines[line_data.id]
+                default_product_id = line.product_id
+            else:
+                line = InvoiceLine(invoice_id=invoice.id)
+                default_product_id = None
+            _apply_invoice_line(line, line_data, default_product_id=default_product_id)
+            next_lines.append(line)
+        invoice.lines = next_lines
 
     _sync_invoice_totals(invoice)
     _sync_invoice_status(invoice)
@@ -300,6 +397,7 @@ def create_invoice_from_sale(
 
         invoice.lines = [
             InvoiceLine(
+                line_type=InvoiceLineType.PRODUCT,
                 product_id=line.product_id,
                 sku=line.sku,
                 product_name=line.product_name,
@@ -332,6 +430,7 @@ def merge_invoices(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> Invoice:
+    _ = current_user
     invoice_ids = list(dict.fromkeys(body.invoice_ids))
     stmt = (
         select(Invoice)
@@ -353,43 +452,13 @@ def merge_invoices(
     _validate_merge_candidates(ordered_invoices)
 
     first = ordered_invoices[0]
-    merged_sale = SaleOrder(
-        customer_id=first.sale_order.customer_id if first.sale_order else None,
-        status=SaleStatus.CONFIRMED,
-        currency=first.currency,
-        tax_rate=first.tax_rate,
-        subtotal_amount=quantize_money(sum(Decimal(inv.subtotal_amount or 0) for inv in ordered_invoices)),
-        order_discount_amount=quantize_money(sum(Decimal(inv.order_discount_amount or 0) for inv in ordered_invoices)),
-        discount_amount=quantize_money(sum(Decimal(inv.discount_amount or 0) for inv in ordered_invoices)),
-        shipping_amount=quantize_money(sum(Decimal(inv.shipping_amount or 0) for inv in ordered_invoices)),
-        tax_amount=quantize_money(sum(Decimal(inv.tax_amount or 0) for inv in ordered_invoices)),
-        total_amount=quantize_money(sum(Decimal(inv.total_amount or 0) for inv in ordered_invoices)),
-    )
-    db.add(merged_sale)
-    db.flush()
-
-    merged_sale.lines = [
-        SaleOrderLine(
-            sale_order_id=merged_sale.id,
-            product_id=line.product_id,
-            sku=line.sku,
-            product_name=line.product_name,
-            quantity=line.quantity,
-            unit_price=line.unit_price,
-            discount_amount=line.discount_amount,
-            line_total=line.line_total,
-        )
-        for invoice in ordered_invoices
-        for line in invoice.lines
-    ]
-
     invoice_number = (body.invoice_number or "").strip() or _generate_invoice_number(
         db,
         settings.INVOICE_PREFIX,
         settings.INVOICE_NUMBER_DIGITS,
     )
     merged_invoice = Invoice(
-        sale_order_id=merged_sale.id,
+        sale_order_id=None,
         invoice_number=invoice_number,
         issued_at=body.issued_at or max(invoice.issued_at for invoice in ordered_invoices),
         due_at=body.due_at
@@ -398,12 +467,12 @@ def merge_invoices(
         status=InvoiceStatus.ISSUED,
         currency=first.currency,
         tax_rate=first.tax_rate,
-        subtotal_amount=merged_sale.subtotal_amount,
-        order_discount_amount=merged_sale.order_discount_amount,
-        discount_amount=merged_sale.discount_amount,
-        shipping_amount=merged_sale.shipping_amount,
-        tax_amount=merged_sale.tax_amount,
-        total_amount=merged_sale.total_amount,
+        subtotal_amount=quantize_money(sum(Decimal(inv.subtotal_amount or 0) for inv in ordered_invoices)),
+        order_discount_amount=quantize_money(sum(Decimal(inv.order_discount_amount or 0) for inv in ordered_invoices)),
+        discount_amount=quantize_money(sum(Decimal(inv.discount_amount or 0) for inv in ordered_invoices)),
+        shipping_amount=quantize_money(sum(Decimal(inv.shipping_amount or 0) for inv in ordered_invoices)),
+        tax_amount=quantize_money(sum(Decimal(inv.tax_amount or 0) for inv in ordered_invoices)),
+        total_amount=quantize_money(sum(Decimal(inv.total_amount or 0) for inv in ordered_invoices)),
         client_code_snapshot=first.client_code_snapshot,
         client_name_snapshot=first.client_name_snapshot or first.customer_name,
         tele_snapshot=first.tele_snapshot,
@@ -413,6 +482,7 @@ def merge_invoices(
         lines=[
             InvoiceLine(
                 product_id=line.product_id,
+                line_type=line.line_type,
                 sku=line.sku,
                 product_name=line.product_name,
                 uom=line.uom,

@@ -75,7 +75,8 @@ export type SaleOrder = {
 
 export type InvoiceLine = {
   id: number;
-  product_id: number;
+  line_type: "PRODUCT" | "FREE";
+  product_id: number | null;
   sku: string;
   product_name: string;
   uom: string;
@@ -99,7 +100,7 @@ export type InvoicePayment = {
 
 export type Invoice = {
   id: number;
-  sale_order_id: number;
+  sale_order_id: number | null;
   merged_into_invoice_id: number | null;
   invoice_number: string;
   customer_name: string | null;

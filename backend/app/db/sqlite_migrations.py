@@ -16,11 +16,85 @@ def _existing_columns(conn: Connection, table: str) -> set[str]:
     return {str(r["name"]) for r in rows}
 
 
+def _table_info(conn: Connection, table: str) -> list[dict[str, object]]:
+    return [dict(r) for r in conn.execute(text(f"PRAGMA table_info({table})")).mappings().all()]
+
+
 def _add_column_if_missing(conn: Connection, table: str, column: str, ddl: str) -> None:
     cols = _existing_columns(conn, table)
     if column in cols:
         return
     conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {ddl}"))
+
+
+def _rebuild_invoice_lines_for_free_lines(conn: Connection) -> None:
+    info = _table_info(conn, "invoice_lines")
+    if not info:
+        return
+    by_name = {str(row["name"]): row for row in info}
+    product_id_row = by_name.get("product_id")
+    line_type_row = by_name.get("line_type")
+    if product_id_row and int(product_id_row.get("notnull") or 0) == 0 and line_type_row:
+        return
+
+    conn.execute(text("DROP TABLE IF EXISTS invoice_lines__new"))
+    conn.execute(
+        text(
+            """
+            CREATE TABLE invoice_lines__new (
+                id INTEGER NOT NULL PRIMARY KEY,
+                invoice_id INTEGER NOT NULL,
+                product_id INTEGER,
+                line_type VARCHAR(16) NOT NULL DEFAULT 'PRODUCT',
+                sku VARCHAR(64) NOT NULL DEFAULT '',
+                product_name VARCHAR(255) NOT NULL,
+                uom VARCHAR(32) NOT NULL DEFAULT 'Pc',
+                line_date DATETIME,
+                quantity INTEGER NOT NULL,
+                unit_price NUMERIC NOT NULL,
+                discount_amount NUMERIC NOT NULL DEFAULT 0,
+                line_total NUMERIC NOT NULL,
+                FOREIGN KEY(invoice_id) REFERENCES invoices (id),
+                FOREIGN KEY(product_id) REFERENCES products (id)
+            )
+            """
+        )
+    )
+    cols = _existing_columns(conn, "invoice_lines")
+    product_id_expr = "product_id" if "product_id" in cols else "NULL"
+    line_type_expr = "'PRODUCT'" if "line_type" not in cols else "line_type"
+    sku_expr = "COALESCE(sku, '')" if "sku" in cols else "''"
+    uom_expr = "COALESCE(uom, 'Pc')" if "uom" in cols else "'Pc'"
+    line_date_expr = "line_date" if "line_date" in cols else "NULL"
+    discount_expr = "COALESCE(discount_amount, 0)" if "discount_amount" in cols else "0"
+    conn.execute(
+        text(
+            f"""
+            INSERT INTO invoice_lines__new (
+                id, invoice_id, product_id, line_type, sku, product_name, uom, line_date,
+                quantity, unit_price, discount_amount, line_total
+            )
+            SELECT
+                id,
+                invoice_id,
+                {product_id_expr},
+                {line_type_expr},
+                {sku_expr},
+                product_name,
+                {uom_expr},
+                {line_date_expr},
+                quantity,
+                unit_price,
+                {discount_expr},
+                line_total
+            FROM invoice_lines
+            """
+        )
+    )
+    conn.execute(text("DROP TABLE invoice_lines"))
+    conn.execute(text("ALTER TABLE invoice_lines__new RENAME TO invoice_lines"))
+    conn.execute(text("CREATE INDEX IF NOT EXISTS ix_invoice_lines_invoice_id ON invoice_lines (invoice_id)"))
+    conn.execute(text("CREATE INDEX IF NOT EXISTS ix_invoice_lines_product_id ON invoice_lines (product_id)"))
 
 
 def _ensure_columns(conn: Connection) -> None:
@@ -59,9 +133,7 @@ def _ensure_columns(conn: Connection) -> None:
         _add_column_if_missing(conn, "invoices", "shipping_amount", "shipping_amount NUMERIC NOT NULL DEFAULT 0")
 
     if "invoice_lines" in tables:
-        _add_column_if_missing(conn, "invoice_lines", "uom", "uom TEXT NOT NULL DEFAULT 'Pc'")
-        _add_column_if_missing(conn, "invoice_lines", "line_date", "line_date DATETIME")
-        _add_column_if_missing(conn, "invoice_lines", "discount_amount", "discount_amount NUMERIC NOT NULL DEFAULT 0")
+        _rebuild_invoice_lines_for_free_lines(conn)
 
     if "stock_movements" in tables:
         _add_column_if_missing(conn, "stock_movements", "receipt_id", "receipt_id INTEGER")
