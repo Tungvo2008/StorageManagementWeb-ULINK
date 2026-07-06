@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { apiJson, apiUpload, downloadFile, previewFile } from "../api/client";
-import type { Invoice } from "../types";
+import type { Customer, Invoice } from "../types";
 import type { SortState } from "../utils/table";
 import { matchesQuery, sortBy, toggleSort } from "../utils/table";
 
@@ -97,6 +97,31 @@ function toMoneyString(value: string | number | null | undefined): string {
 function formatMoney(value: string | number, currency: string): string {
   const num = Number(value ?? 0);
   return `${Number.isFinite(num) ? num.toFixed(2) : "0.00"} ${currency}`;
+}
+
+function findMatchingCustomerId(
+  customers: Customer[],
+  snapshot: {
+    name?: string | null;
+    phone?: string | null;
+    address?: string | null;
+  },
+): number | "" {
+  const name = (snapshot.name || "").trim().toLowerCase();
+  const phone = (snapshot.phone || "").trim();
+  const address = (snapshot.address || "").trim().toLowerCase();
+  if (!name) return "";
+
+  const exact = customers.find((customer) => {
+    if (customer.name.trim().toLowerCase() !== name) return false;
+    if (phone && (customer.phone || "").trim() !== phone) return false;
+    if (address && (customer.address || "").trim().toLowerCase() !== address) return false;
+    return true;
+  });
+  if (exact) return exact.id;
+
+  const byName = customers.find((customer) => customer.name.trim().toLowerCase() === name);
+  return byName ? byName.id : "";
 }
 
 function buildEditForm(invoice: Invoice): EditInvoiceForm {
@@ -197,6 +222,7 @@ function canMergeInvoice(invoice: Invoice): boolean {
 
 export default function InvoicesPage() {
   const [items, setItems] = useState<Invoice[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [query, setQuery] = useState("");
@@ -218,7 +244,29 @@ export default function InvoicesPage() {
   const [importingLines, setImportingLines] = useState(false);
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [selectedCustomerId, setSelectedCustomerId] = useState<number | "">("");
   const [mergeForm, setMergeForm] = useState<MergeForm>({ invoice_number: "", issued_at: "", due_at: "" });
+
+  const sortedCustomers = useMemo(() => [...customers].sort((a, b) => a.name.localeCompare(b.name)), [customers]);
+
+  function applyCustomerToForm(customerId: number | "") {
+    setSelectedCustomerId(customerId);
+    if (!customerId) return;
+    const customer = customers.find((item) => item.id === customerId);
+    if (!customer) return;
+    setEditForm((curr) =>
+      curr
+        ? {
+            ...curr,
+            client_name_snapshot: customer.name || "",
+            tele_snapshot: customer.phone || "",
+            address_snapshot: customer.address || "",
+            city_snapshot: customer.city || "",
+            zip_code_snapshot: customer.zip_code || "",
+          }
+        : curr,
+    );
+  }
 
   function addFreeLine() {
     setEditForm((curr) =>
@@ -279,6 +327,13 @@ export default function InvoicesPage() {
           discount_amount: toMoneyString(line.discount_amount),
         })),
       }));
+      setSelectedCustomerId(
+        findMatchingCustomerId(customers, {
+          name: payload.client_name_snapshot,
+          phone: payload.tele_snapshot,
+          address: payload.address_snapshot,
+        }),
+      );
     } catch (e) {
       setModalError((e as Error).message);
     } finally {
@@ -290,8 +345,12 @@ export default function InvoicesPage() {
     setLoading(true);
     setError(null);
     try {
-      const data = await apiJson<Invoice[]>("/api/v1/invoices");
-      setItems(data);
+      const [invoiceData, customerData] = await Promise.all([
+        apiJson<Invoice[]>("/api/v1/invoices"),
+        apiJson<Customer[]>("/api/v1/customers"),
+      ]);
+      setItems(invoiceData);
+      setCustomers(customerData);
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -404,6 +463,13 @@ export default function InvoicesPage() {
       const detailed = await loadInvoiceDetail(invoice.id);
       setSelectedInvoice(detailed);
       setEditForm(buildEditForm(detailed));
+      setSelectedCustomerId(
+        findMatchingCustomerId(customers, {
+          name: detailed.client_name_snapshot ?? detailed.customer_name,
+          phone: detailed.tele_snapshot,
+          address: detailed.address_snapshot,
+        }),
+      );
       setEditMode("edit");
       setEditOpen(true);
     } catch (e) {
@@ -418,6 +484,7 @@ export default function InvoicesPage() {
     setModalError(null);
     setEditMode("create");
     setEditForm(buildCreateForm());
+    setSelectedCustomerId("");
     setEditOpen(true);
   }
 
@@ -494,9 +561,17 @@ export default function InvoicesPage() {
       if (options?.closeAfterSave ?? statusToSave !== "DRAFT") {
         setEditOpen(false);
         setEditForm(null);
+        setSelectedCustomerId("");
       } else {
         setEditMode("edit");
         setEditForm(buildEditForm(updated));
+        setSelectedCustomerId(
+          findMatchingCustomerId(customers, {
+            name: updated.client_name_snapshot ?? updated.customer_name,
+            phone: updated.tele_snapshot,
+            address: updated.address_snapshot,
+          }),
+        );
       }
     } catch (e) {
       setModalError((e as Error).message);
@@ -879,6 +954,21 @@ export default function InvoicesPage() {
             </div>
 
             <div className="row" style={{ marginTop: 12, alignItems: "flex-start" }}>
+              <div className="field">
+                <label>Chọn client</label>
+                <select
+                  className="select"
+                  value={selectedCustomerId}
+                  onChange={(e) => applyCustomerToForm(e.target.value ? Number(e.target.value) : "")}
+                >
+                  <option value="">-- Nhập tay / Walk-in --</option>
+                  {sortedCustomers.map((customer) => (
+                    <option key={customer.id} value={customer.id}>
+                      {customer.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <div className="field">
                 <label>Customer name</label>
                 <input
