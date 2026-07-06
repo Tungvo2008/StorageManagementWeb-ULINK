@@ -308,18 +308,18 @@ export default function InvoicesPage() {
       const payload = await apiUpload<InvoiceImportPayload>("/api/v1/invoices/manual/import", formData);
       setEditForm((curr) => ({
         ...(curr ?? buildCreateForm()),
-        invoice_number: payload.invoice_number ?? "",
-        issued_at: payload.issued_at ? toInputDateTime(payload.issued_at) : curr?.issued_at ?? "",
-        due_at: payload.due_at ? toInputDateTime(payload.due_at) : "",
-        client_name_snapshot: payload.client_name_snapshot,
-        tele_snapshot: payload.tele_snapshot,
-        address_snapshot: payload.address_snapshot,
-        city_snapshot: payload.city_snapshot,
-        zip_code_snapshot: payload.zip_code_snapshot,
-        currency: payload.currency,
-        tax_rate: String(payload.tax_rate ?? 0),
-        order_discount_amount: toMoneyString(payload.order_discount_amount),
-        shipping_amount: toMoneyString(payload.shipping_amount),
+        invoice_number: curr?.invoice_number ?? "",
+        issued_at: curr?.issued_at ?? "",
+        due_at: curr?.due_at ?? "",
+        client_name_snapshot: curr?.client_name_snapshot ?? "",
+        tele_snapshot: curr?.tele_snapshot ?? "",
+        address_snapshot: curr?.address_snapshot ?? "",
+        city_snapshot: curr?.city_snapshot ?? "",
+        zip_code_snapshot: curr?.zip_code_snapshot ?? "",
+        currency: curr?.currency ?? "USD",
+        tax_rate: curr?.tax_rate ?? "0",
+        order_discount_amount: curr?.order_discount_amount ?? "0.00",
+        shipping_amount: curr?.shipping_amount ?? "0.00",
         lines: payload.lines.map((line) => ({
           ...line,
           quantity: String(line.quantity),
@@ -327,13 +327,6 @@ export default function InvoicesPage() {
           discount_amount: toMoneyString(line.discount_amount),
         })),
       }));
-      setSelectedCustomerId(
-        findMatchingCustomerId(customers, {
-          name: payload.client_name_snapshot,
-          phone: payload.tele_snapshot,
-          address: payload.address_snapshot,
-        }),
-      );
     } catch (e) {
       setModalError((e as Error).message);
     } finally {
@@ -1048,7 +1041,7 @@ export default function InvoicesPage() {
             </div>
 
             <div className="row" style={{ justifyContent: "space-between", marginTop: 16 }}>
-              <div className="muted">Bạn có thể thêm dòng tự do cho dịch vụ, phí hoặc hàng ngoài kho.</div>
+              <div className="muted">Template Excel chỉ import các dòng item. Khách hàng và thông tin header nhập một lần ở form này.</div>
               <div className="row" style={{ gap: 8 }}>
                 <button
                   className="btn"

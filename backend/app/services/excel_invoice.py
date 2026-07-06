@@ -58,18 +58,6 @@ def build_manual_invoice_template_xlsx() -> bytes:
     ws.title = "Free Invoice Import"
     ws.append(
         [
-            "invoice_number",
-            "issued_at",
-            "due_at",
-            "client_name",
-            "phone",
-            "address",
-            "city",
-            "zip_code",
-            "currency",
-            "tax_rate",
-            "order_discount_amount",
-            "shipping_amount",
             "line_type",
             "sku",
             "product_id",
@@ -82,18 +70,6 @@ def build_manual_invoice_template_xlsx() -> bytes:
     )
     ws.append(
         [
-            "ULFREE001",
-            "",
-            "",
-            "Cho QTE",
-            "",
-            "",
-            "",
-            "",
-            "USD",
-            0,
-            0,
-            0,
             "FREE",
             "",
             "",
@@ -106,18 +82,6 @@ def build_manual_invoice_template_xlsx() -> bytes:
     )
     ws.append(
         [
-            "ULFREE001",
-            "",
-            "",
-            "Cho QTE",
-            "",
-            "",
-            "",
-            "",
-            "USD",
-            0,
-            0,
-            0,
             "PRODUCT",
             "UL1628T001",
             "",
@@ -130,26 +94,14 @@ def build_manual_invoice_template_xlsx() -> bytes:
     )
     _header_style(ws)
     widths = {
-        "A": 18,
-        "B": 20,
-        "C": 20,
-        "D": 24,
-        "E": 16,
-        "F": 24,
-        "G": 16,
-        "H": 12,
-        "I": 10,
-        "J": 10,
-        "K": 18,
-        "L": 16,
-        "M": 12,
-        "N": 16,
-        "O": 12,
-        "P": 30,
-        "Q": 12,
-        "R": 10,
-        "S": 12,
-        "T": 14,
+        "A": 12,
+        "B": 16,
+        "C": 12,
+        "D": 30,
+        "E": 12,
+        "F": 10,
+        "G": 12,
+        "H": 14,
     }
     for col, width in widths.items():
         ws.column_dimensions[col].width = width
@@ -195,19 +147,6 @@ def parse_manual_invoice_import_xlsx(
     if errors:
         raise ExcelImportError(errors)
 
-    invoice_number: str | None = None
-    issued_at: datetime | None = None
-    due_at: datetime | None = None
-    client_name: str | None = None
-    phone: str | None = None
-    address: str | None = None
-    city: str | None = None
-    zip_code: str | None = None
-    currency: str | None = None
-    tax_rate: float | None = None
-    order_discount_amount: float | None = None
-    shipping_amount: float | None = None
-
     lines: list[dict[str, Any]] = []
     for row_i, row in enumerate(rows, start=2):
         description = _cell_str(row[idx["description"]] if idx["description"] < len(row) else "")
@@ -220,65 +159,6 @@ def parse_manual_invoice_import_xlsx(
 
         if not any([description, sku, product_id_raw, _cell_str(quantity_raw), _cell_str(unit_price_raw), uom]):
             continue
-
-        def _capture_str(column: str, current: str | None) -> str | None:
-            if column not in idx or idx[column] >= len(row):
-                return current
-            value = _cell_str(row[idx[column]])
-            if not value:
-                return current
-            if current is None:
-                return value
-            if value != current:
-                errors.append(f"Row {row_i}: {column} mismatch")
-            return current
-
-        invoice_number = _capture_str("invoice_number", invoice_number)
-        client_name = _capture_str("client_name", client_name)
-        phone = _capture_str("phone", phone)
-        address = _capture_str("address", address)
-        city = _capture_str("city", city)
-        zip_code = _capture_str("zip_code", zip_code)
-        currency = _capture_str("currency", currency)
-
-        if "issued_at" in idx and idx["issued_at"] < len(row):
-            dt = _cell_dt(row[idx["issued_at"]])
-            if dt:
-                if issued_at is None:
-                    issued_at = dt
-                elif dt != issued_at:
-                    errors.append(f"Row {row_i}: issued_at mismatch")
-        if "due_at" in idx and idx["due_at"] < len(row):
-            dt = _cell_dt(row[idx["due_at"]])
-            if dt:
-                if due_at is None:
-                    due_at = dt
-                elif dt != due_at:
-                    errors.append(f"Row {row_i}: due_at mismatch")
-
-        numeric_headers: dict[str, float | None] = {
-            "tax_rate": tax_rate,
-            "order_discount_amount": order_discount_amount,
-            "shipping_amount": shipping_amount,
-        }
-        for column, current in numeric_headers.items():
-            if column not in idx or idx[column] >= len(row):
-                continue
-            raw = row[idx[column]]
-            if raw in (None, ""):
-                continue
-            try:
-                value = float(raw)
-            except Exception:
-                errors.append(f"Row {row_i}: invalid {column}")
-                continue
-            if current is None:
-                numeric_headers[column] = value
-            elif value != current:
-                errors.append(f"Row {row_i}: {column} mismatch")
-        tax_rate = numeric_headers["tax_rate"]
-        order_discount_amount = numeric_headers["order_discount_amount"]
-        shipping_amount = numeric_headers["shipping_amount"]
 
         try:
             quantity = int(quantity_raw)
@@ -368,23 +248,21 @@ def parse_manual_invoice_import_xlsx(
 
     if not lines:
         errors.append("No invoice lines found")
-    if not (client_name or "").strip():
-        errors.append("client_name is required")
     if errors:
         raise ExcelImportError(errors)
 
     return {
-        "invoice_number": invoice_number,
-        "issued_at": issued_at.isoformat() if issued_at else None,
-        "due_at": due_at.isoformat() if due_at else None,
-        "client_name_snapshot": client_name or "",
-        "tele_snapshot": phone or "",
-        "address_snapshot": address or "",
-        "city_snapshot": city or "",
-        "zip_code_snapshot": zip_code or "",
-        "currency": (currency or "USD").upper(),
-        "tax_rate": tax_rate if tax_rate is not None else 0,
-        "order_discount_amount": order_discount_amount if order_discount_amount is not None else 0,
-        "shipping_amount": shipping_amount if shipping_amount is not None else 0,
+        "invoice_number": None,
+        "issued_at": None,
+        "due_at": None,
+        "client_name_snapshot": "",
+        "tele_snapshot": "",
+        "address_snapshot": "",
+        "city_snapshot": "",
+        "zip_code_snapshot": "",
+        "currency": "USD",
+        "tax_rate": 0,
+        "order_discount_amount": 0,
+        "shipping_amount": 0,
         "lines": lines,
     }
