@@ -26,6 +26,16 @@ def _utcnow() -> datetime:
     return datetime.now(timezone.utc)
 
 
+def _raise_invoice_integrity_error(e: IntegrityError) -> None:
+    message = str(getattr(e, "orig", e))
+    lowered = message.lower()
+    if "invoice_number" in lowered and ("unique" in lowered or "already exists" in lowered):
+        raise HTTPException(status_code=409, detail="Invoice number already exists") from e
+    if "sale_order_id" in lowered and "not null" in lowered:
+        raise HTTPException(status_code=500, detail="Database schema is outdated for manual invoices. Please restart backend to run migrations.") from e
+    raise HTTPException(status_code=409, detail=message) from e
+
+
 def _parse_invoice_seq(invoice_number: str, prefix: str) -> int | None:
     if not invoice_number:
         return None
@@ -281,7 +291,7 @@ def create_manual_invoice(
         db.commit()
     except IntegrityError as e:
         db.rollback()
-        raise HTTPException(status_code=409, detail="Invoice number already exists") from e
+        _raise_invoice_integrity_error(e)
 
     created = _load_invoice(db, invoice.id)
     assert created is not None
@@ -359,7 +369,7 @@ def patch_invoice(
         db.commit()
     except IntegrityError as e:
         db.rollback()
-        raise HTTPException(status_code=409, detail="Invoice number already exists") from e
+        _raise_invoice_integrity_error(e)
 
     updated = _load_invoice(db, invoice.id)
     assert updated is not None

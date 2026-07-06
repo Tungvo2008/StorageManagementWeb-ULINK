@@ -97,6 +97,129 @@ def _rebuild_invoice_lines_for_free_lines(conn: Connection) -> None:
     conn.execute(text("CREATE INDEX IF NOT EXISTS ix_invoice_lines_product_id ON invoice_lines (product_id)"))
 
 
+def _rebuild_invoices_for_manual_and_merge(conn: Connection) -> None:
+    info = _table_info(conn, "invoices")
+    if not info:
+        return
+
+    by_name = {str(row["name"]): row for row in info}
+    sale_order_row = by_name.get("sale_order_id")
+    needs_rebuild = False
+
+    if sale_order_row and int(sale_order_row.get("notnull") or 0) == 1:
+        needs_rebuild = True
+
+    required_columns = {
+        "merged_into_invoice_id",
+        "order_discount_amount",
+        "discount_amount",
+        "shipping_amount",
+    }
+    if not required_columns.issubset(by_name):
+        needs_rebuild = True
+
+    if not needs_rebuild:
+        return
+
+    conn.execute(text("DROP TABLE IF EXISTS invoices__new"))
+    conn.execute(
+        text(
+            """
+            CREATE TABLE invoices__new (
+                id INTEGER NOT NULL PRIMARY KEY,
+                sale_order_id INTEGER,
+                merged_into_invoice_id INTEGER,
+                invoice_number VARCHAR(64) NOT NULL,
+                gin_number VARCHAR(64),
+                issue_log_no INTEGER,
+                client_code_snapshot VARCHAR(32),
+                client_name_snapshot VARCHAR(255),
+                tele_snapshot VARCHAR(64),
+                address_snapshot TEXT,
+                city_snapshot VARCHAR(255),
+                zip_code_snapshot VARCHAR(32),
+                issued_at DATETIME NOT NULL,
+                due_at DATETIME,
+                status VARCHAR(16) NOT NULL,
+                currency VARCHAR(8) NOT NULL,
+                tax_rate NUMERIC(6, 4) NOT NULL,
+                subtotal_amount NUMERIC(12, 2) NOT NULL,
+                order_discount_amount NUMERIC(12, 2) NOT NULL DEFAULT 0,
+                discount_amount NUMERIC(12, 2) NOT NULL DEFAULT 0,
+                shipping_amount NUMERIC(12, 2) NOT NULL DEFAULT 0,
+                tax_amount NUMERIC(12, 2) NOT NULL,
+                total_amount NUMERIC(12, 2) NOT NULL,
+                created_at DATETIME NOT NULL,
+                updated_at DATETIME NOT NULL,
+                CONSTRAINT uq_invoice_invoice_number UNIQUE (invoice_number),
+                CONSTRAINT uq_invoice_sale_order_id UNIQUE (sale_order_id),
+                FOREIGN KEY(sale_order_id) REFERENCES sale_orders (id),
+                FOREIGN KEY(merged_into_invoice_id) REFERENCES invoices (id)
+            )
+            """
+        )
+    )
+
+    cols = _existing_columns(conn, "invoices")
+    merged_expr = "merged_into_invoice_id" if "merged_into_invoice_id" in cols else "NULL"
+    gin_expr = "gin_number" if "gin_number" in cols else "NULL"
+    issue_log_expr = "issue_log_no" if "issue_log_no" in cols else "NULL"
+    client_code_expr = "client_code_snapshot" if "client_code_snapshot" in cols else "NULL"
+    client_name_expr = "client_name_snapshot" if "client_name_snapshot" in cols else "NULL"
+    tele_expr = "tele_snapshot" if "tele_snapshot" in cols else "NULL"
+    address_expr = "address_snapshot" if "address_snapshot" in cols else "NULL"
+    city_expr = "city_snapshot" if "city_snapshot" in cols else "NULL"
+    zip_expr = "zip_code_snapshot" if "zip_code_snapshot" in cols else "NULL"
+    order_discount_expr = "COALESCE(order_discount_amount, 0)" if "order_discount_amount" in cols else "0"
+    discount_expr = "COALESCE(discount_amount, 0)" if "discount_amount" in cols else "0"
+    shipping_expr = "COALESCE(shipping_amount, 0)" if "shipping_amount" in cols else "0"
+
+    conn.execute(
+        text(
+            f"""
+            INSERT INTO invoices__new (
+                id, sale_order_id, merged_into_invoice_id, invoice_number, gin_number, issue_log_no,
+                client_code_snapshot, client_name_snapshot, tele_snapshot, address_snapshot, city_snapshot, zip_code_snapshot,
+                issued_at, due_at, status, currency, tax_rate, subtotal_amount, order_discount_amount,
+                discount_amount, shipping_amount, tax_amount, total_amount, created_at, updated_at
+            )
+            SELECT
+                id,
+                sale_order_id,
+                {merged_expr},
+                invoice_number,
+                {gin_expr},
+                {issue_log_expr},
+                {client_code_expr},
+                {client_name_expr},
+                {tele_expr},
+                {address_expr},
+                {city_expr},
+                {zip_expr},
+                issued_at,
+                due_at,
+                status,
+                currency,
+                tax_rate,
+                subtotal_amount,
+                {order_discount_expr},
+                {discount_expr},
+                {shipping_expr},
+                tax_amount,
+                total_amount,
+                created_at,
+                updated_at
+            FROM invoices
+            """
+        )
+    )
+    conn.execute(text("DROP TABLE invoices"))
+    conn.execute(text("ALTER TABLE invoices__new RENAME TO invoices"))
+    conn.execute(text("CREATE INDEX IF NOT EXISTS ix_invoices_issue_log_no ON invoices (issue_log_no)"))
+    conn.execute(text("CREATE INDEX IF NOT EXISTS ix_invoices_sale_order_id ON invoices (sale_order_id)"))
+    conn.execute(text("CREATE INDEX IF NOT EXISTS ix_invoices_merged_into_invoice_id ON invoices (merged_into_invoice_id)"))
+
+
 def _ensure_columns(conn: Connection) -> None:
     # Only additive migrations here (safe for existing data).
     # NOTE: SQLite can't drop/alter columns easily without table rebuild.
@@ -119,6 +242,7 @@ def _ensure_columns(conn: Connection) -> None:
         _add_column_if_missing(conn, "customers", "zip_code", "zip_code TEXT")
 
     if "invoices" in tables:
+        _rebuild_invoices_for_manual_and_merge(conn)
         _add_column_if_missing(conn, "invoices", "merged_into_invoice_id", "merged_into_invoice_id INTEGER")
         _add_column_if_missing(conn, "invoices", "gin_number", "gin_number TEXT")
         _add_column_if_missing(conn, "invoices", "issue_log_no", "issue_log_no INTEGER")

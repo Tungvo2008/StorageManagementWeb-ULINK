@@ -278,7 +278,7 @@ class Invoice(TimestampMixin, Base):
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    sale_order_id: Mapped[int] = mapped_column(ForeignKey("sale_orders.id"), nullable=False, index=True)
+    sale_order_id: Mapped[int | None] = mapped_column(ForeignKey("sale_orders.id"), nullable=True, index=True)
     merged_into_invoice_id: Mapped[int | None] = mapped_column(ForeignKey("invoices.id"), nullable=True, index=True)
     invoice_number: Mapped[str] = mapped_column(String(64), nullable=False)
     gin_number: Mapped[str | None] = mapped_column(String(64), nullable=True)
