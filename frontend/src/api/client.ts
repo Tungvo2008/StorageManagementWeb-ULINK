@@ -42,6 +42,20 @@ async function parseJsonIfAny<T>(res: Response): Promise<T> {
   return JSON.parse(text) as T;
 }
 
+async function readErrorMessage(res: Response): Promise<string> {
+  const text = await res.text();
+  if (!text.trim()) return res.statusText;
+  try {
+    const parsed = JSON.parse(text) as { detail?: unknown };
+    if (typeof parsed.detail === "string" && parsed.detail.trim()) {
+      return parsed.detail;
+    }
+  } catch {
+    return text;
+  }
+  return text;
+}
+
 export async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(apiHref(path), {
     ...init,
@@ -53,7 +67,7 @@ export async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
   });
 
   if (!res.ok) {
-    const text = await res.text();
+    const text = await readErrorMessage(res);
     if (res.status === 401) {
       handleUnauthorized();
     }
@@ -75,7 +89,7 @@ export async function apiUpload<T>(path: string, formData: FormData, init?: Requ
   });
 
   if (!res.ok) {
-    const text = await res.text();
+    const text = await readErrorMessage(res);
     if (res.status === 401) {
       handleUnauthorized();
     }
@@ -92,7 +106,7 @@ export function apiUrl(path: string): string {
 export async function downloadFile(path: string, filename: string): Promise<void> {
   const res = await fetch(apiHref(path), { headers: { ...authHeaders() } });
   if (!res.ok) {
-    const text = await res.text();
+    const text = await readErrorMessage(res);
     if (res.status === 401) {
       handleUnauthorized();
     }
@@ -119,7 +133,7 @@ export async function downloadFile(path: string, filename: string): Promise<void
 export async function previewFile(path: string): Promise<void> {
   const res = await fetch(apiHref(path), { headers: { ...authHeaders() } });
   if (!res.ok) {
-    const text = await res.text();
+    const text = await readErrorMessage(res);
     if (res.status === 401) {
       handleUnauthorized();
     }

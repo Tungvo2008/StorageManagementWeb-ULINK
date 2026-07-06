@@ -506,6 +506,8 @@ export default function InvoicesPage() {
     setModalError(null);
     try {
       const statusToSave = options?.statusOverride ?? editForm.status;
+      const currentInvoiceId = selectedInvoice?.id ?? null;
+      const shouldCreate = editMode === "create" && currentInvoiceId == null;
       const payload = {
         invoice_number: editForm.invoice_number.trim() || null,
         issued_at: fromInputDateTime(editForm.issued_at),
@@ -533,12 +535,12 @@ export default function InvoicesPage() {
         })),
       };
       const updated =
-        editMode === "create"
+        shouldCreate
           ? await apiJson<Invoice>("/api/v1/invoices/manual", {
               method: "POST",
               body: JSON.stringify(payload),
             })
-          : await apiJson<Invoice>(`/api/v1/invoices/${selectedInvoice?.id}`, {
+          : await apiJson<Invoice>(`/api/v1/invoices/${currentInvoiceId}`, {
               method: "PATCH",
               body: JSON.stringify(payload),
             });
@@ -897,12 +899,18 @@ export default function InvoicesPage() {
             {modalError && <div className="error">{modalError}</div>}
             <div className="row" style={{ alignItems: "flex-start" }}>
               <div className="field">
-                <label>Invoice number</label>
+                <label>Invoice number {editMode === "create" ? "(optional)" : ""}</label>
                 <input
                   className="input"
                   value={editForm.invoice_number}
+                  placeholder={editMode === "create" ? "Để trống để hệ thống tự cấp số" : ""}
                   onChange={(e) => setEditForm((curr) => curr ? { ...curr, invoice_number: e.target.value } : curr)}
                 />
+                {editMode === "create" ? (
+                  <div className="muted" style={{ marginTop: 6 }}>
+                    Mẹo: cứ để trống ô này khi lưu nháp hoặc preview, hệ thống sẽ tự tạo số invoice.
+                  </div>
+                ) : null}
               </div>
               <div className="field">
                 <label>Issued at</label>
