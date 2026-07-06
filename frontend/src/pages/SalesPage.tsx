@@ -214,7 +214,7 @@ export default function SalesPage() {
           <h2 style={{ marginTop: 0, marginBottom: 0 }}>Create Issue</h2>
           <div className="row" style={{ justifyContent: "flex-end", gap: 8 }}>
             <button
-              className="btn"
+              className="btn primary"
               type="button"
               onClick={() => {
                 setAiOpen(true);

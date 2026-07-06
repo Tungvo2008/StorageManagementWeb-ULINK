@@ -5,7 +5,7 @@ from decimal import Decimal
 import re
 from urllib.parse import quote
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, File, HTTPException, Response, UploadFile, status
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, selectinload
@@ -14,6 +14,7 @@ from app.api.deps import get_current_user, get_db
 from app.core.config import settings
 from app.db.models import Customer, Invoice, InvoiceLine, InvoiceLineType, InvoicePayment, InvoiceStatus, Product, SaleOrder, SaleStatus, User
 from app.schemas.invoice import InvoiceCreateFromSale, InvoiceLineInput, InvoiceManualCreate, InvoiceMergeCreate, InvoicePaymentCreate, InvoicePaymentRead, InvoiceRead, InvoiceUpdate
+from app.services.excel_invoice import ExcelImportError, XLSX_MIME, build_manual_invoice_template_xlsx, parse_manual_invoice_import_xlsx
 from app.services.money import quantize_money
 from app.services.invoice_render import render_invoice_pdf
 
@@ -194,6 +195,42 @@ def list_invoices(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
         .limit(limit)
     )
     return db.scalars(stmt).all()
+
+
+@router.get("/manual/template.xlsx")
+def download_manual_invoice_template() -> Response:
+    try:
+        xlsx = build_manual_invoice_template_xlsx()
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e)) from e
+    return Response(
+        content=xlsx,
+        media_type=XLSX_MIME,
+        headers={"Content-Disposition": 'attachment; filename="free-invoice-template.xlsx"'},
+    )
+
+
+@router.post("/manual/import")
+async def import_manual_invoice_xlsx(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> dict[str, object]:
+    _ = current_user
+    content = await file.read()
+    products = db.scalars(select(Product)).all()
+    products_by_sku = {product.sku.upper(): product for product in products}
+    products_by_id = {product.id: product for product in products}
+    try:
+        return parse_manual_invoice_import_xlsx(
+            content,
+            products_by_sku=products_by_sku,
+            products_by_id=products_by_id,
+        )
+    except ExcelImportError as e:
+        raise HTTPException(status_code=400, detail="\n".join(e.errors)) from e
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e)) from e
 
 
 @router.post("/manual", response_model=InvoiceRead, status_code=status.HTTP_201_CREATED)

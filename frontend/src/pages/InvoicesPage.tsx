@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { apiJson, downloadFile, previewFile } from "../api/client";
+import { apiJson, apiUpload, downloadFile, previewFile } from "../api/client";
 import type { Invoice } from "../types";
 import type { SortState } from "../utils/table";
 import { matchesQuery, sortBy, toggleSort } from "../utils/table";
@@ -55,6 +55,22 @@ type MergeForm = {
   invoice_number: string;
   issued_at: string;
   due_at: string;
+};
+
+type InvoiceImportPayload = {
+  invoice_number: string | null;
+  issued_at: string | null;
+  due_at: string | null;
+  client_name_snapshot: string;
+  tele_snapshot: string;
+  address_snapshot: string;
+  city_snapshot: string;
+  zip_code_snapshot: string;
+  currency: string;
+  tax_rate: number;
+  order_discount_amount: number;
+  shipping_amount: number;
+  lines: EditLineForm[];
 };
 
 function toInputDateTime(value: string | null | undefined): string {
@@ -194,6 +210,7 @@ export default function InvoicesPage() {
   const [savingEdit, setSavingEdit] = useState(false);
   const [savingPayment, setSavingPayment] = useState(false);
   const [savingMerge, setSavingMerge] = useState(false);
+  const [importingLines, setImportingLines] = useState(false);
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [mergeForm, setMergeForm] = useState<MergeForm>({ invoice_number: "", issued_at: "", due_at: "" });
@@ -227,6 +244,41 @@ export default function InvoicesPage() {
       if (!curr || curr.lines.length <= 1) return curr;
       return { ...curr, lines: curr.lines.filter((_, index) => index !== lineIndex) };
     });
+  }
+
+  async function importInvoiceExcel(file: File) {
+    setImportingLines(true);
+    setModalError(null);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const payload = await apiUpload<InvoiceImportPayload>("/api/v1/invoices/manual/import", formData);
+      setEditForm((curr) => ({
+        ...(curr ?? buildCreateForm()),
+        invoice_number: payload.invoice_number ?? "",
+        issued_at: payload.issued_at ? toInputDateTime(payload.issued_at) : curr?.issued_at ?? "",
+        due_at: payload.due_at ? toInputDateTime(payload.due_at) : "",
+        client_name_snapshot: payload.client_name_snapshot,
+        tele_snapshot: payload.tele_snapshot,
+        address_snapshot: payload.address_snapshot,
+        city_snapshot: payload.city_snapshot,
+        zip_code_snapshot: payload.zip_code_snapshot,
+        currency: payload.currency,
+        tax_rate: String(payload.tax_rate ?? 0),
+        order_discount_amount: toMoneyString(payload.order_discount_amount),
+        shipping_amount: toMoneyString(payload.shipping_amount),
+        lines: payload.lines.map((line) => ({
+          ...line,
+          quantity: String(line.quantity),
+          unit_price: toMoneyString(line.unit_price),
+          discount_amount: toMoneyString(line.discount_amount),
+        })),
+      }));
+    } catch (e) {
+      setModalError((e as Error).message);
+    } finally {
+      setImportingLines(false);
+    }
   }
 
   async function load() {
@@ -888,9 +940,32 @@ export default function InvoicesPage() {
 
             <div className="row" style={{ justifyContent: "space-between", marginTop: 16 }}>
               <div className="muted">Bạn có thể thêm dòng tự do cho dịch vụ, phí hoặc hàng ngoài kho.</div>
-              <button className="btn" type="button" onClick={addFreeLine}>
-                + Dòng tự do
-              </button>
+              <div className="row" style={{ gap: 8 }}>
+                <button
+                  className="btn"
+                  type="button"
+                  onClick={() => void downloadFile("/api/v1/invoices/manual/template.xlsx", "free-invoice-template.xlsx")}
+                >
+                  Template Excel
+                </button>
+                <label className="btn" style={{ cursor: importingLines ? "not-allowed" : "pointer", opacity: importingLines ? 0.6 : 1 }}>
+                  Import Excel
+                  <input
+                    type="file"
+                    accept=".xlsx"
+                    style={{ display: "none" }}
+                    disabled={importingLines}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      e.target.value = "";
+                      if (file) void importInvoiceExcel(file);
+                    }}
+                  />
+                </label>
+                <button className="btn" type="button" onClick={addFreeLine}>
+                  + Dòng tự do
+                </button>
+              </div>
             </div>
 
             <div style={{ marginTop: 12, overflowX: "auto" }}>
