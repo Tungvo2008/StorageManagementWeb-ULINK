@@ -223,6 +223,7 @@ def render_invoice_pdf(invoice: Invoice, customer: Customer | None) -> bytes:
     cust_addr = invoice.address_snapshot or (customer.address if customer else "")
     cust_city = invoice.city_snapshot or (customer.city if customer else "")
     cust_zip = invoice.zip_code_snapshot or (customer.zip_code if customer else "")
+    invoice_note = (invoice.note or "").strip()
     city_zip = ""
     if cust_city and cust_zip:
         city_zip = f"{cust_city}, {cust_zip}"
@@ -415,6 +416,28 @@ def render_invoice_pdf(invoice: Invoice, customer: Customer | None) -> bytes:
     c.line(summary_label_x - 0.2 * inch, sy + 0.12 * inch, summary_x_right, sy + 0.12 * inch)
     sy -= 0.12 * inch
     summary_row("BALANCE DUE", fmt_money_symbol(balance_due, invoice.currency), bold=True, big=True)
+
+    if invoice_note:
+        note_x = x0
+        note_y = table_bottom - 0.2 * inch
+        note_w = max((summary_label_x - 0.4 * inch) - note_x, 2.2 * inch)
+        set_font(10, bold=True)
+        c.drawString(note_x, note_y, "NOTE")
+        set_font(9)
+        text = c.beginText(note_x, note_y - 0.18 * inch)
+        text.setFont(font_regular, 9)
+        for raw_line in split_lines(invoice_note):
+            remaining = raw_line
+            while remaining:
+                candidate = remaining
+                while c.stringWidth(candidate, font_regular, 9) > note_w and len(candidate) > 1:
+                    cut = candidate.rfind(" ")
+                    if cut <= 0:
+                        cut = len(candidate) - 1
+                    candidate = candidate[:cut].rstrip()
+                text.textLine(candidate)
+                remaining = remaining[len(candidate):].strip()
+        c.drawText(text)
 
     # Footer payment info (left)
     footer_lines = split_lines(getattr(settings, "INVOICE_PAYMENT_LINES", ""))

@@ -34,7 +34,8 @@ def _rebuild_invoice_lines_for_free_lines(conn: Connection) -> None:
     by_name = {str(row["name"]): row for row in info}
     product_id_row = by_name.get("product_id")
     line_type_row = by_name.get("line_type")
-    if product_id_row and int(product_id_row.get("notnull") or 0) == 0 and line_type_row:
+    order_index_row = by_name.get("order_index")
+    if product_id_row and int(product_id_row.get("notnull") or 0) == 0 and line_type_row and order_index_row:
         return
 
     conn.execute(text("DROP TABLE IF EXISTS invoice_lines__new"))
@@ -50,6 +51,7 @@ def _rebuild_invoice_lines_for_free_lines(conn: Connection) -> None:
                 product_name VARCHAR(255) NOT NULL,
                 uom VARCHAR(32) NOT NULL DEFAULT 'Pc',
                 line_date DATETIME,
+                order_index INTEGER NOT NULL DEFAULT 0,
                 quantity INTEGER NOT NULL,
                 unit_price NUMERIC NOT NULL,
                 discount_amount NUMERIC NOT NULL DEFAULT 0,
@@ -66,12 +68,13 @@ def _rebuild_invoice_lines_for_free_lines(conn: Connection) -> None:
     sku_expr = "COALESCE(sku, '')" if "sku" in cols else "''"
     uom_expr = "COALESCE(uom, 'Pc')" if "uom" in cols else "'Pc'"
     line_date_expr = "line_date" if "line_date" in cols else "NULL"
+    order_index_expr = "COALESCE(order_index, id)" if "order_index" in cols else "id"
     discount_expr = "COALESCE(discount_amount, 0)" if "discount_amount" in cols else "0"
     conn.execute(
         text(
             f"""
             INSERT INTO invoice_lines__new (
-                id, invoice_id, product_id, line_type, sku, product_name, uom, line_date,
+                id, invoice_id, product_id, line_type, sku, product_name, uom, line_date, order_index,
                 quantity, unit_price, discount_amount, line_total
             )
             SELECT
@@ -83,6 +86,7 @@ def _rebuild_invoice_lines_for_free_lines(conn: Connection) -> None:
                 product_name,
                 {uom_expr},
                 {line_date_expr},
+                {order_index_expr},
                 quantity,
                 unit_price,
                 {discount_expr},
@@ -252,6 +256,7 @@ def _ensure_columns(conn: Connection) -> None:
         _add_column_if_missing(conn, "invoices", "address_snapshot", "address_snapshot TEXT")
         _add_column_if_missing(conn, "invoices", "city_snapshot", "city_snapshot TEXT")
         _add_column_if_missing(conn, "invoices", "zip_code_snapshot", "zip_code_snapshot TEXT")
+        _add_column_if_missing(conn, "invoices", "note", "note TEXT")
         _add_column_if_missing(conn, "invoices", "order_discount_amount", "order_discount_amount NUMERIC NOT NULL DEFAULT 0")
         _add_column_if_missing(conn, "invoices", "discount_amount", "discount_amount NUMERIC NOT NULL DEFAULT 0")
         _add_column_if_missing(conn, "invoices", "shipping_amount", "shipping_amount NUMERIC NOT NULL DEFAULT 0")

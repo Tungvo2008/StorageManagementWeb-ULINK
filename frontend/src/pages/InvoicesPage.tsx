@@ -37,6 +37,7 @@ type EditInvoiceForm = {
   address_snapshot: string;
   city_snapshot: string;
   zip_code_snapshot: string;
+  note: string;
   tax_rate: string;
   order_discount_amount: string;
   shipping_amount: string;
@@ -66,6 +67,7 @@ type InvoiceImportPayload = {
   address_snapshot: string;
   city_snapshot: string;
   zip_code_snapshot: string;
+  note?: string | null;
   currency: string;
   tax_rate: number;
   order_discount_amount: number;
@@ -135,6 +137,7 @@ function buildEditForm(invoice: Invoice): EditInvoiceForm {
     address_snapshot: invoice.address_snapshot ?? "",
     city_snapshot: invoice.city_snapshot ?? "",
     zip_code_snapshot: invoice.zip_code_snapshot ?? "",
+    note: invoice.note ?? "",
     tax_rate: String(invoice.tax_rate ?? "0"),
     order_discount_amount: toMoneyString(invoice.order_discount_amount),
     shipping_amount: toMoneyString(invoice.shipping_amount),
@@ -164,6 +167,7 @@ function buildCreateForm(): EditInvoiceForm {
     address_snapshot: "",
     city_snapshot: "",
     zip_code_snapshot: "",
+    note: "",
     tax_rate: "0",
     order_discount_amount: "0.00",
     shipping_amount: "0.00",
@@ -299,6 +303,18 @@ export default function InvoicesPage() {
     });
   }
 
+  function moveLine(lineIndex: number, direction: "up" | "down") {
+    setEditForm((curr) => {
+      if (!curr) return curr;
+      const targetIndex = direction === "up" ? lineIndex - 1 : lineIndex + 1;
+      if (targetIndex < 0 || targetIndex >= curr.lines.length) return curr;
+      const lines = [...curr.lines];
+      const [moved] = lines.splice(lineIndex, 1);
+      lines.splice(targetIndex, 0, moved);
+      return { ...curr, lines };
+    });
+  }
+
   async function importInvoiceExcel(file: File) {
     setImportingLines(true);
     setModalError(null);
@@ -316,6 +332,7 @@ export default function InvoicesPage() {
         address_snapshot: curr?.address_snapshot ?? "",
         city_snapshot: curr?.city_snapshot ?? "",
         zip_code_snapshot: curr?.zip_code_snapshot ?? "",
+        note: curr?.note ?? payload.note ?? "",
         currency: curr?.currency ?? "USD",
         tax_rate: curr?.tax_rate ?? "0",
         order_discount_amount: curr?.order_discount_amount ?? "0.00",
@@ -518,6 +535,7 @@ export default function InvoicesPage() {
         address_snapshot: editForm.address_snapshot.trim(),
         city_snapshot: editForm.city_snapshot.trim(),
         zip_code_snapshot: editForm.zip_code_snapshot.trim(),
+        note: editForm.note.trim() || null,
         currency: editForm.currency.trim() || "USD",
         tax_rate: Number(editForm.tax_rate || 0),
         order_discount_amount: Number(editForm.order_discount_amount || 0),
@@ -1046,6 +1064,15 @@ export default function InvoicesPage() {
                   onChange={(e) => setEditForm((curr) => curr ? { ...curr, shipping_amount: e.target.value } : curr)}
                 />
               </div>
+              <div className="field" style={{ minWidth: 320, flex: 1 }}>
+                <label>Invoice note</label>
+                <input
+                  className="input"
+                  placeholder="Ví dụ: lò bánh mì"
+                  value={editForm.note}
+                  onChange={(e) => setEditForm((curr) => curr ? { ...curr, note: e.target.value } : curr)}
+                />
+              </div>
             </div>
 
             <div className="row" style={{ justifyContent: "space-between", marginTop: 16 }}>
@@ -1091,7 +1118,7 @@ export default function InvoicesPage() {
                     <th>Unit price</th>
                     <th>Discount</th>
                     <th className="right">Line total</th>
-                    <th />
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1235,9 +1262,22 @@ export default function InvoicesPage() {
                         </td>
                         <td className="right">{lineTotal.toFixed(2)}</td>
                         <td>
-                          <button className="btn" type="button" onClick={() => removeLine(index)} disabled={editForm.lines.length <= 1}>
-                            Remove
-                          </button>
+                          <div className="row" style={{ gap: 6, flexWrap: "nowrap" }}>
+                            <button className="btn" type="button" onClick={() => moveLine(index, "up")} disabled={index === 0}>
+                              ↑
+                            </button>
+                            <button
+                              className="btn"
+                              type="button"
+                              onClick={() => moveLine(index, "down")}
+                              disabled={index === editForm.lines.length - 1}
+                            >
+                              ↓
+                            </button>
+                            <button className="btn" type="button" onClick={() => removeLine(index)} disabled={editForm.lines.length <= 1}>
+                              Remove
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     );

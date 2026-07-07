@@ -41,6 +41,7 @@ class InvoiceManualCreate(BaseModel):
     address_snapshot: str | None = None
     city_snapshot: str | None = Field(default=None, max_length=255)
     zip_code_snapshot: str | None = Field(default=None, max_length=32)
+    note: str | None = None
     currency: str = Field(default="USD", min_length=1, max_length=8)
     tax_rate: Decimal = Field(default=Decimal("0"), ge=0)
     order_discount_amount: Decimal = Field(default=Decimal("0"), ge=0)
@@ -59,6 +60,7 @@ class InvoiceUpdate(BaseModel):
     address_snapshot: str | None = None
     city_snapshot: str | None = Field(default=None, max_length=255)
     zip_code_snapshot: str | None = Field(default=None, max_length=32)
+    note: str | None = None
     tax_rate: Decimal | None = Field(default=None, ge=0)
     order_discount_amount: Decimal | None = Field(default=None, ge=0)
     shipping_amount: Decimal | None = Field(default=None, ge=0)
@@ -90,6 +92,7 @@ class InvoiceLineRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
+    order_index: int
     line_type: InvoiceLineType
     product_id: int | None
     sku: str
@@ -114,6 +117,7 @@ class InvoiceRead(BaseModel):
     address_snapshot: str | None = None
     city_snapshot: str | None = None
     zip_code_snapshot: str | None = None
+    note: str | None = None
     issued_at: datetime
     due_at: datetime | None
     status: InvoiceStatus

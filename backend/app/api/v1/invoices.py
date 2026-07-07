@@ -277,11 +277,13 @@ def create_manual_invoice(
         address_snapshot=(body.address_snapshot or "").strip() or None,
         city_snapshot=(body.city_snapshot or "").strip() or None,
         zip_code_snapshot=(body.zip_code_snapshot or "").strip() or None,
+        note=(body.note or "").strip() or None,
     )
     invoice.lines = []
-    for line_in in body.lines:
+    for index, line_in in enumerate(body.lines):
         line = InvoiceLine()
         _apply_invoice_line(line, line_in)
+        line.order_index = index
         invoice.lines.append(line)
 
     _sync_invoice_totals(invoice)
@@ -332,9 +334,10 @@ def patch_invoice(
         invoice.due_at = data["due_at"]
     if "status" in data and data["status"] is not None:
         invoice.status = data["status"]
-    for field in ("client_name_snapshot", "tele_snapshot", "address_snapshot", "city_snapshot", "zip_code_snapshot"):
+    for field in ("client_name_snapshot", "tele_snapshot", "address_snapshot", "city_snapshot", "zip_code_snapshot", "note"):
         if field in data:
-            setattr(invoice, field, data[field])
+            value = data[field]
+            setattr(invoice, field, (value or "").strip() or None if isinstance(value, str) or value is None else value)
     if "currency" in data and data["currency"] is not None:
         invoice.currency = str(data["currency"]).strip().upper()
     if "tax_rate" in data and data["tax_rate"] is not None:
@@ -350,7 +353,7 @@ def patch_invoice(
         if missing_ids:
             raise HTTPException(status_code=400, detail=f"Unknown invoice line id(s): {', '.join(missing_ids)}")
         next_lines: list[InvoiceLine] = []
-        for line_data in payload_lines:
+        for index, line_data in enumerate(payload_lines):
             if line_data.id is not None:
                 line = existing_lines[line_data.id]
                 default_product_id = line.product_id
@@ -358,6 +361,7 @@ def patch_invoice(
                 line = InvoiceLine(invoice_id=invoice.id)
                 default_product_id = None
             _apply_invoice_line(line, line_data, default_product_id=default_product_id)
+            line.order_index = index
             next_lines.append(line)
         invoice.lines = next_lines
 
@@ -536,23 +540,29 @@ def merge_invoices(
         address_snapshot=first.address_snapshot,
         city_snapshot=first.city_snapshot,
         zip_code_snapshot=first.zip_code_snapshot,
-        lines=[
-            InvoiceLine(
-                product_id=line.product_id,
-                line_type=line.line_type,
-                sku=line.sku,
-                product_name=line.product_name,
-                uom=line.uom,
-                quantity=line.quantity,
-                unit_price=line.unit_price,
-                discount_amount=line.discount_amount,
-                line_total=line.line_total,
-                line_date=line.line_date,
-            )
-            for invoice in ordered_invoices
-            for line in invoice.lines
-        ],
+        lines=[],
     )
+    merged_lines: list[InvoiceLine] = []
+    next_order_index = 0
+    for invoice in ordered_invoices:
+        for line in invoice.lines:
+            merged_lines.append(
+                InvoiceLine(
+                    product_id=line.product_id,
+                    line_type=line.line_type,
+                    sku=line.sku,
+                    product_name=line.product_name,
+                    uom=line.uom,
+                    quantity=line.quantity,
+                    unit_price=line.unit_price,
+                    discount_amount=line.discount_amount,
+                    line_total=line.line_total,
+                    line_date=line.line_date,
+                    order_index=next_order_index,
+                )
+            )
+            next_order_index += 1
+    merged_invoice.lines = merged_lines
     db.add(merged_invoice)
     db.flush()
 
@@ -585,7 +595,11 @@ def download_invoice_pdf(invoice_id: int, db: Session = Depends(get_db)) -> Resp
 
     buyer_name = invoice.client_name_snapshot or (customer.name if customer else "Walk-in customer")
     buyer_slug = _safe_filename_part(buyer_name)
-    filename = f"{invoice.invoice_number} - {buyer_slug}.pdf"
+    note_slug = _safe_filename_part(invoice.note or "") if invoice.note else ""
+    filename = f"{invoice.invoice_number} - {buyer_slug}"
+    if note_slug and note_slug.lower() != "customer":
+        filename = f"{filename} - {note_slug}"
+    filename = f"{filename}.pdf"
     content_disposition = f"attachment; filename=\"{filename}\"; filename*=UTF-8''{quote(filename)}"
     return Response(
         content=pdf_bytes,

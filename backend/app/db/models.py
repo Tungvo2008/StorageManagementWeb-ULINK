@@ -292,6 +292,7 @@ class Invoice(TimestampMixin, Base):
     address_snapshot: Mapped[str | None] = mapped_column(Text, nullable=True)
     city_snapshot: Mapped[str | None] = mapped_column(String(255), nullable=True)
     zip_code_snapshot: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    note: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     issued_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
     due_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
@@ -315,6 +316,7 @@ class Invoice(TimestampMixin, Base):
     lines: Mapped[list[InvoiceLine]] = relationship(
         back_populates="invoice",
         cascade="all, delete-orphan",
+        order_by="InvoiceLine.order_index, InvoiceLine.id",
     )
     payments: Mapped[list["InvoicePayment"]] = relationship(
         back_populates="invoice",
@@ -373,6 +375,7 @@ class InvoiceLine(Base):
 
     uom: Mapped[str] = mapped_column(String(32), nullable=False, default="Pc")
     line_date: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    order_index: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
 
     quantity: Mapped[int] = mapped_column(Integer, nullable=False)
     unit_price: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)

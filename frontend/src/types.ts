@@ -109,6 +109,7 @@ export type Invoice = {
   address_snapshot?: string | null;
   city_snapshot?: string | null;
   zip_code_snapshot?: string | null;
+  note?: string | null;
   issued_at: string;
   due_at: string | null;
   status: "DRAFT" | "ISSUED" | "PAID" | "VOID";
