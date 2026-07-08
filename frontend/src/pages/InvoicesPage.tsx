@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import type { DragEvent } from "react";
 import { apiJson, apiUpload, downloadFile, previewFile } from "../api/client";
 import type { Customer, Invoice } from "../types";
 import type { SortState } from "../utils/table";
@@ -242,6 +243,8 @@ export default function InvoicesPage() {
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [mergeOpen, setMergeOpen] = useState(false);
   const [modalError, setModalError] = useState<string | null>(null);
+  const [draggedLineIndex, setDraggedLineIndex] = useState<number | null>(null);
+  const [dragOverLineIndex, setDragOverLineIndex] = useState<number | null>(null);
   const [savingEdit, setSavingEdit] = useState(false);
   const [savingPayment, setSavingPayment] = useState(false);
   const [savingMerge, setSavingMerge] = useState(false);
@@ -303,16 +306,36 @@ export default function InvoicesPage() {
     });
   }
 
-  function moveLine(lineIndex: number, direction: "up" | "down") {
+  function reorderLine(fromIndex: number, toIndex: number) {
     setEditForm((curr) => {
       if (!curr) return curr;
-      const targetIndex = direction === "up" ? lineIndex - 1 : lineIndex + 1;
-      if (targetIndex < 0 || targetIndex >= curr.lines.length) return curr;
+      if (fromIndex === toIndex || fromIndex < 0 || toIndex < 0 || fromIndex >= curr.lines.length || toIndex >= curr.lines.length) {
+        return curr;
+      }
       const lines = [...curr.lines];
-      const [moved] = lines.splice(lineIndex, 1);
-      lines.splice(targetIndex, 0, moved);
+      const [moved] = lines.splice(fromIndex, 1);
+      lines.splice(toIndex, 0, moved);
       return { ...curr, lines };
     });
+  }
+
+  function handleLineDragStart(lineIndex: number, e: DragEvent<HTMLButtonElement>) {
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", String(lineIndex));
+    setDraggedLineIndex(lineIndex);
+    setDragOverLineIndex(lineIndex);
+  }
+
+  function handleLineDrop(targetIndex: number) {
+    if (draggedLineIndex == null) return;
+    reorderLine(draggedLineIndex, targetIndex);
+    setDraggedLineIndex(null);
+    setDragOverLineIndex(null);
+  }
+
+  function resetLineDrag() {
+    setDraggedLineIndex(null);
+    setDragOverLineIndex(null);
   }
 
   async function importInvoiceExcel(file: File) {
@@ -1126,7 +1149,24 @@ export default function InvoicesPage() {
                     const lineSubtotal = Math.max(Number(line.quantity) || 0, 0) * Math.max(Number(line.unit_price) || 0, 0);
                     const lineTotal = Math.max(lineSubtotal - Math.max(Number(line.discount_amount) || 0, 0), 0);
                     return (
-                      <tr key={line.id ?? `free-${index}`}>
+                      <tr
+                        key={line.id ?? `free-${index}`}
+                        className={
+                          draggedLineIndex === index
+                            ? "invoiceLineRow dragging"
+                            : dragOverLineIndex === index
+                              ? "invoiceLineRow dragOver"
+                              : "invoiceLineRow"
+                        }
+                        onDragOver={(e) => {
+                          e.preventDefault();
+                          if (dragOverLineIndex !== index) setDragOverLineIndex(index);
+                        }}
+                        onDrop={(e) => {
+                          e.preventDefault();
+                          handleLineDrop(index);
+                        }}
+                      >
                         <td>{index + 1}</td>
                         <td>{line.line_type}</td>
                         <td>
@@ -1263,16 +1303,15 @@ export default function InvoicesPage() {
                         <td className="right">{lineTotal.toFixed(2)}</td>
                         <td>
                           <div className="row" style={{ gap: 6, flexWrap: "nowrap" }}>
-                            <button className="btn" type="button" onClick={() => moveLine(index, "up")} disabled={index === 0}>
-                              ↑
-                            </button>
                             <button
                               className="btn"
                               type="button"
-                              onClick={() => moveLine(index, "down")}
-                              disabled={index === editForm.lines.length - 1}
+                              draggable
+                              title="Kéo để đổi thứ tự"
+                              onDragStart={(e) => handleLineDragStart(index, e)}
+                              onDragEnd={resetLineDrag}
                             >
-                              ↓
+                              ↕ Drag
                             </button>
                             <button className="btn" type="button" onClick={() => removeLine(index)} disabled={editForm.lines.length <= 1}>
                               Remove
