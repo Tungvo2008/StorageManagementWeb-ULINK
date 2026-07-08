@@ -230,101 +230,13 @@ def render_invoice_pdf(invoice: Invoice, customer: Customer | None) -> bytes:
     else:
         city_zip = cust_city or cust_zip
 
-    # Header
-    draw_top_bottom_bars()
-
-    y = height - margin - 0.15 * inch
-
-    logo = load_logo_reader()
-    logo_w = 0.0
-    if logo is not None:
-        desired_h = 0.95 * inch
-        desired_w = 1.35 * inch
-        c.drawImage(logo, x0, y - desired_h + 0.1 * inch, width=desired_w, height=desired_h, mask="auto")
-        logo_w = desired_w + 0.2 * inch
-
-    # Nếu chưa set COMPANY_NAME (mặc định "My Company") thì không in chữ này (chỉ dùng logo).
-    company_name = (company.name or "").strip()
-    if company_name and company_name.lower() != "my company":
-        set_font(18, bold=True)
-        c.drawString(x0 + logo_w, y, company_name)
-
-    set_font(10)
-    info_lines: list[str] = []
-    info_lines += split_lines(company.address)
-    info_lines += split_lines(company.phone)
-    if company.email:
-        info_lines.append(company.email)
-    if company.tax_code:
-        info_lines.append(company.tax_code)
-    info_y = y - 0.28 * inch
-    for line in info_lines[:4]:
-        c.drawString(x0 + logo_w, info_y, line)
-        info_y -= 0.2 * inch
-
-    # Invoice title + fields (right side)
-    set_font(20, bold=True)
-    c.drawRightString(x1, y, "INVOICE")
-
-    set_font(9, bold=True)
-    label_x = x1 - 2.2 * inch
-    value_x = x1
-
-    date_label_y = y - 0.45 * inch
-    c.drawString(label_x, date_label_y, "DATE")
-    set_font(10)
-    c.drawRightString(value_x, date_label_y, fmt_date_long(invoice.issued_at))
-    c.setStrokeColor(GRID)
-    c.setLineWidth(0.8)
-    c.line(x1 - 1.6 * inch, date_label_y - 0.05 * inch, x1, date_label_y - 0.05 * inch)
-
-    set_font(9, bold=True)
-    inv_label_y = y - 0.72 * inch
-    c.drawString(label_x, inv_label_y, "INVOICE NO.")
-    set_font(10, bold=True)
-    c.drawRightString(value_x, inv_label_y, invoice.invoice_number)
-    c.line(x1 - 1.2 * inch, inv_label_y - 0.05 * inch, x1, inv_label_y - 0.05 * inch)
-
-    # Bill/Ship blocks
-    block_top = y - 1.25 * inch
-    col_gap = 0.35 * inch
-    col_w = (x1 - x0 - col_gap) / 2
-    bill_x = x0
-    ship_x = x0 + col_w + col_gap
-
-    c.setStrokeColor(LIGHT_GRID)
-    c.setLineWidth(1)
-    c.line(x0, block_top, x1, block_top)
-
-    set_font(10, bold=True)
-    c.setFillColor(colors.black)
-    c.drawString(bill_x, block_top - 0.25 * inch, "BILL TO")
-    c.drawString(ship_x, block_top - 0.25 * inch, "SHIP TO")
-
-    set_font(10)
-    bill_lines = [cust_name, cust_phone, cust_addr, city_zip]
-    ship_lines = [cust_name, cust_phone, cust_addr, city_zip]
-    text_start_y = block_top - 0.45 * inch
-    for i, line in enumerate(bill_lines):
-        if not line:
-            continue
-        c.drawString(bill_x, text_start_y - i * 0.2 * inch, str(line))
-    for i, line in enumerate(ship_lines):
-        if not line:
-            continue
-        c.drawString(ship_x, text_start_y - i * 0.2 * inch, str(line))
-
-    # Table
-    table_top = block_top - 1.15 * inch
     header_h = 0.28 * inch
     row_h = 0.25 * inch
     max_rows = 22
-    if len(invoice.lines) > max_rows:
-        raise RuntimeError(f"Invoice has {len(invoice.lines)} lines but PDF template supports max {max_rows}")
+    logo = load_logo_reader()
 
     col_widths = [0.45 * inch, 3.55 * inch, 0.9 * inch, 0.9 * inch, 1.05 * inch, 1.05 * inch]
     total_w = sum(col_widths)
-    # fit to content width if needed
     available_w = x1 - x0
     if abs(total_w - available_w) > 1:
         scale = available_w / total_w
@@ -334,93 +246,18 @@ def render_invoice_pdf(invoice: Invoice, customer: Customer | None) -> bytes:
     for w in col_widths:
         col_x.append(col_x[-1] + w)
 
-    # Header background
-    c.setFillColor(ORANGE)
-    c.rect(x0, table_top - header_h, x1 - x0, header_h, fill=1, stroke=0)
-    c.setFillColor(colors.white)
-    set_font(10, bold=True)
-    headers = ["NO.", "DESCRIPTION", "UNIT", "QUANTITY", "UNIT PRICE", "TOTAL"]
-    for i, h in enumerate(headers):
-        cx = col_x[i] + 4
-        if i in (3, 4, 5):
-            c.drawRightString(col_x[i + 1] - 4, table_top - header_h + 0.09 * inch, h)
-        else:
-            c.drawString(cx, table_top - header_h + 0.09 * inch, h)
-
-    # Grid
-    c.setStrokeColor(GRID)
-    c.setLineWidth(1)
-    c.line(x0, table_top - header_h, x1, table_top - header_h)
-    c.setStrokeColor(LIGHT_GRID)
-    c.setLineWidth(0.8)
-    # verticals
-    for xx in col_x:
-        c.line(xx, table_top - header_h, xx, table_top - header_h - max_rows * row_h)
-    # horizontals + cell text
-    set_font(10)
-    c.setFillColor(colors.black)
-    for r in range(max_rows):
-        y_top = table_top - header_h - r * row_h
-        y_bottom = y_top - row_h
-        c.line(x0, y_bottom, x1, y_bottom)
-
-        line = invoice.lines[r] if r < len(invoice.lines) else None
-        if line is None:
-            continue
-
-        desc = (line.product_name or "")[:60]
-        unit = (line.uom or "")[:12]
-        qty = int(line.quantity)
-        unit_price = fmt_money_symbol(Decimal(line.unit_price), invoice.currency)
-        total = fmt_money_symbol(Decimal(line.line_total), invoice.currency)
-
-        baseline = y_bottom + 0.07 * inch
-        c.drawString(col_x[0] + 6, baseline, str(r + 1))
-        c.drawString(col_x[1] + 6, baseline, desc)
-        c.drawString(col_x[2] + 6, baseline, unit)
-        c.drawRightString(col_x[4] - 6, baseline, str(qty))
-        c.drawRightString(col_x[5] - 6, baseline, unit_price)
-        c.drawRightString(col_x[6] - 6, baseline, total)
-
-    table_bottom = table_top - header_h - max_rows * row_h
-
-    # Summary (right)
-    summary_x_right = x1
-    summary_label_x = x1 - 2.5 * inch
-    sy = table_bottom - 0.2 * inch
-
     discount = Decimal(getattr(invoice, "discount_amount", Decimal("0")) or 0)
     shipping = Decimal(getattr(invoice, "shipping_amount", Decimal("0")) or 0)
     subtotal_less_discount = Decimal(invoice.subtotal_amount) - discount
     balance_due = subtotal_less_discount + Decimal(invoice.tax_amount) + shipping
 
-    set_font(10)
-    c.setFillColor(colors.black)
+    invoice_lines = list(getattr(invoice, "lines", []) or [])
+    line_chunks = [invoice_lines[i : i + max_rows] for i in range(0, len(invoice_lines), max_rows)] or [[]]
+    page_count = len(line_chunks)
 
-    def summary_row(label: str, value: str, *, bold: bool = False, big: bool = False) -> None:
-        nonlocal sy
-        set_font(10 if not big else 14, bold=bold)
-        c.drawRightString(summary_label_x, sy, label)
-        c.drawRightString(summary_x_right, sy, value)
-        sy -= 0.24 * inch if not big else 0.32 * inch
-
-    summary_row("SUBTOTAL", fmt_money_symbol(Decimal(invoice.subtotal_amount), invoice.currency))
-    summary_row("DISCOUNT", fmt_money_symbol(discount, invoice.currency))
-    summary_row("SUBTOTAL LESS DISCOUNT", fmt_money_symbol(subtotal_less_discount, invoice.currency))
-    summary_row("TAX RATE", fmt_tax_rate(Decimal(invoice.tax_rate)))
-    summary_row("TOTAL TAX", fmt_money_symbol(Decimal(invoice.tax_amount), invoice.currency))
-    summary_row("SHIPPING HANDLING", fmt_money_symbol(shipping, invoice.currency))
-
-    c.setStrokeColor(LIGHT_GRID)
-    c.setLineWidth(1)
-    c.line(summary_label_x - 0.2 * inch, sy + 0.12 * inch, summary_x_right, sy + 0.12 * inch)
-    sy -= 0.12 * inch
-    summary_row("BALANCE DUE", fmt_money_symbol(balance_due, invoice.currency), bold=True, big=True)
-
-    if invoice_note:
-        note_x = x0
-        note_y = table_bottom - 0.2 * inch
-        note_w = max((summary_label_x - 0.4 * inch) - note_x, 2.2 * inch)
+    def draw_wrapped_note(note_x: float, note_y: float, note_w: float) -> None:
+        if not invoice_note:
+            return
         set_font(10, bold=True)
         c.drawString(note_x, note_y, "NOTE")
         set_font(9)
@@ -439,14 +276,185 @@ def render_invoice_pdf(invoice: Invoice, customer: Customer | None) -> bytes:
                 remaining = remaining[len(candidate):].strip()
         c.drawText(text)
 
-    # Footer payment info (left)
-    footer_lines = split_lines(getattr(settings, "INVOICE_PAYMENT_LINES", ""))
-    if footer_lines:
-        fy = 0.7 * inch
-        set_font(9)
-        for line in footer_lines[:6]:
-            c.drawString(x0, fy, line)
-            fy += 0.18 * inch
+    for page_index, page_lines in enumerate(line_chunks):
+        is_last_page = page_index == page_count - 1
+
+        draw_top_bottom_bars()
+
+        y = height - margin - 0.15 * inch
+
+        logo_w = 0.0
+        if logo is not None:
+            desired_h = 0.95 * inch
+            desired_w = 1.35 * inch
+            c.drawImage(logo, x0, y - desired_h + 0.1 * inch, width=desired_w, height=desired_h, mask="auto")
+            logo_w = desired_w + 0.2 * inch
+
+        company_name = (company.name or "").strip()
+        if company_name and company_name.lower() != "my company":
+            set_font(18, bold=True)
+            c.drawString(x0 + logo_w, y, company_name)
+
+        set_font(10)
+        info_lines: list[str] = []
+        info_lines += split_lines(company.address)
+        info_lines += split_lines(company.phone)
+        if company.email:
+            info_lines.append(company.email)
+        if company.tax_code:
+            info_lines.append(company.tax_code)
+        info_y = y - 0.28 * inch
+        for line in info_lines[:4]:
+            c.drawString(x0 + logo_w, info_y, line)
+            info_y -= 0.2 * inch
+
+        set_font(20, bold=True)
+        c.drawRightString(x1, y, "INVOICE")
+
+        set_font(9, bold=True)
+        label_x = x1 - 2.2 * inch
+        value_x = x1
+
+        date_label_y = y - 0.45 * inch
+        c.drawString(label_x, date_label_y, "DATE")
+        set_font(10)
+        c.drawRightString(value_x, date_label_y, fmt_date_long(invoice.issued_at))
+        c.setStrokeColor(GRID)
+        c.setLineWidth(0.8)
+        c.line(x1 - 1.6 * inch, date_label_y - 0.05 * inch, x1, date_label_y - 0.05 * inch)
+
+        set_font(9, bold=True)
+        inv_label_y = y - 0.72 * inch
+        c.drawString(label_x, inv_label_y, "INVOICE NO.")
+        set_font(10, bold=True)
+        c.drawRightString(value_x, inv_label_y, invoice.invoice_number)
+        c.line(x1 - 1.2 * inch, inv_label_y - 0.05 * inch, x1, inv_label_y - 0.05 * inch)
+
+        if page_count > 1:
+            set_font(8)
+            c.drawRightString(value_x, inv_label_y - 0.22 * inch, f"Page {page_index + 1} / {page_count}")
+
+        block_top = y - 1.25 * inch
+        col_gap = 0.35 * inch
+        col_w = (x1 - x0 - col_gap) / 2
+        bill_x = x0
+        ship_x = x0 + col_w + col_gap
+
+        c.setStrokeColor(LIGHT_GRID)
+        c.setLineWidth(1)
+        c.line(x0, block_top, x1, block_top)
+
+        set_font(10, bold=True)
+        c.setFillColor(colors.black)
+        c.drawString(bill_x, block_top - 0.25 * inch, "BILL TO")
+        c.drawString(ship_x, block_top - 0.25 * inch, "SHIP TO")
+
+        set_font(10)
+        bill_lines = [cust_name, cust_phone, cust_addr, city_zip]
+        ship_lines = [cust_name, cust_phone, cust_addr, city_zip]
+        text_start_y = block_top - 0.45 * inch
+        for i, line in enumerate(bill_lines):
+            if not line:
+                continue
+            c.drawString(bill_x, text_start_y - i * 0.2 * inch, str(line))
+        for i, line in enumerate(ship_lines):
+            if not line:
+                continue
+            c.drawString(ship_x, text_start_y - i * 0.2 * inch, str(line))
+
+        table_top = block_top - 1.15 * inch
+
+        c.setFillColor(ORANGE)
+        c.rect(x0, table_top - header_h, x1 - x0, header_h, fill=1, stroke=0)
+        c.setFillColor(colors.white)
+        set_font(10, bold=True)
+        headers = ["NO.", "DESCRIPTION", "UNIT", "QUANTITY", "UNIT PRICE", "TOTAL"]
+        for i, h in enumerate(headers):
+            cx = col_x[i] + 4
+            if i in (3, 4, 5):
+                c.drawRightString(col_x[i + 1] - 4, table_top - header_h + 0.09 * inch, h)
+            else:
+                c.drawString(cx, table_top - header_h + 0.09 * inch, h)
+
+        c.setStrokeColor(GRID)
+        c.setLineWidth(1)
+        c.line(x0, table_top - header_h, x1, table_top - header_h)
+        c.setStrokeColor(LIGHT_GRID)
+        c.setLineWidth(0.8)
+        for xx in col_x:
+            c.line(xx, table_top - header_h, xx, table_top - header_h - max_rows * row_h)
+
+        set_font(10)
+        c.setFillColor(colors.black)
+        line_offset = page_index * max_rows
+        for r in range(max_rows):
+            y_top = table_top - header_h - r * row_h
+            y_bottom = y_top - row_h
+            c.line(x0, y_bottom, x1, y_bottom)
+
+            line = page_lines[r] if r < len(page_lines) else None
+            if line is None:
+                continue
+
+            desc = (line.product_name or "")[:60]
+            unit = (line.uom or "")[:12]
+            qty = int(line.quantity)
+            unit_price = fmt_money_symbol(Decimal(line.unit_price), invoice.currency)
+            total = fmt_money_symbol(Decimal(line.line_total), invoice.currency)
+
+            baseline = y_bottom + 0.07 * inch
+            c.drawString(col_x[0] + 6, baseline, str(line_offset + r + 1))
+            c.drawString(col_x[1] + 6, baseline, desc)
+            c.drawString(col_x[2] + 6, baseline, unit)
+            c.drawRightString(col_x[4] - 6, baseline, str(qty))
+            c.drawRightString(col_x[5] - 6, baseline, unit_price)
+            c.drawRightString(col_x[6] - 6, baseline, total)
+
+        table_bottom = table_top - header_h - max_rows * row_h
+
+        if is_last_page:
+            summary_x_right = x1
+            summary_label_x = x1 - 2.5 * inch
+            sy = table_bottom - 0.2 * inch
+
+            set_font(10)
+            c.setFillColor(colors.black)
+
+            def summary_row(label: str, value: str, *, bold: bool = False, big: bool = False) -> None:
+                nonlocal sy
+                set_font(10 if not big else 14, bold=bold)
+                c.drawRightString(summary_label_x, sy, label)
+                c.drawRightString(summary_x_right, sy, value)
+                sy -= 0.24 * inch if not big else 0.32 * inch
+
+            summary_row("SUBTOTAL", fmt_money_symbol(Decimal(invoice.subtotal_amount), invoice.currency))
+            summary_row("DISCOUNT", fmt_money_symbol(discount, invoice.currency))
+            summary_row("SUBTOTAL LESS DISCOUNT", fmt_money_symbol(subtotal_less_discount, invoice.currency))
+            summary_row("TAX RATE", fmt_tax_rate(Decimal(invoice.tax_rate)))
+            summary_row("TOTAL TAX", fmt_money_symbol(Decimal(invoice.tax_amount), invoice.currency))
+            summary_row("SHIPPING HANDLING", fmt_money_symbol(shipping, invoice.currency))
+
+            c.setStrokeColor(LIGHT_GRID)
+            c.setLineWidth(1)
+            c.line(summary_label_x - 0.2 * inch, sy + 0.12 * inch, summary_x_right, sy + 0.12 * inch)
+            sy -= 0.12 * inch
+            summary_row("BALANCE DUE", fmt_money_symbol(balance_due, invoice.currency), bold=True, big=True)
+
+            if invoice_note:
+                note_x = x0
+                note_y = table_bottom - 0.2 * inch
+                note_w = max((summary_label_x - 0.4 * inch) - note_x, 2.2 * inch)
+                draw_wrapped_note(note_x, note_y, note_w)
+
+            footer_lines = split_lines(getattr(settings, "INVOICE_PAYMENT_LINES", ""))
+            if footer_lines:
+                fy = 0.7 * inch
+                set_font(9)
+                for line in footer_lines[:6]:
+                    c.drawString(x0, fy, line)
+                    fy += 0.18 * inch
+
+        c.showPage()
 
     c.save()
     return buf.getvalue()
