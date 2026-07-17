@@ -177,6 +177,7 @@ export default function SalesPage() {
           discount_amount: Number(discountAmount || 0),
           shipping_amount: Number(shippingAmount || 0),
           tax_rate: Number(taxRate),
+          ignore_stock: ignoreStock,
           lines: lines.map((l) => ({
             product_id: l.product_id,
             quantity: l.quantity,
@@ -247,9 +248,6 @@ export default function SalesPage() {
                 } else if (nextPurpose === "AMAZON_FBM") {
                   setIssuedTo("Amazon FBM");
                 }
-                if (nextPurpose === "SALE") {
-                  setIgnoreStock(false);
-                }
               }}
             >
               <option value="SALE">Bán hàng (Sale)</option>
@@ -311,12 +309,10 @@ export default function SalesPage() {
             </>
           )}
         </div>
-        {!isSalePurpose ? (
-          <label className="row" style={{ gap: 8, alignItems: "center", marginTop: 8 }}>
-            <input type="checkbox" checked={ignoreStock} onChange={(e) => setIgnoreStock(e.target.checked)} />
-            Bỏ qua tồn kho khi issue
-          </label>
-        ) : null}
+        <label className="row" style={{ gap: 8, alignItems: "center", marginTop: 8 }}>
+          <input type="checkbox" checked={ignoreStock} onChange={(e) => setIgnoreStock(e.target.checked)} />
+          {isSalePurpose ? "Bỏ qua tồn kho khi tạo sale" : "Bỏ qua tồn kho khi issue"}
+        </label>
 
         <div className="posSaleMain" style={{ marginTop: 12 }}>
           <div className="card">
@@ -472,7 +468,9 @@ export default function SalesPage() {
               </button>
               <div className="muted">
                 {isSalePurpose
-                  ? "Khi CONFIRMED, hệ thống sẽ trừ tồn kho và tạo stock movement."
+                  ? ignoreStock
+                    ? "Đang bật bỏ qua tồn kho: hệ thống vẫn tạo sale CONFIRMED và trừ kho, kể cả khi tồn không đủ."
+                    : "Khi CONFIRMED, hệ thống sẽ trừ tồn kho và tạo stock movement."
                   : ignoreStock
                     ? "Đang bật bỏ qua tồn kho: hệ thống vẫn tạo phiếu xuất và trừ kho, kể cả khi tồn không đủ."
                     : "Hệ thống sẽ trừ tồn kho và lưu phiếu xuất (Inventory Issue)."}

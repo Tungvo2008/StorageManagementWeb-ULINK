@@ -53,6 +53,7 @@ def create_sale(order_in: SaleOrderCreate, db: Session = Depends(get_db)) -> Sal
 
     order_discount_amount = Decimal(str(order_in.discount_amount or 0))
     shipping_amount = Decimal(str(order_in.shipping_amount or 0))
+    ignore_stock = bool(getattr(order_in, "ignore_stock", False))
     if order_discount_amount < 0 or shipping_amount < 0:
         raise HTTPException(status_code=400, detail="discount_amount/shipping_amount must be >= 0")
 
@@ -85,7 +86,7 @@ def create_sale(order_in: SaleOrderCreate, db: Session = Depends(get_db)) -> Sal
 
         base_qty = line_in.quantity * int(product.uom_multiplier or 1)
 
-        if order_in.status == SaleStatus.CONFIRMED and product.quantity_on_hand < base_qty:
+        if order_in.status == SaleStatus.CONFIRMED and not ignore_stock and product.quantity_on_hand < base_qty:
             raise HTTPException(status_code=400, detail=f"Not enough stock for product {product.sku}")
 
         unit_price = Decimal(product.unit_price)
@@ -120,7 +121,7 @@ def create_sale(order_in: SaleOrderCreate, db: Session = Depends(get_db)) -> Sal
                     sale_order_id=sale.id,
                     movement_type=StockMovementType.OUT,
                     quantity_delta=-base_qty,
-                    note=f"Sale order #{sale.id}",
+                    note=f"Sale order #{sale.id}{' | IGNORE_STOCK' if ignore_stock else ''}",
                 )
             )
 

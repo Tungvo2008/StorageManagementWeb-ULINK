@@ -21,6 +21,7 @@ class SaleOrderCreate(BaseModel):
     discount_amount: float | None = Field(default=0, ge=0)
     shipping_amount: float | None = Field(default=0, ge=0)
     tax_rate: float | None = Field(default=None, ge=0, le=1)
+    ignore_stock: bool = False
     lines: list[SaleOrderLineCreate] = Field(min_length=1)
 
 
