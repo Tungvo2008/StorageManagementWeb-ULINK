@@ -442,6 +442,7 @@ def _create_issue(*, body: InventoryIssueCreate, db: Session, actor_username: st
     purpose = (body.purpose or "").strip() or "OTHER"
     issued_by = ((actor_username or "").strip() or (body.issued_by or "").strip()) or None
     issue_number = (body.issue_number or "").strip() or _generate_issue_number(db)
+    ignore_stock = bool(getattr(body, "ignore_stock", False))
 
     issue = InventoryIssue(
         issue_number=issue_number,
@@ -470,7 +471,7 @@ def _create_issue(*, body: InventoryIssueCreate, db: Session, actor_username: st
         multiplier = 1 if unit == "BASE" else int(product.uom_multiplier or 1)
         base_qty = qty * multiplier
 
-        if product.quantity_on_hand < base_qty:
+        if not ignore_stock and product.quantity_on_hand < base_qty:
             raise HTTPException(status_code=400, detail=f"Not enough stock for product {product.sku}")
 
         iss_line = InventoryIssueLine(
@@ -495,7 +496,7 @@ def _create_issue(*, body: InventoryIssueCreate, db: Session, actor_username: st
                 sale_order_id=issue.sale_order_id,
                 movement_type=StockMovementType.OUT,
                 quantity_delta=-base_qty,
-                note=f"Issue #{issue.id} [{purpose}]",
+                note=f"Issue #{issue.id} [{purpose}{' | IGNORE_STOCK' if ignore_stock else ''}]",
                 created_at=issued_at,
             )
         )

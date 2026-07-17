@@ -117,6 +117,7 @@ class InventoryIssueCreate(BaseModel):
     issued_to: str | None = None
     purpose: str = "OTHER"
     note: str | None = None
+    ignore_stock: bool = False
     sale_order_id: int | None = None
     lines: list[InventoryIssueLineCreate] = Field(min_length=1)
 

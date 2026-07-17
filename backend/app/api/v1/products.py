@@ -49,6 +49,17 @@ def _parse_bool(v: Any, default: bool = True) -> bool:
     return s in {"1", "true", "yes", "y", "active"}
 
 
+def _parse_decimal(v: Any, *, default: Decimal = Decimal("0")) -> Decimal:
+    raw = _cell_str(v)
+    if not raw:
+        return default
+    normalized = raw.replace(",", "")
+    try:
+        return Decimal(normalized)
+    except Exception as e:
+        raise ValueError(f"Invalid decimal value: {raw}") from e
+
+
 def _normalize_sku_value(value: str | None) -> str:
     return (value or "").strip()
 
@@ -109,15 +120,18 @@ def _build_products_template_xlsx() -> bytes:
     wb = Workbook()
     ws = wb.active
     ws.title = "Products Import"
-    ws.append(["sku", "name", "base_uom", "uom", "is_active"])
-    ws.append(["", "Sample Product", "Pc", "Pc", True])
+    ws.append(["sku", "name", "category", "base_uom", "uom", "unit_price", "cost_price", "is_active"])
+    ws.append(["", "Sample Product", "", "Pc", "Pc", "10.00", "6.50", True])
     for cell in ws[1]:
         cell.font = Font(bold=True)
     ws.column_dimensions["A"].width = 20
     ws.column_dimensions["B"].width = 40
-    ws.column_dimensions["C"].width = 14
+    ws.column_dimensions["C"].width = 24
     ws.column_dimensions["D"].width = 14
-    ws.column_dimensions["E"].width = 12
+    ws.column_dimensions["E"].width = 14
+    ws.column_dimensions["F"].width = 14
+    ws.column_dimensions["G"].width = 14
+    ws.column_dimensions["H"].width = 12
 
     buf = BytesIO()
     wb.save(buf)
@@ -129,17 +143,34 @@ def _build_products_export_xlsx(products: list[Product]) -> bytes:
     wb = Workbook()
     ws = wb.active
     ws.title = "Products"
-    ws.append(["id", "sku", "name", "base_uom", "uom", "is_active"])
+    ws.append(["id", "sku", "name", "category", "base_uom", "uom", "unit_price", "cost_price", "currency", "is_active"])
     for p in products:
-        ws.append([p.id, p.sku, p.name, p.base_uom, p.uom, bool(p.is_active)])
+        ws.append(
+            [
+                p.id,
+                p.sku,
+                p.name,
+                p.category.name if p.category else "",
+                p.base_uom,
+                p.uom,
+                str(p.unit_price or Decimal("0")),
+                str(p.cost_price or Decimal("0")),
+                p.currency or settings.DEFAULT_CURRENCY,
+                bool(p.is_active),
+            ]
+        )
     for cell in ws[1]:
         cell.font = Font(bold=True)
     ws.column_dimensions["A"].width = 10
     ws.column_dimensions["B"].width = 20
     ws.column_dimensions["C"].width = 40
-    ws.column_dimensions["D"].width = 14
+    ws.column_dimensions["D"].width = 24
     ws.column_dimensions["E"].width = 14
-    ws.column_dimensions["F"].width = 12
+    ws.column_dimensions["F"].width = 14
+    ws.column_dimensions["G"].width = 14
+    ws.column_dimensions["H"].width = 14
+    ws.column_dimensions["I"].width = 12
+    ws.column_dimensions["J"].width = 12
 
     buf = BytesIO()
     wb.save(buf)
@@ -175,18 +206,34 @@ def _parse_products_import_xlsx(file_bytes: bytes) -> list[dict[str, Any]]:
 
         base_uom = _cell_str(row_vals[idx["base_uom"]] if "base_uom" in idx and idx["base_uom"] < len(row_vals) else "")
         uom = _cell_str(row_vals[idx["uom"]] if "uom" in idx and idx["uom"] < len(row_vals) else "")
+        category_name = _cell_str(row_vals[idx["category"]] if "category" in idx and idx["category"] < len(row_vals) else "")
+        unit_price_raw = row_vals[idx["unit_price"]] if "unit_price" in idx and idx["unit_price"] < len(row_vals) else None
+        cost_price_raw = row_vals[idx["cost_price"]] if "cost_price" in idx and idx["cost_price"] < len(row_vals) else None
         is_active_raw = row_vals[idx["is_active"]] if "is_active" in idx and idx["is_active"] < len(row_vals) else None
 
         base_uom = base_uom or "Pc"
         uom = uom or "Pc"
         is_active = _parse_bool(is_active_raw, default=True)
+        try:
+            unit_price = _parse_decimal(unit_price_raw)
+        except ValueError:
+            errors.append(f"Row {row_i}: invalid unit_price")
+            continue
+        try:
+            cost_price = _parse_decimal(cost_price_raw)
+        except ValueError:
+            errors.append(f"Row {row_i}: invalid cost_price")
+            continue
 
         items.append(
             {
                 "sku": sku,
                 "name": name,
+                "category": category_name,
                 "base_uom": base_uom,
                 "uom": uom,
+                "unit_price": unit_price,
+                "cost_price": cost_price,
                 "is_active": is_active,
             }
         )
@@ -260,7 +307,7 @@ def download_products_template() -> Response:
 
 @router.get("/export.xlsx")
 def export_products_xlsx(db: Session = Depends(get_db)) -> Response:
-    products = db.scalars(select(Product).order_by(Product.id.asc())).all()
+    products = db.scalars(select(Product).options(selectinload(Product.category)).order_by(Product.id.asc())).all()
     try:
         xlsx = _build_products_export_xlsx(products)
     except RuntimeError as e:
@@ -286,6 +333,8 @@ if _has_python_multipart():
 
         existing_products = db.scalars(select(Product)).all()
         existing_by_sku = {p.sku.upper(): p for p in existing_products}
+        categories = db.scalars(select(Category)).all()
+        category_by_name = {cat.name.strip().lower(): cat for cat in categories if (cat.name or "").strip()}
         created = 0
         updated = 0
         for item in items:
@@ -299,29 +348,40 @@ if _has_python_multipart():
                 uom_multiplier = 1
                 uom = base_uom
             is_active = bool(item["is_active"])
+            category_name = item["category"].strip()
+            category = category_by_name.get(category_name.lower()) if category_name else None
+            category_id = category.id if category is not None else None
+            should_update_category = not category_name or category is not None
+            unit_price = item["unit_price"]
+            cost_price = item["cost_price"]
 
             product = existing_by_sku.get(key)
             if product is None:
                 product = Product(
                     sku=sku,
                     name=name,
+                    category_id=category_id,
                     base_uom=base_uom,
                     uom=uom,
                     uom_multiplier=uom_multiplier,
                     is_active=is_active,
                     quantity_on_hand=0,
                     currency=settings.DEFAULT_CURRENCY,
-                    unit_price=Decimal("0"),
-                    cost_price=Decimal("0"),
+                    unit_price=unit_price,
+                    cost_price=cost_price,
                 )
                 db.add(product)
                 existing_by_sku[key] = product
                 created += 1
             else:
                 product.name = name
+                if should_update_category:
+                    product.category_id = category_id
                 product.base_uom = base_uom
                 product.uom = uom
                 product.uom_multiplier = uom_multiplier
+                product.unit_price = unit_price
+                product.cost_price = cost_price
                 product.is_active = is_active
                 updated += 1
 

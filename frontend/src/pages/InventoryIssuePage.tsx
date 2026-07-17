@@ -8,6 +8,8 @@ import Modal from "../components/Modal";
 import type { SortState } from "../utils/table";
 import { matchesQuery, sortBy, toggleSort } from "../utils/table";
 
+const ISSUE_DRAFT_STORAGE_KEY = "inventory_issue_form_draft_v1";
+
 type IssueLineDraft = {
   product_id: number | null;
   quantity: number;
@@ -22,6 +24,7 @@ type IssueDraft = {
   issued_to?: string | null;
   purpose: string;
   note?: string | null;
+  ignore_stock?: boolean;
   lines: IssueLineDraft[];
 };
 
@@ -104,6 +107,51 @@ function toLocalInputFromIso(isoValue: string | null | undefined): string {
   return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
 }
 
+function createEmptyIssueDraft(currentUsername: string | null): IssueDraft {
+  return {
+    issue_number: "",
+    issued_at: "",
+    issued_by: currentUsername,
+    issued_to: "",
+    purpose: "TEST",
+    note: "",
+    ignore_stock: false,
+    lines: [{ product_id: null, quantity: 1, unit: "BASE" }],
+  };
+}
+
+function normalizeIssueLineDraft(line: unknown): IssueLineDraft | null {
+  if (!line || typeof line !== "object") return null;
+  const raw = line as Partial<IssueLineDraft>;
+  return {
+    product_id: typeof raw.product_id === "number" && Number.isFinite(raw.product_id) ? raw.product_id : null,
+    quantity: typeof raw.quantity === "number" && Number.isFinite(raw.quantity) && raw.quantity > 0 ? raw.quantity : 1,
+    unit: raw.unit === "SALE" ? "SALE" : "BASE",
+    note: typeof raw.note === "string" ? raw.note : null,
+  };
+}
+
+function normalizeStoredIssueDraft(raw: unknown, currentUsername: string | null): IssueDraft {
+  if (!raw || typeof raw !== "object") {
+    return createEmptyIssueDraft(currentUsername);
+  }
+  const value = raw as Partial<IssueDraft>;
+  const lines =
+    Array.isArray(value.lines)
+      ? value.lines.map((line) => normalizeIssueLineDraft(line)).filter((line): line is IssueLineDraft => line != null)
+      : [];
+  return {
+    issue_number: typeof value.issue_number === "string" ? value.issue_number : "",
+    issued_at: typeof value.issued_at === "string" ? value.issued_at : "",
+    issued_by: currentUsername,
+    issued_to: typeof value.issued_to === "string" ? value.issued_to : "",
+    purpose: typeof value.purpose === "string" && value.purpose.trim() ? value.purpose : "TEST",
+    note: typeof value.note === "string" ? value.note : "",
+    ignore_stock: Boolean(value.ignore_stock),
+    lines: lines.length > 0 ? lines : [{ product_id: null, quantity: 1, unit: "BASE" }],
+  };
+}
+
 export default function InventoryIssuePage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [issues, setIssues] = useState<InventoryIssue[]>([]);
@@ -148,14 +196,15 @@ export default function InventoryIssuePage() {
   const [aiParsed, setAiParsed] = useState<ParsedIssueNoteResponse | null>(null);
   const currentUsername = useMemo(() => getCurrentUsername(), []);
 
-  const [form, setForm] = useState<IssueDraft>({
-    issue_number: "",
-    issued_at: "",
-    issued_by: currentUsername,
-    issued_to: "",
-    purpose: "TEST",
-    note: "",
-    lines: [{ product_id: null, quantity: 1, unit: "BASE" }],
+  const [form, setForm] = useState<IssueDraft>(() => {
+    if (typeof window === "undefined") return createEmptyIssueDraft(currentUsername);
+    try {
+      const stored = window.localStorage.getItem(ISSUE_DRAFT_STORAGE_KEY);
+      if (!stored) return createEmptyIssueDraft(currentUsername);
+      return normalizeStoredIssueDraft(JSON.parse(stored), currentUsername);
+    } catch {
+      return createEmptyIssueDraft(currentUsername);
+    }
   });
 
   const productById = useMemo(() => new Map(products.map((p) => [p.id, p])), [products]);
@@ -268,6 +317,30 @@ export default function InventoryIssuePage() {
   useEffect(() => {
     void load();
   }, []);
+
+  useEffect(() => {
+    setForm((prev) => ({ ...prev, issued_by: currentUsername }));
+  }, [currentUsername]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      window.localStorage.setItem(
+        ISSUE_DRAFT_STORAGE_KEY,
+        JSON.stringify({
+          issue_number: form.issue_number ?? "",
+          issued_at: form.issued_at ?? "",
+          issued_to: form.issued_to ?? "",
+          purpose: form.purpose ?? "TEST",
+          note: form.note ?? "",
+          ignore_stock: Boolean(form.ignore_stock),
+          lines: form.lines,
+        }),
+      );
+    } catch {
+      // ignore localStorage write failures
+    }
+  }, [form]);
 
   async function onImportFile(f: File) {
     setImportBusy(true);
@@ -442,18 +515,14 @@ export default function InventoryIssuePage() {
           issued_to: (form.issued_to ?? "").trim() || null,
           purpose: (form.purpose ?? "").trim() || "OTHER",
           note: (form.note ?? "").trim() || null,
+          ignore_stock: Boolean(form.ignore_stock),
           lines,
         }),
       });
-      setForm({
-        issue_number: "",
-        issued_at: "",
-        issued_by: currentUsername,
-        issued_to: "",
-        purpose: "TEST",
-        note: "",
-        lines: [{ product_id: null, quantity: 1, unit: "BASE" }],
-      });
+      if (typeof window !== "undefined") {
+        window.localStorage.removeItem(ISSUE_DRAFT_STORAGE_KEY);
+      }
+      setForm(createEmptyIssueDraft(currentUsername));
       await load();
     } catch (err) {
       setError((err as Error).message);
@@ -738,6 +807,14 @@ export default function InventoryIssuePage() {
             </select>
             <input className="input" placeholder="Ghi chú (optional)" value={form.note ?? ""} onChange={(e) => setForm((s) => ({ ...s, note: e.target.value }))} />
           </div>
+          <label className="row" style={{ gap: 8, alignItems: "center" }}>
+            <input
+              type="checkbox"
+              checked={Boolean(form.ignore_stock)}
+              onChange={(e) => setForm((s) => ({ ...s, ignore_stock: e.target.checked }))}
+            />
+            Bỏ qua tồn kho khi issue
+          </label>
 
           <div style={{ marginTop: 8, overflowX: "auto" }}>
             <table>
@@ -834,16 +911,30 @@ export default function InventoryIssuePage() {
           </div>
 
           <div className="row" style={{ justifyContent: "space-between", marginTop: 8 }}>
-            <button className="btn" type="button" onClick={addLine}>
-              + Add line
-            </button>
+            <div className="row" style={{ gap: 8 }}>
+              <button className="btn" type="button" onClick={addLine}>
+                + Add line
+              </button>
+              <button
+                className="btn"
+                type="button"
+                onClick={() => {
+                  if (typeof window !== "undefined") {
+                    window.localStorage.removeItem(ISSUE_DRAFT_STORAGE_KEY);
+                  }
+                  setForm(createEmptyIssueDraft(currentUsername));
+                }}
+              >
+                Clear draft
+              </button>
+            </div>
             <button className="btn primary" type="submit">
               Create issue
             </button>
           </div>
         </form>
         <div className="muted" style={{ marginTop: 10 }}>
-          Note: hệ thống sẽ chặn nếu tồn kho không đủ.
+          Note: cart đang được tự lưu trên máy này, đổi tab / refresh / mở lại vẫn còn. Nếu bật “Bỏ qua tồn kho”, hệ thống cho phép issue dù hàng chưa có tồn.
         </div>
       </div>
 
