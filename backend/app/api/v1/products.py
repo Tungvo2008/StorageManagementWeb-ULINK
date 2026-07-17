@@ -1,6 +1,8 @@
 from decimal import Decimal
 from io import BytesIO
+import re
 from typing import Any
+import unicodedata
 
 from fastapi import APIRouter, Depends, HTTPException, Response, UploadFile, File, status
 from sqlalchemy import select
@@ -47,6 +49,55 @@ def _parse_bool(v: Any, default: bool = True) -> bool:
     return s in {"1", "true", "yes", "y", "active"}
 
 
+def _normalize_sku_value(value: str | None) -> str:
+    return (value or "").strip()
+
+
+def _slugify_sku_from_name(name: str) -> str:
+    normalized = unicodedata.normalize("NFKD", name or "")
+    ascii_text = normalized.encode("ascii", "ignore").decode("ascii")
+    ascii_text = ascii_text.upper()
+    ascii_text = re.sub(r"[^A-Z0-9]+", "_", ascii_text)
+    ascii_text = re.sub(r"_+", "_", ascii_text).strip("_")
+    return ascii_text[:64] or "SAN_PHAM"
+
+
+def _ensure_unique_sku(base_sku: str, existing_skus_upper: set[str]) -> str:
+    candidate = base_sku[:64] or "SAN_PHAM"
+    if candidate.upper() not in existing_skus_upper:
+        return candidate
+    suffix = 2
+    while True:
+        suffix_str = f"_{suffix}"
+        trimmed = candidate[: max(1, 64 - len(suffix_str))]
+        next_candidate = f"{trimmed}{suffix_str}"
+        if next_candidate.upper() not in existing_skus_upper:
+            return next_candidate
+        suffix += 1
+
+
+def _resolve_sku(
+    *,
+    raw_sku: str | None,
+    name: str,
+    existing_skus_upper: set[str],
+    current_sku_upper: str | None = None,
+) -> str:
+    explicit_sku = _normalize_sku_value(raw_sku)
+    if explicit_sku:
+        if explicit_sku.upper() != (current_sku_upper or "") and explicit_sku.upper() in existing_skus_upper:
+            raise HTTPException(status_code=409, detail="SKU already exists")
+        return explicit_sku
+
+    generated = _slugify_sku_from_name(name)
+    if current_sku_upper and current_sku_upper == generated.upper():
+        return generated
+    taken = set(existing_skus_upper)
+    if current_sku_upper:
+        taken.discard(current_sku_upper)
+    return _ensure_unique_sku(generated, taken)
+
+
 class _ProductExcelImportError(ValueError):
     def __init__(self, errors: list[str]):
         super().__init__("\n".join(errors))
@@ -59,7 +110,7 @@ def _build_products_template_xlsx() -> bytes:
     ws = wb.active
     ws.title = "Products Import"
     ws.append(["sku", "name", "base_uom", "uom", "is_active"])
-    ws.append(["ULNEW001", "Sample Product", "Pc", "Dozen", True])
+    ws.append(["", "Sample Product", "Pc", "Pc", True])
     for cell in ws[1]:
         cell.font = Font(bold=True)
     ws.column_dimensions["A"].width = 20
@@ -118,9 +169,6 @@ def _parse_products_import_xlsx(file_bytes: bytes) -> list[dict[str, Any]]:
         name = _cell_str(row_vals[idx["name"]] if idx["name"] < len(row_vals) else "")
         if not sku and not name:
             continue
-        if not sku:
-            errors.append(f"Row {row_i}: missing sku")
-            continue
         if not name:
             errors.append(f"Row {row_i}: missing name")
             continue
@@ -158,9 +206,8 @@ def list_products(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
 
 @router.post("", response_model=ProductRead, status_code=status.HTTP_201_CREATED)
 def create_product(product_in: ProductCreate, db: Session = Depends(get_db)) -> Product:
-    existing = db.scalar(select(Product).where(Product.sku == product_in.sku))
-    if existing is not None:
-        raise HTTPException(status_code=409, detail="SKU already exists")
+    existing_skus_upper = {sku.upper() for sku in db.scalars(select(Product.sku)).all() if sku}
+    sku = _resolve_sku(raw_sku=product_in.sku, name=product_in.name, existing_skus_upper=existing_skus_upper)
 
     category_id = product_in.category_id
     if category_id is not None:
@@ -174,9 +221,12 @@ def create_product(product_in: ProductCreate, db: Session = Depends(get_db)) -> 
     uom_multiplier = product_in.uom_multiplier
     if uom_multiplier is None:
         uom_multiplier = 12 if uom.lower() == "dozen" else 1
+    if uom_multiplier <= 1:
+        uom_multiplier = 1
+        uom = base_uom
     product = Product(
         category_id=category_id,
-        sku=product_in.sku,
+        sku=sku,
         name=product_in.name,
         description=product_in.description,
         image_url=product_in.image_url,
@@ -234,16 +284,20 @@ if _has_python_multipart():
         except RuntimeError as e:
             raise HTTPException(status_code=501, detail=str(e)) from e
 
-        existing_by_sku = {p.sku.upper(): p for p in db.scalars(select(Product)).all()}
+        existing_products = db.scalars(select(Product)).all()
+        existing_by_sku = {p.sku.upper(): p for p in existing_products}
         created = 0
         updated = 0
         for item in items:
-            sku = item["sku"].strip()
-            key = sku.upper()
             name = item["name"].strip()
+            sku = _resolve_sku(raw_sku=item["sku"], name=name, existing_skus_upper=set(existing_by_sku.keys()))
+            key = sku.upper()
             base_uom = item["base_uom"].strip() or "Pc"
             uom = item["uom"].strip() or "Pc"
             uom_multiplier = 12 if uom.lower() == "dozen" else 1
+            if uom_multiplier <= 1:
+                uom_multiplier = 1
+                uom = base_uom
             is_active = bool(item["is_active"])
 
             product = existing_by_sku.get(key)
@@ -299,10 +353,14 @@ def update_product(product_id: int, product_in: ProductUpdate, db: Session = Dep
         raise HTTPException(status_code=404, detail="Product not found")
 
     data = product_in.model_dump(exclude_unset=True)
+    current_sku_upper = (product.sku or "").upper()
+    existing_skus_upper = {sku.upper() for sku in db.scalars(select(Product.sku)).all() if sku}
     if "category_id" in data and data["category_id"] is not None:
         cat = db.get(Category, data["category_id"])
         if cat is None:
             raise HTTPException(status_code=400, detail="Invalid category_id")
+    if "name" in data and data["name"] is not None:
+        data["name"] = data["name"].strip()
     if "currency" in data and data["currency"] is None:
         data["currency"] = settings.DEFAULT_CURRENCY
     if "base_uom" in data and data["base_uom"] is not None:
@@ -318,6 +376,19 @@ def update_product(product_id: int, product_in: ProductUpdate, db: Session = Dep
     if "uom_multiplier" in data and data["uom_multiplier"] is None:
         uom = data.get("uom", product.uom)
         data["uom_multiplier"] = 12 if (uom or "").lower() == "dozen" else 1
+    if "uom_multiplier" in data and data["uom_multiplier"] is not None and data["uom_multiplier"] <= 1:
+        data["uom_multiplier"] = 1
+        data["uom"] = data.get("base_uom", product.base_uom)
+    if "sku" in data:
+        resolved_name = str(data.get("name", product.name) or "").strip()
+        if not resolved_name:
+            raise HTTPException(status_code=400, detail="Product name is required")
+        data["sku"] = _resolve_sku(
+            raw_sku=data["sku"],
+            name=resolved_name,
+            existing_skus_upper=existing_skus_upper,
+            current_sku_upper=current_sku_upper,
+        )
     for key, value in data.items():
         setattr(product, key, value)
     db.commit()

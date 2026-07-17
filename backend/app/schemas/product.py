@@ -7,7 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class ProductBase(BaseModel):
-    sku: str = Field(min_length=1, max_length=64)
+    sku: str = Field(default="", max_length=64)
     name: str = Field(min_length=1, max_length=255)
     description: str | None = None
     image_url: str | None = Field(default=None, max_length=2048, description="Optional image URL")
@@ -31,7 +31,7 @@ class ProductCreate(ProductBase):
 
 
 class ProductUpdate(BaseModel):
-    sku: str | None = Field(default=None, min_length=1, max_length=64)
+    sku: str | None = Field(default=None, max_length=64)
     name: str | None = Field(default=None, min_length=1, max_length=255)
     description: str | None = None
     image_url: str | None = Field(default=None, max_length=2048)

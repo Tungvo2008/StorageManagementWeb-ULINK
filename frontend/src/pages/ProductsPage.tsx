@@ -20,6 +20,7 @@ type ProductCreate = {
 };
 
 type ProductUpdate = {
+  use_sale_uom?: boolean;
   category_id?: number | null;
   sku?: string | null;
   name?: string | null;
@@ -36,6 +37,14 @@ type ProductImportResult = {
   created: number;
   updated: number;
 };
+
+function usesSeparateSaleUom(productLike: {
+  base_uom?: string | null;
+  uom?: string | null;
+  uom_multiplier?: number | null;
+}): boolean {
+  return (productLike.uom_multiplier ?? 1) > 1 || (productLike.uom ?? "").trim() !== (productLike.base_uom ?? "").trim();
+}
 
 export default function ProductsPage() {
   const [items, setItems] = useState<Product[]>([]);
@@ -58,8 +67,8 @@ export default function ProductsPage() {
     name: "",
     category_id: null,
     base_uom: "Pc",
-    uom: "Dozen",
-    uom_multiplier: 12,
+    uom: "Pc",
+    uom_multiplier: 1,
     cost_price: "0",
     unit_price: "0",
     currency: "USD",
@@ -101,17 +110,26 @@ export default function ProductsPage() {
     e.preventDefault();
     setError(null);
     try {
+      const useSaleUom = usesSeparateSaleUom(form);
+      const createPayload: ProductCreate = {
+        ...form,
+        sku: form.sku.trim(),
+        name: form.name.trim(),
+        base_uom: form.base_uom?.trim() || "Pc",
+        uom: useSaleUom ? form.uom?.trim() || "Pc" : form.base_uom?.trim() || "Pc",
+        uom_multiplier: useSaleUom ? Math.max(Number(form.uom_multiplier ?? 1), 2) : 1,
+      };
       await apiJson<Product>("/api/v1/products", {
         method: "POST",
-        body: JSON.stringify(form),
+        body: JSON.stringify(createPayload),
       });
       setForm({
         sku: "",
         name: "",
         category_id: null,
         base_uom: "Pc",
-        uom: "Dozen",
-        uom_multiplier: 12,
+        uom: "Pc",
+        uom_multiplier: 1,
         cost_price: "0",
         unit_price: "0",
         currency: "USD",
@@ -263,6 +281,7 @@ export default function ProductsPage() {
     setEditId(id);
     setEditForm({
       category_id: p.category_id,
+      use_sale_uom: usesSeparateSaleUom(p),
       sku: p.sku,
       name: p.name,
       image_url: p.image_url,
@@ -281,9 +300,18 @@ export default function ProductsPage() {
     setError(null);
     if (editId === "") return;
     try {
+      const useSaleUom = editForm.use_sale_uom ?? usesSeparateSaleUom(editForm);
+      const updatePayload = {
+        ...editForm,
+        sku: editForm.sku?.trim() ?? null,
+        name: editForm.name?.trim() ?? null,
+        base_uom: editForm.base_uom?.trim() || "Pc",
+        uom: useSaleUom ? (editForm.uom?.trim() || editForm.base_uom?.trim() || "Pc") : (editForm.base_uom?.trim() || "Pc"),
+        uom_multiplier: useSaleUom ? Math.max(Number(editForm.uom_multiplier ?? 1), 2) : 1,
+      };
       await apiJson<Product>(`/api/v1/products/${editId}`, {
         method: "PATCH",
-        body: JSON.stringify(editForm),
+        body: JSON.stringify(updatePayload),
       });
       setEditOpen(false);
       await load();
@@ -491,6 +519,7 @@ export default function ProductsPage() {
                 className="input"
                 value={editForm.sku ?? ""}
                 onChange={(e) => setEditForm((s) => ({ ...s, sku: e.target.value }))}
+                placeholder="Để trống để tự tạo theo tên"
               />
             </div>
             <div className="field" style={{ flex: 2, minWidth: 260 }}>
@@ -526,24 +555,48 @@ export default function ProductsPage() {
                 placeholder="Pc"
               />
             </div>
-            <div className="field" style={{ flex: 1, minWidth: 200 }}>
-              <label>UOM</label>
-              <input
-                className="input"
-                value={editForm.uom ?? ""}
-                onChange={(e) => setEditForm((s) => ({ ...s, uom: e.target.value }))}
-              />
+            <div className="field" style={{ minWidth: 180 }}>
+              <label>Use sale UOM</label>
+              <label className="row" style={{ gap: 8, marginTop: 2 }}>
+                <input
+                  type="checkbox"
+                  checked={Boolean(editForm.use_sale_uom)}
+                  onChange={(e) =>
+                    setEditForm((s) => ({
+                      ...s,
+                      use_sale_uom: e.target.checked,
+                      uom: e.target.checked
+                        ? ((s.uom ?? s.base_uom ?? "Dozen") === (s.base_uom ?? "Pc") ? "Dozen" : (s.uom ?? "Dozen"))
+                        : (s.base_uom ?? "Pc"),
+                      uom_multiplier: e.target.checked ? Math.max(Number(s.uom_multiplier ?? 12), 2) : 1,
+                    }))
+                  }
+                />
+                Dùng 2 UOM
+              </label>
             </div>
-            <div className="field" style={{ width: 160 }}>
-              <label>UOM multiplier</label>
-              <input
-                className="input"
-                type="number"
-                min={1}
-                value={editForm.uom_multiplier ?? 1}
-                onChange={(e) => setEditForm((s) => ({ ...s, uom_multiplier: Number(e.target.value) }))}
-              />
-            </div>
+            {editForm.use_sale_uom ? (
+              <>
+                <div className="field" style={{ flex: 1, minWidth: 200 }}>
+                  <label>Sale UOM</label>
+                  <input
+                    className="input"
+                    value={editForm.uom ?? ""}
+                    onChange={(e) => setEditForm((s) => ({ ...s, uom: e.target.value }))}
+                  />
+                </div>
+                <div className="field" style={{ width: 160 }}>
+                  <label>Sale multiplier</label>
+                  <input
+                    className="input"
+                    type="number"
+                    min={2}
+                    value={editForm.uom_multiplier ?? 12}
+                    onChange={(e) => setEditForm((s) => ({ ...s, uom_multiplier: Number(e.target.value) }))}
+                  />
+                </div>
+              </>
+            ) : null}
             <div className="field" style={{ width: 160 }}>
               <label>Unit price</label>
               <input
@@ -610,7 +663,7 @@ export default function ProductsPage() {
                 className="input"
                 value={form.sku}
                 onChange={(e) => setForm((s) => ({ ...s, sku: e.target.value }))}
-                required
+                placeholder="Để trống để tự tạo theo tên"
               />
             </div>
             <div className="field" style={{ flex: 1, minWidth: 320 }}>
@@ -634,26 +687,49 @@ export default function ProductsPage() {
                 required
               />
             </div>
-            <div className="field" style={{ width: 200 }}>
-              <label>Sale UOM</label>
-              <input
-                className="input"
-                value={form.uom ?? ""}
-                onChange={(e) => setForm((s) => ({ ...s, uom: e.target.value || null }))}
-                placeholder="Dozen"
-                required
-              />
+            <div className="field" style={{ minWidth: 180 }}>
+              <label>Use sale UOM</label>
+              <label className="row" style={{ gap: 8, marginTop: 2 }}>
+                <input
+                  type="checkbox"
+                  checked={usesSeparateSaleUom(form)}
+                  onChange={(e) =>
+                    setForm((s) => ({
+                      ...s,
+                      uom: e.target.checked
+                        ? ((s.uom ?? s.base_uom ?? "Dozen") === (s.base_uom ?? "Pc") ? "Dozen" : (s.uom ?? "Dozen"))
+                        : (s.base_uom ?? "Pc"),
+                      uom_multiplier: e.target.checked ? Math.max(Number(s.uom_multiplier ?? 12), 2) : 1,
+                    }))
+                  }
+                />
+                Dùng 2 UOM
+              </label>
             </div>
-            <div className="field" style={{ width: 150 }}>
-              <label>Sale multiplier</label>
-              <input
-                className="input"
-                type="number"
-                min={1}
-                value={form.uom_multiplier ?? 1}
-                onChange={(e) => setForm((s) => ({ ...s, uom_multiplier: Number(e.target.value) }))}
-              />
-            </div>
+            {usesSeparateSaleUom(form) ? (
+              <>
+                <div className="field" style={{ width: 200 }}>
+                  <label>Sale UOM</label>
+                  <input
+                    className="input"
+                    value={form.uom ?? ""}
+                    onChange={(e) => setForm((s) => ({ ...s, uom: e.target.value || null }))}
+                    placeholder="Dozen"
+                    required
+                  />
+                </div>
+                <div className="field" style={{ width: 150 }}>
+                  <label>Sale multiplier</label>
+                  <input
+                    className="input"
+                    type="number"
+                    min={2}
+                    value={form.uom_multiplier ?? 12}
+                    onChange={(e) => setForm((s) => ({ ...s, uom_multiplier: Number(e.target.value) }))}
+                  />
+                </div>
+              </>
+            ) : null}
           </div>
           <div className="row" style={{ gap: 8 }}>
             <div className="field" style={{ width: 160 }}>
