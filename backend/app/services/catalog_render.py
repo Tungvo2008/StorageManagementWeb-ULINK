@@ -479,10 +479,53 @@ def _is_remote_image(image_url: str | None) -> bool:
 def _load_product_image(image_url: str | None, *, ImageReader):  # type: ignore[no-untyped-def]
     local_path = resolve_product_image_path(image_url)
     if local_path is not None:
-        return _load_image_reader(str(local_path), ImageReader=ImageReader, max_bytes=10 * 1024 * 1024)
+        return _load_optimized_product_image(str(local_path), ImageReader=ImageReader)
     if _is_remote_image(image_url):
-        return _load_image_reader(image_url or "", ImageReader=ImageReader, max_bytes=10 * 1024 * 1024)
+        return _load_optimized_product_image(image_url or "", ImageReader=ImageReader)
     return None
+
+
+def _load_optimized_product_image(value: str, *, ImageReader):  # type: ignore[no-untyped-def]
+    try:
+        from PIL import Image, ImageOps
+
+        parsed = urlparse(value)
+        if parsed.scheme in {"http", "https"}:
+            request = Request(value, headers={"User-Agent": "UlinkCatalog/1.0"})
+            with urlopen(request, timeout=8) as response:
+                source = io.BytesIO(response.read(10 * 1024 * 1024 + 1))
+            if source.getbuffer().nbytes > 10 * 1024 * 1024:
+                return None
+        else:
+            path = Path(value).expanduser()
+            if not path.is_file() or path.stat().st_size > 10 * 1024 * 1024:
+                return None
+            source = path
+
+        with Image.open(source) as opened:
+            image = ImageOps.exif_transpose(opened)
+            image.thumbnail((360, 360), Image.Resampling.LANCZOS)
+
+            if image.mode in {"RGBA", "LA"} or (image.mode == "P" and "transparency" in image.info):
+                rgba = image.convert("RGBA")
+                flattened = Image.new("RGB", rgba.size, "white")
+                flattened.paste(rgba, mask=rgba.getchannel("A"))
+                image = flattened
+            elif image.mode != "RGB":
+                image = image.convert("RGB")
+
+            optimized = io.BytesIO()
+            image.save(
+                optimized,
+                format="JPEG",
+                quality=80,
+                optimize=True,
+                progressive=True,
+            )
+            optimized.seek(0)
+            return ImageReader(optimized)
+    except Exception:
+        return None
 
 
 def _load_image_reader(value: str, *, ImageReader, max_bytes: int):  # type: ignore[no-untyped-def]
