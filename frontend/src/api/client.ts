@@ -108,7 +108,9 @@ export async function apiUpload<T>(path: string, formData: FormData, init?: Requ
 
   if (!res.ok) {
     if (res.status === 413) {
-      throw new Error("File quá lớn. Ảnh sản phẩm tối đa 10 MB.");
+      throw new Error(
+        "Nginx đang chặn dung lượng upload (HTTP 413). Ảnh có thể vẫn dưới 10 MB; server cần client_max_body_size 12m.",
+      );
     }
     const text = await readErrorMessage(res);
     if (res.status === 401) {

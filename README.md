@@ -79,4 +79,25 @@ Nếu muốn build frontend trỏ sang API khác, truyền thêm biến:
 VITE_API_BASE_URL_VALUE=https://storage.thanhtungvo.id.vn bash deploy.sh
 ```
 
+### Nếu upload ảnh vẫn báo HTTP 413
+
+Backend nhận ảnh tối đa 10 MB, vì vậy Nginx cần cho phép request multipart lớn hơn một chút. Kiểm tra cấu hình đang được Nginx sử dụng:
+
+```bash
+sudo nginx -T 2>&1 | grep -nE "configuration file|listen 8080|client_max_body_size"
+```
+
+Trong đúng `server { ... }` đang `listen 8080`, đặt:
+
+```nginx
+client_max_body_size 12m;
+```
+
+Sau đó áp dụng:
+
+```bash
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
 # StorageManagementWeb-ULINK
