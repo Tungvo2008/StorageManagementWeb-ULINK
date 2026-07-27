@@ -88,6 +88,15 @@ class Product(TimestampMixin, Base):
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     image_url: Mapped[str | None] = mapped_column(String(2048), nullable=True)
+    brand: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    catalog_short_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    unit_size: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    catalog_case_pack: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    country_of_origin: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    upc: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    catalog_badges: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    catalog_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    catalog_sort_order: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
 
     # Base unit used for stock counting (smallest unit, vd: Pc).
     base_uom: Mapped[str] = mapped_column(String(32), nullable=False, default="Pc")
@@ -114,6 +123,7 @@ class Category(TimestampMixin, Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False, unique=True, index=True)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    catalog_sort_order: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
 
     products: Mapped[list[Product]] = relationship(back_populates="category")
 

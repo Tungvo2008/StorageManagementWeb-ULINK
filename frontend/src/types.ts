@@ -5,6 +5,15 @@ export type Product = {
   name: string;
   description: string | null;
   image_url: string | null;
+  brand: string | null;
+  catalog_short_name: string | null;
+  unit_size: string | null;
+  catalog_case_pack: number | null;
+  country_of_origin: string | null;
+  upc: string | null;
+  catalog_badges: string | null;
+  catalog_enabled: boolean;
+  catalog_sort_order: number;
   base_uom: string;
   uom: string;
   uom_multiplier: number;
@@ -21,6 +30,7 @@ export type Category = {
   id: number;
   name: string;
   description: string | null;
+  catalog_sort_order: number;
   created_at: string;
   updated_at: string;
 };

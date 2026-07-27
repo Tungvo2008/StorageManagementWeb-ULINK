@@ -11,6 +11,15 @@ class ProductBase(BaseModel):
     name: str = Field(min_length=1, max_length=255)
     description: str | None = None
     image_url: str | None = Field(default=None, max_length=2048, description="Optional image URL")
+    brand: str | None = Field(default=None, max_length=128)
+    catalog_short_name: str | None = Field(default=None, max_length=255)
+    unit_size: str | None = Field(default=None, max_length=64)
+    catalog_case_pack: int | None = Field(default=None, ge=1, le=1000000)
+    country_of_origin: str | None = Field(default=None, max_length=128)
+    upc: str | None = Field(default=None, max_length=64)
+    catalog_badges: str | None = Field(default=None, max_length=255)
+    catalog_enabled: bool = True
+    catalog_sort_order: int = Field(default=0, ge=0, le=1000000)
     base_uom: str | None = Field(default=None, max_length=32, description="Base stock unit (vd: Pc)")
     category_id: int | None = None
     uom: str | None = Field(default=None, max_length=32, description="Unit of measurement (vd: Pc, Pcs, Dozen, Case)")
@@ -35,6 +44,15 @@ class ProductUpdate(BaseModel):
     name: str | None = Field(default=None, min_length=1, max_length=255)
     description: str | None = None
     image_url: str | None = Field(default=None, max_length=2048)
+    brand: str | None = Field(default=None, max_length=128)
+    catalog_short_name: str | None = Field(default=None, max_length=255)
+    unit_size: str | None = Field(default=None, max_length=64)
+    catalog_case_pack: int | None = Field(default=None, ge=1, le=1000000)
+    country_of_origin: str | None = Field(default=None, max_length=128)
+    upc: str | None = Field(default=None, max_length=64)
+    catalog_badges: str | None = Field(default=None, max_length=255)
+    catalog_enabled: bool | None = None
+    catalog_sort_order: int | None = Field(default=None, ge=0, le=1000000)
     base_uom: str | None = Field(default=None, max_length=32)
     category_id: int | None = None
     uom: str | None = Field(default=None, max_length=32)

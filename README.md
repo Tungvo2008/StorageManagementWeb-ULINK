@@ -35,6 +35,25 @@ npm run dev
 
 Web: `http://localhost:5173`
 
+## Product catalog
+
+- Mở `http://localhost:5173/catalog` để lọc category, brand, SKU, tồn kho và preview layout Letter 4 × 3.
+- `Preview PDF` mở bản PDF trên tab mới; `Download PDF` tải catalog hoàn chỉnh.
+- Thông tin brand, tên rút gọn, size, case pack, origin, UPC, badge và thứ tự catalog được sửa trong form Product hoặc import bằng Product Excel.
+
+Xuất trực tiếp bằng command backend:
+
+```bash
+cd backend
+source .venv/bin/activate
+python scripts/generate_catalog_pdf.py \
+  --output "exports/catalog/ULINK Product Catalog.pdf" \
+  --show-price
+```
+
+Có thể thêm `--category-id 1`, `--brand "Brand Name"`, `--sku UL10001,UL10002`, hoặc `--availability in_stock`.
+Logo và thông tin công ty lấy từ `backend/.env`: `COMPANY_LOGO_PATH`, `CATALOG_WEBSITE`, `CATALOG_EMAIL`, `CATALOG_PHONE`; màu thương hiệu dùng `CATALOG_BRAND_COLOR`.
+
 ## Luồng thao tác (MVP)
 
 1. Tạo `Products`

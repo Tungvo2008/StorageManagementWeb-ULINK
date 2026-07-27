@@ -23,7 +23,11 @@ def create_category(body: CategoryCreate, db: Session = Depends(get_db)) -> Cate
     existing = db.scalar(select(Category).where(Category.name == body.name))
     if existing is not None:
         raise HTTPException(status_code=409, detail="Category name already exists")
-    cat = Category(name=body.name.strip(), description=body.description)
+    cat = Category(
+        name=body.name.strip(),
+        description=body.description,
+        catalog_sort_order=body.catalog_sort_order,
+    )
     db.add(cat)
     db.commit()
     db.refresh(cat)
@@ -55,6 +59,8 @@ def update_category(category_id: int, body: CategoryUpdate, db: Session = Depend
         cat.name = name
     if "description" in data:
         cat.description = data["description"]
+    if "catalog_sort_order" in data and data["catalog_sort_order"] is not None:
+        cat.catalog_sort_order = data["catalog_sort_order"]
 
     db.commit()
     db.refresh(cat)
@@ -68,4 +74,3 @@ def delete_category(category_id: int, db: Session = Depends(get_db)) -> None:
         return
     db.delete(cat)
     db.commit()
-

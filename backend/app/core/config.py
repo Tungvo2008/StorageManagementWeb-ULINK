@@ -28,6 +28,12 @@ class Settings(BaseSettings):
     COMPANY_EMAIL: str = ""
     COMPANY_TAX_CODE: str = ""
     COMPANY_LOGO_PATH: str = ""
+    CATALOG_TITLE: str = "Wholesale Product Catalog"
+    CATALOG_VERSION: str = ""
+    CATALOG_WEBSITE: str = "www.ulinkllc.com"
+    CATALOG_EMAIL: str = ""
+    CATALOG_PHONE: str = ""
+    CATALOG_BRAND_COLOR: str = "#15509B"
     # Optional (PDF invoice): Unicode font path to render Vietnamese correctly
     INVOICE_PDF_FONT_PATH: str = ""
     # Optional (PDF invoice): bold font path (if empty, fallback to regular font)

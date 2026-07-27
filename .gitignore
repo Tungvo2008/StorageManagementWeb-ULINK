@@ -18,3 +18,6 @@ frontend/tsconfig.tsbuildinfo
 
 # Local database backups
 backend/storage.db.bak.*
+
+# Generated catalog PDFs
+backend/exports/catalog/*.pdf

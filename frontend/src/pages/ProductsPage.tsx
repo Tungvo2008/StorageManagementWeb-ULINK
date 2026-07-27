@@ -11,6 +11,15 @@ type ProductCreate = {
   sku: string;
   name: string;
   category_id?: number | null;
+  brand?: string | null;
+  catalog_short_name?: string | null;
+  unit_size?: string | null;
+  catalog_case_pack?: number | null;
+  country_of_origin?: string | null;
+  upc?: string | null;
+  catalog_badges?: string | null;
+  catalog_enabled?: boolean;
+  catalog_sort_order?: number;
   base_uom?: string | null;
   uom?: string | null;
   uom_multiplier?: number | null;
@@ -26,6 +35,15 @@ type ProductUpdate = {
   sku?: string | null;
   name?: string | null;
   image_url?: string | null;
+  brand?: string | null;
+  catalog_short_name?: string | null;
+  unit_size?: string | null;
+  catalog_case_pack?: number | null;
+  country_of_origin?: string | null;
+  upc?: string | null;
+  catalog_badges?: string | null;
+  catalog_enabled?: boolean | null;
+  catalog_sort_order?: number | null;
   base_uom?: string | null;
   unit_price?: string | null;
   currency?: string | null;
@@ -67,6 +85,15 @@ export default function ProductsPage() {
     sku: "",
     name: "",
     category_id: null,
+    brand: "",
+    catalog_short_name: "",
+    unit_size: "",
+    catalog_case_pack: null,
+    country_of_origin: "",
+    upc: "",
+    catalog_badges: "",
+    catalog_enabled: true,
+    catalog_sort_order: 0,
     base_uom: "Pc",
     uom: "Pc",
     uom_multiplier: 1,
@@ -128,6 +155,15 @@ export default function ProductsPage() {
         sku: "",
         name: "",
         category_id: null,
+        brand: "",
+        catalog_short_name: "",
+        unit_size: "",
+        catalog_case_pack: null,
+        country_of_origin: "",
+        upc: "",
+        catalog_badges: "",
+        catalog_enabled: true,
+        catalog_sort_order: 0,
         base_uom: "Pc",
         uom: "Pc",
         uom_multiplier: 1,
@@ -286,6 +322,15 @@ export default function ProductsPage() {
       sku: p.sku,
       name: p.name,
       image_url: p.image_url,
+      brand: p.brand,
+      catalog_short_name: p.catalog_short_name,
+      unit_size: p.unit_size,
+      catalog_case_pack: p.catalog_case_pack,
+      country_of_origin: p.country_of_origin,
+      upc: p.upc,
+      catalog_badges: p.catalog_badges,
+      catalog_enabled: p.catalog_enabled,
+      catalog_sort_order: p.catalog_sort_order,
       base_uom: p.base_uom,
       unit_price: p.unit_price,
       currency: p.currency,
@@ -619,6 +664,63 @@ export default function ProductsPage() {
             </div>
           </div>
 
+          <div className="catalogMetaPanel">
+            <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
+              <strong>Catalog information</strong>
+              <label className="row" style={{ gap: 8 }}>
+                <input
+                  type="checkbox"
+                  checked={editForm.catalog_enabled !== false}
+                  onChange={(e) => setEditForm((s) => ({ ...s, catalog_enabled: e.target.checked }))}
+                />
+                Include in catalog
+              </label>
+            </div>
+            <div className="row" style={{ gap: 8 }}>
+              <div className="field" style={{ flex: 1, minWidth: 180 }}>
+                <label>Brand</label>
+                <input className="input" value={editForm.brand ?? ""} onChange={(e) => setEditForm((s) => ({ ...s, brand: e.target.value || null }))} />
+              </div>
+              <div className="field" style={{ flex: 2, minWidth: 260 }}>
+                <label>Catalog short name</label>
+                <input
+                  className="input"
+                  value={editForm.catalog_short_name ?? ""}
+                  onChange={(e) => setEditForm((s) => ({ ...s, catalog_short_name: e.target.value || null }))}
+                  placeholder="Để trống sẽ dùng Product name"
+                />
+              </div>
+            </div>
+            <div className="row" style={{ gap: 8 }}>
+              <div className="field" style={{ flex: 1, minWidth: 160 }}>
+                <label>Unit size</label>
+                <input className="input" value={editForm.unit_size ?? ""} onChange={(e) => setEditForm((s) => ({ ...s, unit_size: e.target.value || null }))} placeholder="5 oz (142 g)" />
+              </div>
+              <div className="field" style={{ width: 150 }}>
+                <label>Case pack</label>
+                <input className="input" type="number" min={1} value={editForm.catalog_case_pack ?? ""} onChange={(e) => setEditForm((s) => ({ ...s, catalog_case_pack: e.target.value ? Number(e.target.value) : null }))} />
+              </div>
+              <div className="field" style={{ flex: 1, minWidth: 170 }}>
+                <label>Country of origin</label>
+                <input className="input" value={editForm.country_of_origin ?? ""} onChange={(e) => setEditForm((s) => ({ ...s, country_of_origin: e.target.value || null }))} />
+              </div>
+              <div className="field" style={{ flex: 1, minWidth: 170 }}>
+                <label>UPC</label>
+                <input className="input" value={editForm.upc ?? ""} onChange={(e) => setEditForm((s) => ({ ...s, upc: e.target.value || null }))} />
+              </div>
+            </div>
+            <div className="row" style={{ gap: 8 }}>
+              <div className="field" style={{ flex: 1, minWidth: 260 }}>
+                <label>Badges</label>
+                <input className="input" value={editForm.catalog_badges ?? ""} onChange={(e) => setEditForm((s) => ({ ...s, catalog_badges: e.target.value || null }))} placeholder="new,best seller,spicy" />
+              </div>
+              <div className="field" style={{ width: 150 }}>
+                <label>Sort order</label>
+                <input className="input" type="number" min={0} value={editForm.catalog_sort_order ?? 0} onChange={(e) => setEditForm((s) => ({ ...s, catalog_sort_order: Number(e.target.value) }))} />
+              </div>
+            </div>
+          </div>
+
           <div className="row" style={{ justifyContent: "flex-end" }}>
             <button className="btn primary" type="submit" disabled={editId === ""}>
               Save
@@ -762,6 +864,57 @@ export default function ProductsPage() {
                 onChange={(e) => setForm((s) => ({ ...s, currency: e.target.value }))}
                 placeholder="USD"
               />
+            </div>
+          </div>
+          <div className="catalogMetaPanel">
+            <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
+              <strong>Catalog information</strong>
+              <label className="row" style={{ gap: 8 }}>
+                <input
+                  type="checkbox"
+                  checked={form.catalog_enabled !== false}
+                  onChange={(e) => setForm((s) => ({ ...s, catalog_enabled: e.target.checked }))}
+                />
+                Include in catalog
+              </label>
+            </div>
+            <div className="row" style={{ gap: 8 }}>
+              <div className="field" style={{ flex: 1, minWidth: 180 }}>
+                <label>Brand</label>
+                <input className="input" value={form.brand ?? ""} onChange={(e) => setForm((s) => ({ ...s, brand: e.target.value || null }))} />
+              </div>
+              <div className="field" style={{ flex: 2, minWidth: 260 }}>
+                <label>Catalog short name</label>
+                <input className="input" value={form.catalog_short_name ?? ""} onChange={(e) => setForm((s) => ({ ...s, catalog_short_name: e.target.value || null }))} placeholder="Để trống sẽ dùng Product name" />
+              </div>
+            </div>
+            <div className="row" style={{ gap: 8 }}>
+              <div className="field" style={{ flex: 1, minWidth: 160 }}>
+                <label>Unit size</label>
+                <input className="input" value={form.unit_size ?? ""} onChange={(e) => setForm((s) => ({ ...s, unit_size: e.target.value || null }))} placeholder="5 oz (142 g)" />
+              </div>
+              <div className="field" style={{ width: 150 }}>
+                <label>Case pack</label>
+                <input className="input" type="number" min={1} value={form.catalog_case_pack ?? ""} onChange={(e) => setForm((s) => ({ ...s, catalog_case_pack: e.target.value ? Number(e.target.value) : null }))} />
+              </div>
+              <div className="field" style={{ flex: 1, minWidth: 170 }}>
+                <label>Country of origin</label>
+                <input className="input" value={form.country_of_origin ?? ""} onChange={(e) => setForm((s) => ({ ...s, country_of_origin: e.target.value || null }))} />
+              </div>
+              <div className="field" style={{ flex: 1, minWidth: 170 }}>
+                <label>UPC</label>
+                <input className="input" value={form.upc ?? ""} onChange={(e) => setForm((s) => ({ ...s, upc: e.target.value || null }))} />
+              </div>
+            </div>
+            <div className="row" style={{ gap: 8 }}>
+              <div className="field" style={{ flex: 1, minWidth: 260 }}>
+                <label>Badges</label>
+                <input className="input" value={form.catalog_badges ?? ""} onChange={(e) => setForm((s) => ({ ...s, catalog_badges: e.target.value || null }))} placeholder="new,best seller,spicy" />
+              </div>
+              <div className="field" style={{ width: 150 }}>
+                <label>Sort order</label>
+                <input className="input" type="number" min={0} value={form.catalog_sort_order ?? 0} onChange={(e) => setForm((s) => ({ ...s, catalog_sort_order: Number(e.target.value) }))} />
+              </div>
             </div>
           </div>
           <div className="row" style={{ justifyContent: "flex-end" }}>

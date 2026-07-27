@@ -3,6 +3,7 @@ import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import Layout from "./components/Layout";
 import { apiJson } from "./api/client";
 import CustomersPage from "./pages/CustomersPage";
+import CatalogPage from "./pages/CatalogPage";
 import CustomerEditPage from "./pages/CustomerEditPage";
 import InventoryIssuePage from "./pages/InventoryIssuePage";
 import InventoryLogPage from "./pages/InventoryLogPage";
@@ -81,6 +82,14 @@ export default function App() {
           element={
             <RequireAuth>
               <ProductImagesPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/catalog"
+          element={
+            <RequireAuth>
+              <CatalogPage />
             </RequireAuth>
           }
         />

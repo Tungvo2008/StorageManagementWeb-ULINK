@@ -11,6 +11,7 @@ function pageTitle(pathname: string): string {
   if (pathname === "/login") return "Login";
   if (pathname === "/products") return "Products";
   if (pathname === "/products/images") return "Product Images";
+  if (pathname === "/catalog") return "Product Catalog";
   if (pathname === "/customers") return "Customers";
   if (pathname.startsWith("/customers/") && pathname.endsWith("/edit")) return "Edit Customer";
   if (pathname === "/pricing") return "Pricing";
@@ -51,6 +52,9 @@ export default function Layout({ children }: { children: ReactNode }) {
               </NavLink>
               <NavLink to="/products/images" className={({ isActive }) => (isActive ? "active" : "")}>
                 Images
+              </NavLink>
+              <NavLink to="/catalog" className={({ isActive }) => (isActive ? "active" : "")}>
+                Catalog
               </NavLink>
               <NavLink to="/customers" className={({ isActive }) => (isActive ? "active" : "")}>
                 Customers

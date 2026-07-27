@@ -239,6 +239,33 @@ def _ensure_columns(conn: Connection) -> None:
         _add_column_if_missing(conn, "products", "image_url", "image_url TEXT")
         _add_column_if_missing(conn, "products", "base_uom", "base_uom TEXT NOT NULL DEFAULT 'Pc'")
         _add_column_if_missing(conn, "products", "cost_price", "cost_price NUMERIC NOT NULL DEFAULT 0")
+        _add_column_if_missing(conn, "products", "brand", "brand TEXT")
+        _add_column_if_missing(conn, "products", "catalog_short_name", "catalog_short_name TEXT")
+        _add_column_if_missing(conn, "products", "unit_size", "unit_size TEXT")
+        _add_column_if_missing(conn, "products", "catalog_case_pack", "catalog_case_pack INTEGER")
+        _add_column_if_missing(conn, "products", "country_of_origin", "country_of_origin TEXT")
+        _add_column_if_missing(conn, "products", "upc", "upc TEXT")
+        _add_column_if_missing(conn, "products", "catalog_badges", "catalog_badges TEXT")
+        _add_column_if_missing(
+            conn,
+            "products",
+            "catalog_enabled",
+            "catalog_enabled BOOLEAN NOT NULL DEFAULT 1",
+        )
+        _add_column_if_missing(
+            conn,
+            "products",
+            "catalog_sort_order",
+            "catalog_sort_order INTEGER NOT NULL DEFAULT 0",
+        )
+
+    if "categories" in tables:
+        _add_column_if_missing(
+            conn,
+            "categories",
+            "catalog_sort_order",
+            "catalog_sort_order INTEGER NOT NULL DEFAULT 0",
+        )
 
     if "customers" in tables:
         _add_column_if_missing(conn, "customers", "code", "code TEXT")

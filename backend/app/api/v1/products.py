@@ -179,8 +179,47 @@ def _build_products_template_xlsx() -> bytes:
     wb = Workbook()
     ws = wb.active
     ws.title = "Products Import"
-    ws.append(["sku", "name", "category", "base_uom", "uom", "unit_price", "cost_price", "is_active"])
-    ws.append(["", "Sample Product", "", "Pc", "Pc", "10.00", "6.50", True])
+    headers = [
+        "sku",
+        "name",
+        "category",
+        "base_uom",
+        "uom",
+        "unit_price",
+        "cost_price",
+        "is_active",
+        "brand",
+        "catalog_short_name",
+        "unit_size",
+        "catalog_case_pack",
+        "country_of_origin",
+        "upc",
+        "catalog_badges",
+        "catalog_enabled",
+        "catalog_sort_order",
+    ]
+    ws.append(headers)
+    ws.append(
+        [
+            "",
+            "Sample Product",
+            "",
+            "Pc",
+            "Pc",
+            "10.00",
+            "6.50",
+            True,
+            "Sample Brand",
+            "",
+            "5 oz (142 g)",
+            12,
+            "Vietnam",
+            "",
+            "new,best seller",
+            True,
+            0,
+        ]
+    )
     for cell in ws[1]:
         cell.font = Font(bold=True)
     ws.column_dimensions["A"].width = 20
@@ -191,6 +230,15 @@ def _build_products_template_xlsx() -> bytes:
     ws.column_dimensions["F"].width = 14
     ws.column_dimensions["G"].width = 14
     ws.column_dimensions["H"].width = 12
+    ws.column_dimensions["I"].width = 22
+    ws.column_dimensions["J"].width = 32
+    ws.column_dimensions["K"].width = 18
+    ws.column_dimensions["L"].width = 18
+    ws.column_dimensions["M"].width = 20
+    ws.column_dimensions["N"].width = 18
+    ws.column_dimensions["O"].width = 24
+    ws.column_dimensions["P"].width = 18
+    ws.column_dimensions["Q"].width = 18
 
     buf = BytesIO()
     wb.save(buf)
@@ -202,7 +250,29 @@ def _build_products_export_xlsx(products: list[Product]) -> bytes:
     wb = Workbook()
     ws = wb.active
     ws.title = "Products"
-    ws.append(["id", "sku", "name", "category", "base_uom", "uom", "unit_price", "cost_price", "currency", "is_active"])
+    ws.append(
+        [
+            "id",
+            "sku",
+            "name",
+            "category",
+            "base_uom",
+            "uom",
+            "unit_price",
+            "cost_price",
+            "currency",
+            "is_active",
+            "brand",
+            "catalog_short_name",
+            "unit_size",
+            "catalog_case_pack",
+            "country_of_origin",
+            "upc",
+            "catalog_badges",
+            "catalog_enabled",
+            "catalog_sort_order",
+        ]
+    )
     for p in products:
         ws.append(
             [
@@ -216,6 +286,15 @@ def _build_products_export_xlsx(products: list[Product]) -> bytes:
                 str(p.cost_price or Decimal("0")),
                 p.currency or settings.DEFAULT_CURRENCY,
                 bool(p.is_active),
+                p.brand or "",
+                p.catalog_short_name or "",
+                p.unit_size or "",
+                p.catalog_case_pack,
+                p.country_of_origin or "",
+                p.upc or "",
+                p.catalog_badges or "",
+                bool(p.catalog_enabled),
+                int(p.catalog_sort_order or 0),
             ]
         )
     for cell in ws[1]:
@@ -230,6 +309,15 @@ def _build_products_export_xlsx(products: list[Product]) -> bytes:
     ws.column_dimensions["H"].width = 14
     ws.column_dimensions["I"].width = 12
     ws.column_dimensions["J"].width = 12
+    ws.column_dimensions["K"].width = 22
+    ws.column_dimensions["L"].width = 32
+    ws.column_dimensions["M"].width = 18
+    ws.column_dimensions["N"].width = 18
+    ws.column_dimensions["O"].width = 20
+    ws.column_dimensions["P"].width = 18
+    ws.column_dimensions["Q"].width = 24
+    ws.column_dimensions["R"].width = 18
+    ws.column_dimensions["S"].width = 18
 
     buf = BytesIO()
     wb.save(buf)
@@ -269,10 +357,62 @@ def _parse_products_import_xlsx(file_bytes: bytes) -> list[dict[str, Any]]:
         unit_price_raw = row_vals[idx["unit_price"]] if "unit_price" in idx and idx["unit_price"] < len(row_vals) else None
         cost_price_raw = row_vals[idx["cost_price"]] if "cost_price" in idx and idx["cost_price"] < len(row_vals) else None
         is_active_raw = row_vals[idx["is_active"]] if "is_active" in idx and idx["is_active"] < len(row_vals) else None
+        brand = _cell_str(row_vals[idx["brand"]] if "brand" in idx and idx["brand"] < len(row_vals) else "")
+        catalog_short_name = _cell_str(
+            row_vals[idx["catalog_short_name"]]
+            if "catalog_short_name" in idx and idx["catalog_short_name"] < len(row_vals)
+            else ""
+        )
+        unit_size = _cell_str(row_vals[idx["unit_size"]] if "unit_size" in idx and idx["unit_size"] < len(row_vals) else "")
+        catalog_case_pack_raw = (
+            row_vals[idx["catalog_case_pack"]]
+            if "catalog_case_pack" in idx and idx["catalog_case_pack"] < len(row_vals)
+            else None
+        )
+        country_of_origin = _cell_str(
+            row_vals[idx["country_of_origin"]]
+            if "country_of_origin" in idx and idx["country_of_origin"] < len(row_vals)
+            else ""
+        )
+        upc = _cell_str(row_vals[idx["upc"]] if "upc" in idx and idx["upc"] < len(row_vals) else "")
+        catalog_badges = _cell_str(
+            row_vals[idx["catalog_badges"]]
+            if "catalog_badges" in idx and idx["catalog_badges"] < len(row_vals)
+            else ""
+        )
+        catalog_enabled_raw = (
+            row_vals[idx["catalog_enabled"]]
+            if "catalog_enabled" in idx and idx["catalog_enabled"] < len(row_vals)
+            else None
+        )
+        catalog_sort_order_raw = (
+            row_vals[idx["catalog_sort_order"]]
+            if "catalog_sort_order" in idx and idx["catalog_sort_order"] < len(row_vals)
+            else None
+        )
 
         base_uom = base_uom or "Pc"
         uom = uom or "Pc"
         is_active = _parse_bool(is_active_raw, default=True)
+        catalog_enabled = _parse_bool(catalog_enabled_raw, default=True)
+        try:
+            catalog_case_pack = (
+                int(catalog_case_pack_raw)
+                if catalog_case_pack_raw not in (None, "")
+                else None
+            )
+            if catalog_case_pack is not None and catalog_case_pack < 1:
+                raise ValueError
+        except (TypeError, ValueError):
+            errors.append(f"Row {row_i}: invalid catalog_case_pack")
+            continue
+        try:
+            catalog_sort_order = int(catalog_sort_order_raw or 0)
+            if catalog_sort_order < 0:
+                raise ValueError
+        except (TypeError, ValueError):
+            errors.append(f"Row {row_i}: invalid catalog_sort_order")
+            continue
         try:
             unit_price = _parse_decimal(unit_price_raw)
         except ValueError:
@@ -294,6 +434,30 @@ def _parse_products_import_xlsx(file_bytes: bytes) -> list[dict[str, Any]]:
                 "unit_price": unit_price,
                 "cost_price": cost_price,
                 "is_active": is_active,
+                "brand": brand,
+                "catalog_short_name": catalog_short_name,
+                "unit_size": unit_size,
+                "catalog_case_pack": catalog_case_pack,
+                "country_of_origin": country_of_origin,
+                "upc": upc,
+                "catalog_badges": catalog_badges,
+                "catalog_enabled": catalog_enabled,
+                "catalog_sort_order": catalog_sort_order,
+                "_catalog_fields_present": {
+                    field_name
+                    for field_name in (
+                        "brand",
+                        "catalog_short_name",
+                        "unit_size",
+                        "catalog_case_pack",
+                        "country_of_origin",
+                        "upc",
+                        "catalog_badges",
+                        "catalog_enabled",
+                        "catalog_sort_order",
+                    )
+                    if field_name in idx
+                },
             }
         )
 
@@ -336,6 +500,15 @@ def create_product(product_in: ProductCreate, db: Session = Depends(get_db)) -> 
         name=product_in.name,
         description=product_in.description,
         image_url=product_in.image_url,
+        brand=product_in.brand,
+        catalog_short_name=product_in.catalog_short_name,
+        unit_size=product_in.unit_size,
+        catalog_case_pack=product_in.catalog_case_pack,
+        country_of_origin=product_in.country_of_origin,
+        upc=product_in.upc,
+        catalog_badges=product_in.catalog_badges,
+        catalog_enabled=product_in.catalog_enabled,
+        catalog_sort_order=product_in.catalog_sort_order,
         base_uom=base_uom,
         uom=uom,
         uom_multiplier=uom_multiplier,
@@ -413,6 +586,22 @@ if _has_python_multipart():
             should_update_category = not category_name or category is not None
             unit_price = item["unit_price"]
             cost_price = item["cost_price"]
+            all_catalog_fields = {
+                "brand": item["brand"] or None,
+                "catalog_short_name": item["catalog_short_name"] or None,
+                "unit_size": item["unit_size"] or None,
+                "catalog_case_pack": item["catalog_case_pack"],
+                "country_of_origin": item["country_of_origin"] or None,
+                "upc": item["upc"] or None,
+                "catalog_badges": item["catalog_badges"] or None,
+                "catalog_enabled": item["catalog_enabled"],
+                "catalog_sort_order": item["catalog_sort_order"],
+            }
+            catalog_fields = {
+                field_name: field_value
+                for field_name, field_value in all_catalog_fields.items()
+                if field_name in item["_catalog_fields_present"]
+            }
 
             product = existing_by_sku.get(key)
             if product is None:
@@ -428,6 +617,7 @@ if _has_python_multipart():
                     currency=settings.DEFAULT_CURRENCY,
                     unit_price=unit_price,
                     cost_price=cost_price,
+                    **catalog_fields,
                 )
                 db.add(product)
                 existing_by_sku[key] = product
@@ -442,6 +632,8 @@ if _has_python_multipart():
                 product.unit_price = unit_price
                 product.cost_price = cost_price
                 product.is_active = is_active
+                for field_name, field_value in catalog_fields.items():
+                    setattr(product, field_name, field_value)
                 updated += 1
 
         db.commit()
