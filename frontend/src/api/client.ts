@@ -107,6 +107,9 @@ export async function apiUpload<T>(path: string, formData: FormData, init?: Requ
   });
 
   if (!res.ok) {
+    if (res.status === 413) {
+      throw new Error("File quá lớn. Ảnh sản phẩm tối đa 10 MB.");
+    }
     const text = await readErrorMessage(res);
     if (res.status === 401) {
       handleUnauthorized();
@@ -126,9 +129,13 @@ export function assetUrl(path: string | null | undefined): string {
   if (/^(https?:)?\/\//i.test(path) || path.startsWith("data:") || path.startsWith("blob:")) {
     return path;
   }
+  const normalizedPath = path.replace(
+    "/api/v1/products/image-files/",
+    "/api/v1/public/product-images/",
+  );
   const base = resolveAssetOrigin();
-  if (!base) return path;
-  return `${base}${path.startsWith("/") ? path : `/${path}`}`;
+  if (!base) return normalizedPath;
+  return `${base}${normalizedPath.startsWith("/") ? normalizedPath : `/${normalizedPath}`}`;
 }
 
 export async function downloadFile(path: string, filename: string): Promise<void> {

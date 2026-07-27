@@ -21,7 +21,8 @@ router = APIRouter(prefix="/products")
 
 XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 PRODUCT_IMAGE_DIR = Path(__file__).resolve().parents[3] / "assets" / "product-images"
-PRODUCT_IMAGE_URL_PREFIX = f"{settings.API_V1_STR}/products/image-files/"
+PRODUCT_IMAGE_URL_PREFIX = f"{settings.API_V1_STR}/public/product-images/"
+LEGACY_PRODUCT_IMAGE_URL_PREFIX = f"{settings.API_V1_STR}/products/image-files/"
 MAX_IMAGE_BYTES = 10 * 1024 * 1024
 ALLOWED_IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp", ".gif"}
 CONTENT_TYPE_TO_SUFFIX = {
@@ -88,9 +89,19 @@ def _detect_image_suffix(upload: UploadFile) -> str:
 
 
 def _delete_managed_product_image(image_url: str | None) -> None:
-    if not image_url or not image_url.startswith(PRODUCT_IMAGE_URL_PREFIX):
+    if not image_url:
         return
-    filename = Path(image_url.removeprefix(PRODUCT_IMAGE_URL_PREFIX)).name
+    matching_prefix = next(
+        (
+            prefix
+            for prefix in (PRODUCT_IMAGE_URL_PREFIX, LEGACY_PRODUCT_IMAGE_URL_PREFIX)
+            if image_url.startswith(prefix)
+        ),
+        None,
+    )
+    if matching_prefix is None:
+        return
+    filename = Path(image_url.removeprefix(matching_prefix)).name
     if not filename:
         return
     file_path = PRODUCT_IMAGE_DIR / filename
@@ -445,6 +456,12 @@ else:
         )
 
 
+@router.get("/image-files/{filename}")
+def get_product_image_file(filename: str) -> FileResponse:
+    file_path = _resolve_managed_product_image_path(filename)
+    return FileResponse(file_path)
+
+
 @router.get("/{product_id}", response_model=ProductRead)
 def get_product(product_id: int, db: Session = Depends(get_db)) -> Product:
     stmt = select(Product).where(Product.id == product_id).options(selectinload(Product.category))
@@ -452,12 +469,6 @@ def get_product(product_id: int, db: Session = Depends(get_db)) -> Product:
     if product is None:
         raise HTTPException(status_code=404, detail="Product not found")
     return product
-
-
-@router.get("/image-files/{filename}")
-def get_product_image_file(filename: str) -> FileResponse:
-    file_path = _resolve_managed_product_image_path(filename)
-    return FileResponse(file_path)
 
 
 @router.put("/{product_id}", response_model=ProductRead)

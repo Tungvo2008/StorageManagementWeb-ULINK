@@ -7,6 +7,7 @@ FRONTEND_DIR="$ROOT_DIR/frontend"
 WEB_ROOT="${WEB_ROOT:-/var/www/storage}"
 BACKEND_SERVICE="${BACKEND_SERVICE:-storage-backend}"
 NGINX_SERVICE="${NGINX_SERVICE:-nginx}"
+NGINX_UPLOAD_CONFIG="${NGINX_UPLOAD_CONFIG:-/etc/nginx/conf.d/storage-upload.conf}"
 VITE_API_BASE_URL_VALUE="${VITE_API_BASE_URL_VALUE:-}"
 APP_VERSION="${APP_VERSION:-$(git -C "$ROOT_DIR" rev-parse --short HEAD)}"
 
@@ -33,6 +34,8 @@ npm run build
 sudo mkdir -p "$WEB_ROOT"
 sudo find "$WEB_ROOT" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
 sudo cp -R dist/. "$WEB_ROOT/"
+sudo install -m 0644 "$ROOT_DIR/deploy/nginx-storage-upload.conf" "$NGINX_UPLOAD_CONFIG"
+sudo nginx -t
 sudo systemctl reload "$NGINX_SERVICE"
 
 echo "==> Done"

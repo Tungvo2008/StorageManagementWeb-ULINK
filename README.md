@@ -71,7 +71,7 @@ Mặc định script sẽ:
 2. cài backend dependencies và restart `storage-backend`
 3. build frontend bằng `npm ci && npm run build`
 4. copy `dist/` vào `/var/www/storage`
-5. reload `nginx`
+5. cấu hình Nginx cho phép upload tối đa 12 MB, kiểm tra config và reload `nginx`
 
 Nếu muốn build frontend trỏ sang API khác, truyền thêm biến:
 

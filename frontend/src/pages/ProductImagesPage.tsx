@@ -3,6 +3,8 @@ import { apiJson, apiUpload, assetUrl } from "../api/client";
 import type { Category, Product } from "../types";
 
 type ImageFilter = "all" | "with-image" | "missing-image";
+const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = new Set(["image/png", "image/jpeg", "image/webp", "image/gif"]);
 
 export default function ProductImagesPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -48,9 +50,18 @@ export default function ProductImagesPage() {
   }, [products, query, categoryId, imageFilter, categoryNameById]);
 
   async function onUpload(product: Product, file: File) {
-    setBusyId(product.id);
     setError(null);
     setInfo(null);
+    if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
+      setError("Chỉ hỗ trợ ảnh PNG, JPG, WEBP hoặc GIF.");
+      return;
+    }
+    if (file.size > MAX_IMAGE_BYTES) {
+      setError("Ảnh quá lớn. Vui lòng chọn ảnh tối đa 10 MB.");
+      return;
+    }
+
+    setBusyId(product.id);
     try {
       const formData = new FormData();
       formData.append("file", file);
