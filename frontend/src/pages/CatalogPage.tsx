@@ -29,15 +29,6 @@ type PreviewPage = {
 
 const PRODUCTS_PER_PAGE = 12;
 
-function splitSkuFilter(value: string): Set<string> {
-  return new Set(
-    value
-      .split(/[\s,;]+/)
-      .map((item) => item.trim().toLowerCase())
-      .filter(Boolean),
-  );
-}
-
 function paginateByCategory(products: Product[], categories: Category[]): PreviewPage[] {
   const categoryById = new Map(categories.map((category) => [category.id, category]));
   const grouped = new Map<string, { sortOrder: number; products: Product[] }>();
@@ -85,7 +76,8 @@ export default function CatalogPage() {
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([]);
   const [brand, setBrand] = useState("");
   const [availability, setAvailability] = useState<AvailabilityFilter>("all");
-  const [skuFilter, setSkuFilter] = useState("");
+  const [productSearch, setProductSearch] = useState("");
+  const [selectedProductSkus, setSelectedProductSkus] = useState<string[]>([]);
   const [showPrice, setShowPrice] = useState(false);
   const [showCountry, setShowCountry] = useState(false);
   const [showUpc, setShowUpc] = useState(false);
@@ -127,19 +119,58 @@ export default function CatalogPage() {
     [products],
   );
 
-  const filteredProducts = useMemo(() => {
+  const categoryNameById = useMemo(
+    () => new Map(categories.map((category) => [category.id, category.name])),
+    [categories],
+  );
+
+  const eligibleProducts = useMemo(() => {
     const selectedCategories = new Set(selectedCategoryIds);
-    const selectedSkus = splitSkuFilter(skuFilter);
     return products.filter((product) => {
       if (!product.catalog_enabled || !product.is_active) return false;
       if (selectedCategories.size && (!product.category_id || !selectedCategories.has(product.category_id))) return false;
       if (brand && (product.brand ?? "") !== brand) return false;
       if (availability === "in_stock" && product.quantity_on_hand <= 0) return false;
       if (availability === "out_of_stock" && product.quantity_on_hand > 0) return false;
-      if (selectedSkus.size && !selectedSkus.has(product.sku.toLowerCase())) return false;
       return true;
     });
-  }, [products, selectedCategoryIds, brand, availability, skuFilter]);
+  }, [products, selectedCategoryIds, brand, availability]);
+
+  useEffect(() => {
+    const eligibleSkus = new Set(eligibleProducts.map((product) => product.sku));
+    setSelectedProductSkus((current) => current.filter((sku) => eligibleSkus.has(sku)));
+  }, [eligibleProducts]);
+
+  const selectedSkuSet = useMemo(
+    () => new Set(selectedProductSkus),
+    [selectedProductSkus],
+  );
+
+  const filteredProducts = useMemo(
+    () =>
+      selectedSkuSet.size
+        ? eligibleProducts.filter((product) => selectedSkuSet.has(product.sku))
+        : eligibleProducts,
+    [eligibleProducts, selectedSkuSet],
+  );
+
+  const productChoices = useMemo(() => {
+    const query = productSearch.trim().toLocaleLowerCase();
+    return eligibleProducts
+      .filter((product) => {
+        if (!query) return true;
+        const categoryName = product.category_id
+          ? categoryNameById.get(product.category_id) ?? ""
+          : "Uncategorized";
+        return [product.sku, product.name, product.brand ?? "", categoryName]
+          .some((value) => value.toLocaleLowerCase().includes(query));
+      })
+      .sort((left, right) => {
+        const leftCategory = left.category_id ? categoryNameById.get(left.category_id) ?? "" : "Uncategorized";
+        const rightCategory = right.category_id ? categoryNameById.get(right.category_id) ?? "" : "Uncategorized";
+        return leftCategory.localeCompare(rightCategory) || left.name.localeCompare(right.name);
+      });
+  }, [eligibleProducts, productSearch, categoryNameById]);
 
   const previewPages = useMemo(
     () => paginateByCategory(filteredProducts, categories),
@@ -164,13 +195,28 @@ export default function CatalogPage() {
     setPageIndex(0);
   }
 
+  function toggleProduct(sku: string) {
+    setSelectedProductSkus((current) =>
+      current.includes(sku)
+        ? current.filter((value) => value !== sku)
+        : [...current, sku],
+    );
+    setPageIndex(0);
+  }
+
+  function selectShownProducts() {
+    setSelectedProductSkus((current) =>
+      Array.from(new Set([...current, ...productChoices.map((product) => product.sku)])),
+    );
+    setPageIndex(0);
+  }
+
   function catalogPath(disposition: "inline" | "attachment") {
     const params = new URLSearchParams();
     if (selectedCategoryIds.length) params.set("category_ids", selectedCategoryIds.join(","));
     if (brand) params.set("brand", brand);
     if (availability !== "all") params.set("availability", availability);
-    const normalizedSkus = Array.from(splitSkuFilter(skuFilter));
-    if (normalizedSkus.length) params.set("skus", normalizedSkus.join(","));
+    if (selectedProductSkus.length) params.set("skus", selectedProductSkus.join(","));
     if (title.trim()) params.set("title", title.trim());
     if (version.trim()) params.set("version", version.trim());
     params.set("show_price", String(showPrice));
@@ -260,15 +306,69 @@ export default function CatalogPage() {
           <div className="muted">Không chọn category nào = xuất tất cả category.</div>
         </div>
 
-        <div className="field" style={{ marginTop: 14 }}>
-          <label>Only these SKUs (optional)</label>
-          <textarea
+        <div className="catalogProductPicker">
+          <div className="catalogProductPickerHeader">
+            <div>
+              <strong>Chọn sản phẩm</strong>
+              <div className="muted">
+                {selectedProductSkus.length
+                  ? `Đã chọn ${selectedProductSkus.length} sản phẩm.`
+                  : `Chưa chọn riêng sản phẩm — sẽ xuất toàn bộ ${eligibleProducts.length} sản phẩm phù hợp.`}
+              </div>
+            </div>
+            <div className="row">
+              <button className="btn" type="button" disabled={!productChoices.length} onClick={selectShownProducts}>
+                Chọn kết quả ({productChoices.length})
+              </button>
+              <button
+                className="btn"
+                type="button"
+                disabled={!selectedProductSkus.length}
+                onClick={() => {
+                  setSelectedProductSkus([]);
+                  setPageIndex(0);
+                }}
+              >
+                Bỏ chọn
+              </button>
+            </div>
+          </div>
+          <input
             className="input"
-            rows={2}
-            value={skuFilter}
-            onChange={(event) => setSkuFilter(event.target.value)}
-            placeholder="UL10001, UL10002 hoặc mỗi SKU một dòng"
+            value={productSearch}
+            onChange={(event) => setProductSearch(event.target.value)}
+            placeholder="Tìm theo tên, SKU, brand hoặc category..."
           />
+          <div className="catalogProductChoices">
+            {productChoices.map((product) => {
+              const selected = selectedSkuSet.has(product.sku);
+              return (
+                <label className={selected ? "selected" : ""} key={product.id}>
+                  <input
+                    type="checkbox"
+                    checked={selected}
+                    onChange={() => toggleProduct(product.sku)}
+                  />
+                  <span className="catalogProductChoiceImage">
+                    {product.image_url ? (
+                      <img src={assetUrl(product.image_url)} alt="" />
+                    ) : (
+                      <b>{product.name.trim().charAt(0).toUpperCase() || "?"}</b>
+                    )}
+                  </span>
+                  <span className="catalogProductChoiceText">
+                    <strong title={product.name}>{product.name}</strong>
+                    <small>
+                      {product.sku}
+                      {" · "}
+                      {product.category_id ? categoryNameById.get(product.category_id) ?? "Uncategorized" : "Uncategorized"}
+                    </small>
+                  </span>
+                </label>
+              );
+            })}
+            {!productChoices.length ? <div className="muted">Không tìm thấy sản phẩm phù hợp.</div> : null}
+          </div>
         </div>
 
         <div className="catalogOptionRow">

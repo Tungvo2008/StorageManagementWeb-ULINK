@@ -197,6 +197,86 @@ th { color: #111; background: #f9fafb; }
   color: #164ca0;
 }
 
+.catalogProductPicker {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.catalogProductPickerHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.catalogProductChoices {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  max-height: 330px;
+  padding: 2px;
+  overflow-y: auto;
+}
+
+.catalogProductChoices > label {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto 44px minmax(0, 1fr);
+  align-items: center;
+  gap: 9px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.catalogProductChoices > label.selected {
+  border-color: #8cb2f6;
+  background: #edf4ff;
+}
+
+.catalogProductChoiceImage {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  color: #667085;
+  background: #fff;
+}
+
+.catalogProductChoiceImage img {
+  width: 100%;
+  height: 100%;
+  padding: 3px;
+  object-fit: contain;
+}
+
+.catalogProductChoiceText {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.catalogProductChoiceText strong,
+.catalogProductChoiceText small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.catalogProductChoiceText small {
+  color: var(--muted);
+}
+
 .catalogOptionRow {
   display: flex;
   flex-wrap: wrap;
@@ -416,6 +496,12 @@ th { color: #111; background: #f9fafb; }
 @media (max-width: 900px) {
   .catalogControlGrid,
   .catalogStats {
+    grid-template-columns: 1fr;
+  }
+  .catalogProductPickerHeader {
+    display: grid;
+  }
+  .catalogProductChoices {
     grid-template-columns: 1fr;
   }
   .catalogPreviewScroller {
