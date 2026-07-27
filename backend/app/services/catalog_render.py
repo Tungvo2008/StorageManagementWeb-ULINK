@@ -377,7 +377,6 @@ def render_catalog_pdf(
         metadata: list[tuple[str, str]] = [
             ("Size", product.unit_size),
             ("Case Pack", str(product.case_pack) if product.case_pack else ""),
-            ("SKU", product.sku),
         ]
         if options.show_price:
             metadata.append(("Price", _format_price(product.wholesale_price, product.currency)))

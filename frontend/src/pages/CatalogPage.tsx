@@ -329,7 +329,6 @@ export default function CatalogPage() {
                       <dl>
                         {product.unit_size ? <><dt>Size:</dt><dd>{product.unit_size}</dd></> : null}
                         {(product.catalog_case_pack || product.uom_multiplier > 1) ? <><dt>Case Pack:</dt><dd>{product.catalog_case_pack || product.uom_multiplier}</dd></> : null}
-                        <dt>SKU:</dt><dd>{product.sku}</dd>
                         {showPrice ? <><dt>Price:</dt><dd>${Number(product.unit_price).toFixed(2)}</dd></> : null}
                         {showCountry && product.country_of_origin ? <><dt>Origin:</dt><dd>{product.country_of_origin}</dd></> : null}
                         {showUpc && product.upc ? <><dt>UPC:</dt><dd>{product.upc}</dd></> : null}
