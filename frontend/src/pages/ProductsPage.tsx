@@ -1,5 +1,6 @@
 import { Fragment, useEffect, useMemo, useState } from "react";
-import { apiJson, apiUpload, downloadFile } from "../api/client";
+import { Link } from "react-router-dom";
+import { apiJson, apiUpload, assetUrl, downloadFile } from "../api/client";
 import type { Category, Product } from "../types";
 import type { FormEvent } from "react";
 import Modal from "../components/Modal";
@@ -361,6 +362,9 @@ export default function ProductsPage() {
             >
               Export Excel
             </button>
+            <Link className="btn" to="/products/images">
+              Manage Images
+            </Link>
             <button className="btn" type="button" onClick={() => setAddCategoryOpen(true)}>
               + Category
             </button>
@@ -423,7 +427,7 @@ export default function ProductsPage() {
                                 {p.image_url ? (
                                   // eslint-disable-next-line jsx-a11y/alt-text
                                   <img
-                                    src={p.image_url}
+                                    src={assetUrl(p.image_url)}
                                     onError={(e) => {
                                       e.currentTarget.style.display = "none";
                                     }}

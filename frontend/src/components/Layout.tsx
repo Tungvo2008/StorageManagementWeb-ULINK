@@ -10,6 +10,7 @@ const APP_VERSION = import.meta.env.VITE_APP_VERSION?.trim() || "dev";
 function pageTitle(pathname: string): string {
   if (pathname === "/login") return "Login";
   if (pathname === "/products") return "Products";
+  if (pathname === "/products/images") return "Product Images";
   if (pathname === "/customers") return "Customers";
   if (pathname.startsWith("/customers/") && pathname.endsWith("/edit")) return "Edit Customer";
   if (pathname === "/pricing") return "Pricing";
@@ -47,6 +48,9 @@ export default function Layout({ children }: { children: ReactNode }) {
             <div className="nav-links">
               <NavLink to="/products" className={({ isActive }) => (isActive ? "active" : "")}>
                 Products
+              </NavLink>
+              <NavLink to="/products/images" className={({ isActive }) => (isActive ? "active" : "")}>
+                Images
               </NavLink>
               <NavLink to="/customers" className={({ isActive }) => (isActive ? "active" : "")}>
                 Customers

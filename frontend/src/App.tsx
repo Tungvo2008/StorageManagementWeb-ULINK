@@ -11,6 +11,7 @@ import InventorySummaryPage from "./pages/InventorySummaryPage";
 import InvoicesPage from "./pages/InvoicesPage";
 import LoginPage from "./pages/LoginPage";
 import PricingPage from "./pages/PricingPage";
+import ProductImagesPage from "./pages/ProductImagesPage";
 import ProductsPage from "./pages/ProductsPage";
 import SalesPage from "./pages/SalesPage";
 import UsersPage from "./pages/UsersPage";
@@ -72,6 +73,14 @@ export default function App() {
           element={
             <RequireAuth>
               <ProductsPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/products/images"
+          element={
+            <RequireAuth>
+              <ProductImagesPage />
             </RequireAuth>
           }
         />

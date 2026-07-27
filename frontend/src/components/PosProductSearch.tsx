@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { assetUrl } from "../api/client";
 import type { Category, Product } from "../types";
 
 function norm(s: string) {
@@ -104,7 +105,7 @@ export default function PosProductSearch({
                         {p.image_url ? (
                           // eslint-disable-next-line jsx-a11y/alt-text
                           <img
-                            src={p.image_url}
+                            src={assetUrl(p.image_url)}
                             onError={(e) => {
                               e.currentTarget.style.display = "none";
                             }}

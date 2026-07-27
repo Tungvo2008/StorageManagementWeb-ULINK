@@ -1,10 +1,13 @@
 from decimal import Decimal
 from io import BytesIO
+from pathlib import Path
 import re
 from typing import Any
 import unicodedata
+from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, Response, UploadFile, File, status
+from fastapi.responses import FileResponse
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
@@ -17,6 +20,16 @@ from app.schemas.product import ProductCreate, ProductImportResult, ProductRead,
 router = APIRouter(prefix="/products")
 
 XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+PRODUCT_IMAGE_DIR = Path(__file__).resolve().parents[3] / "assets" / "product-images"
+PRODUCT_IMAGE_URL_PREFIX = f"{settings.API_V1_STR}/products/image-files/"
+MAX_IMAGE_BYTES = 10 * 1024 * 1024
+ALLOWED_IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp", ".gif"}
+CONTENT_TYPE_TO_SUFFIX = {
+    "image/png": ".png",
+    "image/jpeg": ".jpg",
+    "image/webp": ".webp",
+    "image/gif": ".gif",
+}
 
 
 def _has_python_multipart() -> bool:
@@ -58,6 +71,41 @@ def _parse_decimal(v: Any, *, default: Decimal = Decimal("0")) -> Decimal:
         return Decimal(normalized)
     except Exception as e:
         raise ValueError(f"Invalid decimal value: {raw}") from e
+
+
+def _ensure_product_image_dir() -> None:
+    PRODUCT_IMAGE_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def _detect_image_suffix(upload: UploadFile) -> str:
+    suffix = Path(upload.filename or "").suffix.lower()
+    if suffix in ALLOWED_IMAGE_SUFFIXES:
+        return ".jpg" if suffix == ".jpeg" else suffix
+    mapped = CONTENT_TYPE_TO_SUFFIX.get((upload.content_type or "").lower())
+    if mapped:
+        return mapped
+    raise HTTPException(status_code=400, detail="Unsupported image type. Use png, jpg, webp, or gif.")
+
+
+def _delete_managed_product_image(image_url: str | None) -> None:
+    if not image_url or not image_url.startswith(PRODUCT_IMAGE_URL_PREFIX):
+        return
+    filename = Path(image_url.removeprefix(PRODUCT_IMAGE_URL_PREFIX)).name
+    if not filename:
+        return
+    file_path = PRODUCT_IMAGE_DIR / filename
+    if file_path.exists():
+        file_path.unlink()
+
+
+def _resolve_managed_product_image_path(filename: str) -> Path:
+    safe_name = Path(filename).name
+    if not safe_name:
+        raise HTTPException(status_code=404, detail="Image not found")
+    file_path = PRODUCT_IMAGE_DIR / safe_name
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="Image not found")
+    return file_path
 
 
 def _normalize_sku_value(value: str | None) -> str:
@@ -406,6 +454,12 @@ def get_product(product_id: int, db: Session = Depends(get_db)) -> Product:
     return product
 
 
+@router.get("/image-files/{filename}")
+def get_product_image_file(filename: str) -> FileResponse:
+    file_path = _resolve_managed_product_image_path(filename)
+    return FileResponse(file_path)
+
+
 @router.put("/{product_id}", response_model=ProductRead)
 def update_product(product_id: int, product_in: ProductUpdate, db: Session = Depends(get_db)) -> Product:
     product = db.get(Product, product_id)
@@ -467,5 +521,60 @@ def delete_product(product_id: int, db: Session = Depends(get_db)) -> None:
     product = db.get(Product, product_id)
     if product is None:
         return
+    _delete_managed_product_image(product.image_url)
     db.delete(product)
     db.commit()
+
+
+if _has_python_multipart():
+
+    @router.post("/{product_id}/image", response_model=ProductRead)
+    async def upload_product_image(
+        product_id: int,
+        file: UploadFile = File(...),
+        db: Session = Depends(get_db),
+    ) -> Product:
+        product = db.get(Product, product_id)
+        if product is None:
+            raise HTTPException(status_code=404, detail="Product not found")
+
+        suffix = _detect_image_suffix(file)
+        payload = await file.read()
+        if not payload:
+            raise HTTPException(status_code=400, detail="Empty image upload")
+        if len(payload) > MAX_IMAGE_BYTES:
+            raise HTTPException(status_code=400, detail="Image too large. Max size is 10MB.")
+
+        _ensure_product_image_dir()
+        filename = f"product-{product_id}-{uuid4().hex}{suffix}"
+        file_path = PRODUCT_IMAGE_DIR / filename
+        file_path.write_bytes(payload)
+
+        previous_image_url = product.image_url
+        product.image_url = f"{PRODUCT_IMAGE_URL_PREFIX}{filename}"
+        db.commit()
+        db.refresh(product)
+        _delete_managed_product_image(previous_image_url)
+        return product
+else:
+
+    @router.post("/{product_id}/image", status_code=status.HTTP_501_NOT_IMPLEMENTED)
+    async def upload_product_image_unavailable(product_id: int) -> None:
+        raise HTTPException(
+            status_code=501,
+            detail='Missing dependency: python-multipart. Install with "pip install python-multipart".',
+        )
+
+
+@router.delete("/{product_id}/image", response_model=ProductRead)
+def delete_product_image(product_id: int, db: Session = Depends(get_db)) -> Product:
+    product = db.get(Product, product_id)
+    if product is None:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    previous_image_url = product.image_url
+    product.image_url = None
+    db.commit()
+    db.refresh(product)
+    _delete_managed_product_image(previous_image_url)
+    return product

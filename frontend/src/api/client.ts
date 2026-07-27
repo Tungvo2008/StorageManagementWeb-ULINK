@@ -28,6 +28,24 @@ function apiHref(path: string): string {
   return API_BASE_URL ? `${API_BASE_URL}${path}` : path;
 }
 
+function resolveAssetOrigin(): string {
+  if (typeof window !== "undefined") {
+    const currentOrigin = window.location.origin;
+    if (!API_BASE_URL) return currentOrigin;
+    try {
+      return new URL(API_BASE_URL, currentOrigin).origin;
+    } catch {
+      return currentOrigin;
+    }
+  }
+  if (!API_BASE_URL) return "";
+  try {
+    return new URL(API_BASE_URL).origin;
+  } catch {
+    return "";
+  }
+}
+
 function handleUnauthorized(): void {
   clearToken();
   if (typeof window !== "undefined" && window.location.pathname !== "/login") {
@@ -101,6 +119,16 @@ export async function apiUpload<T>(path: string, formData: FormData, init?: Requ
 
 export function apiUrl(path: string): string {
   return apiHref(path);
+}
+
+export function assetUrl(path: string | null | undefined): string {
+  if (!path) return "";
+  if (/^(https?:)?\/\//i.test(path) || path.startsWith("data:") || path.startsWith("blob:")) {
+    return path;
+  }
+  const base = resolveAssetOrigin();
+  if (!base) return path;
+  return `${base}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
 export async function downloadFile(path: string, filename: string): Promise<void> {

@@ -5,6 +5,8 @@ import PosProductSearch from "../components/PosProductSearch";
 import type { Category, Customer, InventoryIssue, Product, SaleOrder } from "../types";
 import type { FormEvent } from "react";
 
+const POS_ISSUE_DRAFT_STORAGE_KEY = "pos_issue_form_draft_v1";
+
 type LineDraft = { product_id: number; quantity: number; discount_amount: string };
 
 type ParsedIssueLine = {
@@ -25,22 +27,112 @@ type ParsedIssueNoteResponse = {
   warnings: string[];
 };
 
+function normalizeLineDraft(raw: unknown): LineDraft | null {
+  if (!raw || typeof raw !== "object") return null;
+  const value = raw as Partial<LineDraft>;
+  if (typeof value.product_id !== "number" || !Number.isFinite(value.product_id)) return null;
+  return {
+    product_id: value.product_id,
+    quantity: typeof value.quantity === "number" && Number.isFinite(value.quantity) && value.quantity > 0 ? value.quantity : 1,
+    discount_amount: typeof value.discount_amount === "string" ? value.discount_amount : "0",
+  };
+}
+
+function readSalesDraft(): {
+  customerId: number | "";
+  taxRate: string;
+  discountAmount: string;
+  shippingAmount: string;
+  outPurpose: string;
+  issuedTo: string;
+  note: string;
+  ignoreStock: boolean;
+  lines: LineDraft[];
+} {
+  if (typeof window === "undefined") {
+    return {
+      customerId: "",
+      taxRate: "0",
+      discountAmount: "0",
+      shippingAmount: "0",
+      outPurpose: "SALE",
+      issuedTo: "",
+      note: "",
+      ignoreStock: false,
+      lines: [],
+    };
+  }
+  try {
+    const stored = window.localStorage.getItem(POS_ISSUE_DRAFT_STORAGE_KEY);
+    if (!stored) {
+      return {
+        customerId: "",
+        taxRate: "0",
+        discountAmount: "0",
+        shippingAmount: "0",
+        outPurpose: "SALE",
+        issuedTo: "",
+        note: "",
+        ignoreStock: false,
+        lines: [],
+      };
+    }
+    const value = JSON.parse(stored) as Partial<{
+      customerId: number | "";
+      taxRate: string;
+      discountAmount: string;
+      shippingAmount: string;
+      outPurpose: string;
+      issuedTo: string;
+      note: string;
+      ignoreStock: boolean;
+      lines: unknown[];
+    }>;
+    return {
+      customerId: typeof value.customerId === "number" && Number.isFinite(value.customerId) ? value.customerId : "",
+      taxRate: typeof value.taxRate === "string" ? value.taxRate : "0",
+      discountAmount: typeof value.discountAmount === "string" ? value.discountAmount : "0",
+      shippingAmount: typeof value.shippingAmount === "string" ? value.shippingAmount : "0",
+      outPurpose: typeof value.outPurpose === "string" && value.outPurpose.trim() ? value.outPurpose : "SALE",
+      issuedTo: typeof value.issuedTo === "string" ? value.issuedTo : "",
+      note: typeof value.note === "string" ? value.note : "",
+      ignoreStock: Boolean(value.ignoreStock),
+      lines: Array.isArray(value.lines)
+        ? value.lines.map((line) => normalizeLineDraft(line)).filter((line): line is LineDraft => line != null)
+        : [],
+    };
+  } catch {
+    return {
+      customerId: "",
+      taxRate: "0",
+      discountAmount: "0",
+      shippingAmount: "0",
+      outPurpose: "SALE",
+      issuedTo: "",
+      note: "",
+      ignoreStock: false,
+      lines: [],
+    };
+  }
+}
+
 export default function SalesPage() {
+  const initialDraft = useMemo(() => readSalesDraft(), []);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [created, setCreated] = useState<SaleOrder | null>(null);
   const [createdIssue, setCreatedIssue] = useState<InventoryIssue | null>(null);
 
-  const [customerId, setCustomerId] = useState<number | "">("");
-  const [taxRate, setTaxRate] = useState<string>("0");
-  const [discountAmount, setDiscountAmount] = useState<string>("0"); // order-level discount
-  const [shippingAmount, setShippingAmount] = useState<string>("0");
-  const [outPurpose, setOutPurpose] = useState<string>("SALE"); // SALE|AMAZON_FBA|AMAZON_FBM|HOME|TEST|SAMPLE|GIFT|OTHER
-  const [issuedTo, setIssuedTo] = useState<string>("");
-  const [note, setNote] = useState<string>("");
-  const [ignoreStock, setIgnoreStock] = useState(false);
-  const [lines, setLines] = useState<LineDraft[]>([]);
+  const [customerId, setCustomerId] = useState<number | "">(initialDraft.customerId);
+  const [taxRate, setTaxRate] = useState<string>(initialDraft.taxRate);
+  const [discountAmount, setDiscountAmount] = useState<string>(initialDraft.discountAmount); // order-level discount
+  const [shippingAmount, setShippingAmount] = useState<string>(initialDraft.shippingAmount);
+  const [outPurpose, setOutPurpose] = useState<string>(initialDraft.outPurpose); // SALE|AMAZON_FBA|AMAZON_FBM|HOME|TEST|SAMPLE|GIFT|OTHER
+  const [issuedTo, setIssuedTo] = useState<string>(initialDraft.issuedTo);
+  const [note, setNote] = useState<string>(initialDraft.note);
+  const [ignoreStock, setIgnoreStock] = useState(initialDraft.ignoreStock);
+  const [lines, setLines] = useState<LineDraft[]>(initialDraft.lines);
 
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -88,6 +180,28 @@ export default function SalesPage() {
       }
     })();
   }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      window.localStorage.setItem(
+        POS_ISSUE_DRAFT_STORAGE_KEY,
+        JSON.stringify({
+          customerId,
+          taxRate,
+          discountAmount,
+          shippingAmount,
+          outPurpose,
+          issuedTo,
+          note,
+          ignoreStock,
+          lines,
+        }),
+      );
+    } catch {
+      // ignore localStorage write failures
+    }
+  }, [customerId, taxRate, discountAmount, shippingAmount, outPurpose, issuedTo, note, ignoreStock, lines]);
 
   function removeLine(idx: number) {
     setLines((s) => s.filter((_, i) => i !== idx));
@@ -203,6 +317,18 @@ export default function SalesPage() {
         });
         setCreatedIssue(issue);
       }
+      if (typeof window !== "undefined") {
+        window.localStorage.removeItem(POS_ISSUE_DRAFT_STORAGE_KEY);
+      }
+      setCustomerId("");
+      setTaxRate("0");
+      setDiscountAmount("0");
+      setShippingAmount("0");
+      setOutPurpose("SALE");
+      setIssuedTo("");
+      setNote("");
+      setIgnoreStock(false);
+      setLines([]);
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -323,6 +449,9 @@ export default function SalesPage() {
               ) : (
                 <div className="muted">Phiếu xuất kho: {outPurpose}</div>
               )}
+            </div>
+            <div className="muted" style={{ marginTop: 6 }}>
+              Draft của trang này đang được tự lưu trên máy này, đổi tab / refresh / mở lại vẫn còn.
             </div>
 
             {isSalePurpose ? (
