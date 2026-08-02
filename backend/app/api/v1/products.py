@@ -685,7 +685,12 @@ if _has_python_multipart():
         updated = 0
         for item in items:
             name = item["name"].strip()
-            sku = _resolve_sku(raw_sku=item["sku"], name=name, existing_skus_upper=set(existing_by_sku.keys()))
+            explicit_sku = _normalize_sku_value(item["sku"])
+            sku = explicit_sku or _resolve_sku(
+                raw_sku=None,
+                name=name,
+                existing_skus_upper=set(existing_by_sku.keys()),
+            )
             key = sku.upper()
             base_uom = item["base_uom"].strip() or "Pc"
             uom = item["uom"].strip() or "Pc"
