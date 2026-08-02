@@ -437,6 +437,169 @@ def render_amazon_manifest_xlsx(
     return result
 
 
+def render_amazon_pack_xlsx(
+    source: bytes,
+    *,
+    per_box_quantities: dict[str, int],
+    boxes: list[dict[str, object]],
+) -> bytes:
+    if not per_box_quantities:
+        raise ValueError("The optimized plan does not contain any Amazon SKUs")
+    if len(boxes) < 5:
+        raise ValueError("Amazon optimized shipments require at least 5 boxes")
+    if any(quantity < 1 for quantity in per_box_quantities.values()):
+        raise ValueError("Every SKU must have a positive per-box quantity")
+
+    try:
+        from openpyxl import load_workbook
+    except Exception as exc:
+        raise RuntimeError("Missing dependency: openpyxl") from exc
+    try:
+        workbook = load_workbook(BytesIO(source), data_only=False, keep_links=True)
+    except Exception as exc:
+        raise ValueError("Could not open the Amazon Box Packing Information XLSX file") from exc
+
+    target_sheet = None
+    header_row = 0
+    sku_column = 0
+    expected_column = 0
+    first_box_column = 0
+    for sheet in workbook.worksheets:
+        for row_index in range(1, min(sheet.max_row, 60) + 1):
+            normalized = {
+                _clean(sheet.cell(row_index, column_index).value).casefold(): column_index
+                for column_index in range(1, min(sheet.max_column, 80) + 1)
+            }
+            if not {"sku", "expected quantity", "boxed quantity"}.issubset(normalized):
+                continue
+            for column_index in range(normalized["boxed quantity"] + 1, sheet.max_column + 1):
+                value = _clean(sheet.cell(row_index, column_index).value)
+                if re.search(r"box\s+1\s+quantity", value, re.IGNORECASE):
+                    first_box_column = column_index
+                    break
+            if first_box_column:
+                target_sheet = sheet
+                header_row = row_index
+                sku_column = normalized["sku"]
+                expected_column = normalized["expected quantity"]
+                break
+        if target_sheet is not None:
+            break
+    if target_sheet is None or not first_box_column:
+        raise ValueError(
+            "Could not find the SKU and box quantity columns in the Amazon XLSX file"
+        )
+
+    box_columns = list(range(first_box_column, target_sheet.max_column + 1))
+    if len(boxes) > len(box_columns):
+        raise ValueError(
+            f"This Amazon XLSX supports at most {len(box_columns)} boxes, but the plan uses {len(boxes)}"
+        )
+
+    sku_rows: dict[str, int] = {}
+    for row_index in range(header_row + 1, target_sheet.max_row + 1):
+        sku = _clean(target_sheet.cell(row_index, sku_column).value)
+        if not sku:
+            if sku_rows:
+                break
+            continue
+        if sku in sku_rows:
+            raise ValueError(f"Amazon XLSX contains duplicate SKU rows: {sku}")
+        sku_rows[sku] = row_index
+    if not sku_rows:
+        raise ValueError("Amazon XLSX does not contain any SKU rows")
+
+    missing_skus = sorted(set(per_box_quantities) - set(sku_rows))
+    extra_skus = sorted(set(sku_rows) - set(per_box_quantities))
+    if missing_skus or extra_skus:
+        details: list[str] = []
+        if missing_skus:
+            details.append("missing from XLSX: " + ", ".join(missing_skus))
+        if extra_skus:
+            details.append("not in selected plan: " + ", ".join(extra_skus))
+        raise ValueError("Amazon XLSX SKU list does not match the optimized plan (" + "; ".join(details) + ")")
+
+    box_count = len(boxes)
+    for amazon_sku, row_index in sku_rows.items():
+        per_box_quantity = per_box_quantities[amazon_sku]
+        expected_quantity = target_sheet.cell(row_index, expected_column).value
+        try:
+            expected_int = int(expected_quantity)
+        except (TypeError, ValueError) as exc:
+            raise ValueError(f"Invalid expected quantity for {amazon_sku}") from exc
+        optimized_total = per_box_quantity * box_count
+        if expected_int != optimized_total:
+            raise ValueError(
+                f"Amazon expects {expected_int} units for {amazon_sku}, but the selected plan uses "
+                f"{optimized_total}. Update the workflow quantity before filling this XLSX."
+            )
+        for offset, column_index in enumerate(box_columns):
+            target_sheet.cell(row_index, column_index).value = (
+                per_box_quantity if offset < box_count else None
+            )
+
+    total_box_label_row = 0
+    detail_rows: dict[str, int] = {}
+    detail_labels = {
+        "name": "name of box",
+        "weight_lb": "box weight (lb):",
+        "width_in": "box width (inch):",
+        "length_in": "box length (inch):",
+        "height_in": "box height (inch):",
+    }
+    for row_index in range(1, target_sheet.max_row + 1):
+        for column_index in range(1, min(first_box_column, target_sheet.max_column + 1)):
+            value = _clean(target_sheet.cell(row_index, column_index).value).casefold()
+            if value == "total box count:":
+                total_box_label_row = row_index
+            for key, label in detail_labels.items():
+                if value == label:
+                    detail_rows[key] = row_index
+    if not total_box_label_row or set(detail_rows) != set(detail_labels):
+        raise ValueError("Could not find the box count, weight, and dimension rows in the Amazon XLSX")
+
+    target_sheet.cell(total_box_label_row, first_box_column).value = box_count
+    for offset, column_index in enumerate(box_columns):
+        if offset < box_count:
+            box = boxes[offset]
+            target_sheet.cell(detail_rows["name"], column_index).value = str(box["name"])
+            target_sheet.cell(detail_rows["weight_lb"], column_index).value = float(box["weight_lb"])
+            target_sheet.cell(detail_rows["width_in"], column_index).value = float(box["width_in"])
+            target_sheet.cell(detail_rows["length_in"], column_index).value = float(box["length_in"])
+            target_sheet.cell(detail_rows["height_in"], column_index).value = float(box["height_in"])
+        else:
+            for key in ("weight_lb", "width_in", "length_in", "height_in"):
+                target_sheet.cell(detail_rows[key], column_index).value = None
+
+    target_sheet.sheet_view.showGridLines = False
+    workbook.active = workbook.worksheets.index(target_sheet)
+    try:
+        workbook.calculation.fullCalcOnLoad = True
+        workbook.calculation.forceFullCalc = True
+        workbook.calculation.calcMode = "auto"
+    except Exception:
+        pass
+
+    output = BytesIO()
+    workbook.save(output)
+    result = output.getvalue()
+
+    try:
+        verified = load_workbook(BytesIO(result), read_only=True, data_only=False)
+        verified_sheet = verified[target_sheet.title]
+        if verified_sheet.cell(total_box_label_row, first_box_column).value != box_count:
+            raise RuntimeError("Generated Amazon XLSX has an invalid box count")
+        for amazon_sku, row_index in sku_rows.items():
+            for offset in range(box_count):
+                if verified_sheet.cell(row_index, first_box_column + offset).value != per_box_quantities[amazon_sku]:
+                    raise RuntimeError("Generated Amazon XLSX has invalid box quantities")
+    except RuntimeError:
+        raise
+    except Exception as exc:
+        raise RuntimeError("Generated Amazon Box Packing XLSX could not be verified") from exc
+    return result
+
+
 def _capacity_utilization(content: list[int], skus: list[SolverSku], box_type_id: int) -> float:
     return sum(
         quantity / skus[index].capacities[box_type_id]
@@ -646,7 +809,7 @@ def _plan_dict(
     absolute_change = sum(abs(int(item["quantity_delta"])) for item in items)
     if absolute_change:
         warnings.append(
-            "Update the SKU quantities in the Amazon workflow so they match this plan before uploading the CSV."
+            "Update the SKU quantities in the Amazon workflow so they match this plan before downloading the Box Packing XLSX."
         )
     return {
         "key": hashlib.sha1(signature.encode("utf-8")).hexdigest()[:16],

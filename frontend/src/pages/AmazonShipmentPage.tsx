@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { apiJson, apiUpload, downloadJsonFile } from "../api/client";
-import AmazonManifestBuilder from "../components/AmazonManifestBuilder";
+import AmazonManifestBuilder, { type AmazonManifestSelection } from "../components/AmazonManifestBuilder";
 import type {
   AmazonBoxType,
   AmazonCsvImport,
+  AmazonImportedItem,
   AmazonMapping,
   AmazonOptimizePlan,
   AmazonOptimizeResponse,
@@ -55,11 +56,30 @@ function capacityKey(boxTypeId: number, amazonSku: string): string {
   return `${boxTypeId}::${amazonSku}`;
 }
 
+function fileBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("Không đọc được Amazon XLSX."));
+    reader.onload = () => {
+      const result = String(reader.result ?? "");
+      const separator = result.indexOf(",");
+      if (separator < 0) {
+        reject(new Error("Amazon XLSX không hợp lệ."));
+        return;
+      }
+      resolve(result.slice(separator + 1));
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
 export default function AmazonShipmentPage() {
   const [config, setConfig] = useState<AmazonShipmentConfig | null>(null);
   const [imported, setImported] = useState<AmazonCsvImport | null>(null);
   const [sourceCsv, setSourceCsv] = useState("");
   const [sourceFilename, setSourceFilename] = useState("");
+  const [manifestSelections, setManifestSelections] = useState<AmazonManifestSelection[]>([]);
+  const [packingTemplateFile, setPackingTemplateFile] = useState<File | null>(null);
   const [mappingDrafts, setMappingDrafts] = useState<Record<string, MappingDraft>>({});
   const [requestedQuantities, setRequestedQuantities] = useState<Record<string, string>>({});
   const [availableQuantities, setAvailableQuantities] = useState<Record<string, string>>({});
@@ -75,10 +95,17 @@ export default function AmazonShipmentPage() {
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const initializedBoxSelection = useRef(false);
 
   async function loadConfig(): Promise<AmazonShipmentConfig> {
     const next = await apiJson<AmazonShipmentConfig>("/api/v1/amazon-shipments/config");
     setConfig(next);
+    if (!initializedBoxSelection.current) {
+      setSelectedBoxTypeIds(
+        next.box_types.filter((boxType) => boxType.is_active).map((boxType) => boxType.id),
+      );
+      initializedBoxSelection.current = true;
+    }
     const nextCapacities: Record<string, string> = {};
     for (const boxType of next.box_types) {
       for (const capacity of boxType.capacities) {
@@ -115,6 +142,71 @@ export default function AmazonShipmentPage() {
     if (!config) return [];
     return config.box_types.filter((boxType) => selectedBoxTypeIds.includes(boxType.id));
   }, [config, selectedBoxTypeIds]);
+
+  const directItems = useMemo<AmazonImportedItem[]>(() => {
+    if (!config) return [];
+    const productById = new Map(config.products.map((product) => [product.id, product]));
+    const mappingBySku = new Map(config.mappings.map((mapping) => [mapping.amazon_sku, mapping]));
+    return manifestSelections.flatMap((selection) => {
+      const product = productById.get(selection.product_id);
+      if (!product?.amazon_sku) return [];
+      return [{
+        amazon_sku: product.amazon_sku,
+        title: product.name,
+        asin: null,
+        fnsku: null,
+        requested_quantity: selection.quantity ?? 0,
+        mapping: mappingBySku.get(product.amazon_sku) ?? null,
+      }];
+    });
+  }, [config, manifestSelections]);
+
+  const usingManifestList = directItems.length > 0;
+  const workingItems = usingManifestList ? directItems : imported?.items ?? [];
+  const workingSource: "manifest" | "csv" | null = usingManifestList
+    ? "manifest"
+    : imported
+      ? "csv"
+      : null;
+
+  const handleManifestSelectionChange = useCallback((items: AmazonManifestSelection[]) => {
+    setManifestSelections(items);
+  }, []);
+
+  useEffect(() => {
+    if (!config || !directItems.length) return;
+    const productByAmazonSku = new Map(
+      config.products
+        .filter((product) => product.amazon_sku)
+        .map((product) => [product.amazon_sku as string, product]),
+    );
+    setMappingDrafts((current) => {
+      const next = { ...current };
+      for (const item of directItems) {
+        const product = productByAmazonSku.get(item.amazon_sku);
+        next[item.amazon_sku] = {
+          productId: product ? String(product.id) : "",
+          unitWeightLb: decimalText(item.mapping?.unit_weight_lb ?? null),
+        };
+      }
+      return next;
+    });
+    setAvailableQuantities((current) => {
+      const next = { ...current };
+      for (const item of directItems) {
+        const product = productByAmazonSku.get(item.amazon_sku);
+        if (!(item.amazon_sku in next)) {
+          next[item.amazon_sku] = String(
+            Math.max(item.requested_quantity, product?.quantity_on_hand ?? 0),
+          );
+        }
+      }
+      return next;
+    });
+    setPlans([]);
+    setSelectedPlanKey("");
+    setBoxAssignments([]);
+  }, [config, directItems]);
 
   async function importCsv(file: File): Promise<void> {
     setBusy("import");
@@ -158,8 +250,7 @@ export default function AmazonShipmentPage() {
   }
 
   async function saveMapping(amazonSku: string): Promise<void> {
-    if (!imported) return;
-    const item = imported.items.find((candidate) => candidate.amazon_sku === amazonSku);
+    const item = workingItems.find((candidate) => candidate.amazon_sku === amazonSku);
     const draft = mappingDrafts[amazonSku];
     if (!item || !draft?.productId) {
       setError("Hãy chọn sản phẩm trên web trước khi lưu mapping.");
@@ -275,7 +366,7 @@ export default function AmazonShipmentPage() {
       setBoxAssignments([]);
       return;
     }
-    const packGroup = imported?.pack_group_number || "1";
+    const packGroup = workingSource === "csv" ? imported?.pack_group_number || "1" : "1";
     setBoxAssignments(
       Array.from({ length: plan.box_count }, (_, index) => ({
         boxTypeId: defaultBox.id,
@@ -296,8 +387,8 @@ export default function AmazonShipmentPage() {
   }
 
   async function optimize(): Promise<void> {
-    if (!imported) {
-      setError("Hãy upload Amazon CSV trước.");
+    if (!workingItems.length) {
+      setError("Hãy chọn SKU và nhập quantity ở bảng Create workflow trước.");
       return;
     }
     if (!selectedBoxTypeIds.length) {
@@ -308,16 +399,35 @@ export default function AmazonShipmentPage() {
     setError("");
     setNotice("");
     try {
+      const items = workingItems.map((item) => {
+        const requested = workingSource === "csv"
+          ? Number(requestedQuantities[item.amazon_sku])
+          : item.requested_quantity;
+        const available = Number(
+          availableQuantities[item.amazon_sku]
+          ?? Math.max(requested, item.mapping?.quantity_on_hand ?? 0),
+        );
+        return {
+          amazon_sku: item.amazon_sku,
+          requested_quantity: requested,
+          available_quantity: available,
+        };
+      });
+      if (items.some((item) => (
+        !Number.isInteger(item.requested_quantity)
+        || item.requested_quantity < 1
+        || !Number.isInteger(item.available_quantity)
+        || item.available_quantity < item.requested_quantity
+      ))) {
+        setError("Requested/available quantity phải là số nguyên và available không được nhỏ hơn requested.");
+        return;
+      }
       const result = await apiJson<AmazonOptimizeResponse>(
         "/api/v1/amazon-shipments/optimize",
         {
           method: "POST",
           body: JSON.stringify({
-            items: imported.items.map((item) => ({
-              amazon_sku: item.amazon_sku,
-              requested_quantity: Number(requestedQuantities[item.amazon_sku]),
-              available_quantity: Number(availableQuantities[item.amazon_sku]),
-            })),
+            items,
             box_type_ids: selectedBoxTypeIds,
             min_box_count: Number(minBoxes),
             max_box_count: Number(maxBoxes),
@@ -365,7 +475,7 @@ export default function AmazonShipmentPage() {
   }
 
   async function exportCsv(): Promise<void> {
-    if (!selectedPlan || !sourceCsv) return;
+    if (!selectedPlan || !sourceCsv || workingSource !== "csv") return;
     if (boxAssignments.some((box) => (
       !Number(box.weightLb)
       || !Number(box.lengthIn)
@@ -404,6 +514,86 @@ export default function AmazonShipmentPage() {
     }
   }
 
+  async function exportAdjustedManifest(): Promise<void> {
+    if (!selectedPlan || !config) return;
+    const productByAmazonSku = new Map(
+      config.products
+        .filter((product) => product.amazon_sku)
+        .map((product) => [product.amazon_sku as string, product]),
+    );
+    const items = selectedPlan.items.map((item) => ({
+      product_id: productByAmazonSku.get(item.amazon_sku)?.id ?? 0,
+      quantity: item.adjusted_quantity,
+    }));
+    if (items.some((item) => !item.product_id)) {
+      setError("Có Amazon SKU chưa liên kết với product trên web nên chưa thể tạo workflow file.");
+      return;
+    }
+    setBusy("adjusted-manifest");
+    setError("");
+    try {
+      await downloadJsonFile(
+        "/api/v1/amazon-shipments/manifest/export",
+        { items },
+        "amazon-create-workflow-optimized.xlsx",
+      );
+      setNotice("Đã tạo Create Workflow file theo quantity của phương án đang chọn.");
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Không tạo được optimized workflow file.");
+    } finally {
+      setBusy("");
+    }
+  }
+
+  async function exportPackingXlsx(): Promise<void> {
+    if (!selectedPlan) return;
+    if (!packingTemplateFile) {
+      setError("Hãy chọn file Box Packing Information .xlsx Amazon trả về sau khi tạo workflow.");
+      return;
+    }
+    if (!packingTemplateFile.name.toLocaleLowerCase().endsWith(".xlsx")) {
+      setError("File Box Packing Information phải là định dạng .xlsx.");
+      return;
+    }
+    if (boxAssignments.some((box) => (
+      !box.name.trim()
+      || !Number(box.weightLb)
+      || !Number(box.lengthIn)
+      || !Number(box.widthIn)
+      || !Number(box.heightIn)
+    ))) {
+      setError("Hãy nhập name, weight và dimensions hợp lệ cho mọi box trước khi điền XLSX.");
+      return;
+    }
+    setBusy("pack-xlsx");
+    setError("");
+    try {
+      await downloadJsonFile(
+        "/api/v1/amazon-shipments/packing-template/export",
+        {
+          source_xlsx_base64: await fileBase64(packingTemplateFile),
+          items: selectedPlan.items.map((item) => ({
+            amazon_sku: item.amazon_sku,
+            per_box_quantity: item.per_box_quantity,
+          })),
+          boxes: boxAssignments.map((box) => ({
+            name: box.name,
+            weight_lb: Number(box.weightLb),
+            length_in: Number(box.lengthIn),
+            width_in: Number(box.widthIn),
+            height_in: Number(box.heightIn),
+          })),
+        },
+        "amazon-box-packing-information-filled.xlsx",
+      );
+      setNotice("Đã điền Box Packing Information XLSX theo phương án đang chọn.");
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Không điền được Amazon XLSX.");
+    } finally {
+      setBusy("");
+    }
+  }
+
   return (
     <div className="amazonShipmentPage">
       <div className="card amazonHero">
@@ -411,8 +601,8 @@ export default function AmazonShipmentPage() {
           <div className="amazonEyebrow">FBA inbound planning</div>
           <h1>Amazon Shipment Optimizer</h1>
           <p className="muted">
-            Tạo tối thiểu 5 carton có cùng SKU mix và cùng quantity từng SKU, sau đó điền lại file
-            Pack individual units của Amazon.
+            Chọn SKU một lần, tạo workflow file, tối ưu tối thiểu 5 carton giống hệt nhau và cuối
+            cùng điền Box Packing Information XLSX Amazon trả về.
           </p>
         </div>
         <div className="amazonRuleCard">
@@ -424,16 +614,18 @@ export default function AmazonShipmentPage() {
       {error ? <div className="card amazonMessage error">{error}</div> : null}
       {notice ? <div className="card amazonMessage amazonSuccess">{notice}</div> : null}
 
-      {config ? <AmazonManifestBuilder products={config.products} /> : null}
+      {config ? (
+        <AmazonManifestBuilder
+          products={config.products}
+          onSelectionChange={handleManifestSelectionChange}
+        />
+      ) : null}
 
-      <section className="card amazonSection">
-        <div className="amazonSectionHeader">
-          <div>
-            <span className="amazonStep">1</span>
-            <h2>Import Amazon CSV</h2>
-          </div>
-          {sourceFilename ? <span className="muted">{sourceFilename}</span> : null}
-        </div>
+      <details className="card amazonSection amazonOptionalImport">
+        <summary>Optional: import legacy Pack individual units CSV</summary>
+        <p className="muted">
+          Không cần cho workflow mới. Chỉ dùng nếu bạn đã có file CSV cũ muốn đưa vào optimizer.
+        </p>
         <div className="row">
           <input
             className="input"
@@ -445,7 +637,7 @@ export default function AmazonShipmentPage() {
               if (file) void importCsv(file);
             }}
           />
-          <span className="muted">Dùng file Pack individual units tải từ Seller Central.</span>
+          {sourceFilename ? <span className="muted">{sourceFilename}</span> : null}
         </div>
         {imported ? (
           <div className="amazonStats">
@@ -455,15 +647,15 @@ export default function AmazonShipmentPage() {
             <div><strong>{imported.pack_group_number || "—"}</strong><span>Pack group</span></div>
           </div>
         ) : null}
-      </section>
+      </details>
 
-      {imported && config ? (
+      {config ? (
         <>
           <section className="card amazonSection">
             <div className="amazonSectionHeader">
               <div>
                 <span className="amazonStep">2</span>
-                <h2>SKU mapping & quantities</h2>
+                <h2>Shipment SKU list</h2>
               </div>
               <span className="muted">Mapping và unit weight được lưu cho lần sau.</span>
             </div>
@@ -480,7 +672,7 @@ export default function AmazonShipmentPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {imported.items.map((item) => {
+                  {workingItems.map((item) => {
                     const draft = mappingDrafts[item.amazon_sku] ?? { productId: "", unitWeightLb: "" };
                     return (
                       <tr key={item.amazon_sku}>
@@ -489,16 +681,18 @@ export default function AmazonShipmentPage() {
                           <small className="amazonCellNote">{item.title}</small>
                         </td>
                         <td className="right">
-                          <input
-                            className="input amazonNumberInput"
-                            type="number"
-                            min={1}
-                            value={requestedQuantities[item.amazon_sku] ?? item.requested_quantity}
-                            onChange={(event) => setRequestedQuantities((current) => ({
-                              ...current,
-                              [item.amazon_sku]: event.target.value,
-                            }))}
-                          />
+                          {workingSource === "csv" ? (
+                            <input
+                              className="input amazonNumberInput"
+                              type="number"
+                              min={1}
+                              value={requestedQuantities[item.amazon_sku] ?? item.requested_quantity}
+                              onChange={(event) => setRequestedQuantities((current) => ({
+                                ...current,
+                                [item.amazon_sku]: event.target.value,
+                              }))}
+                            />
+                          ) : <strong>{item.requested_quantity || "—"}</strong>}
                         </td>
                         <td className="right">
                           <input
@@ -561,6 +755,13 @@ export default function AmazonShipmentPage() {
                       </tr>
                     );
                   })}
+                  {!workingItems.length ? (
+                    <tr>
+                      <td className="muted" colSpan={6}>
+                        Chọn SKU và quantity ở bảng Create workflow phía trên; list sẽ tự hiện tại đây.
+                      </td>
+                    </tr>
+                  ) : null}
                 </tbody>
               </table>
             </div>
@@ -572,7 +773,7 @@ export default function AmazonShipmentPage() {
                 <span className="amazonStep">3</span>
                 <h2>Box profiles</h2>
               </div>
-              <span className="muted">Chọn các loại thùng mà optimizer được phép dùng.</span>
+              <span className="muted">Kích thước và sức chứa được lưu trong database để dùng lại.</span>
             </div>
 
             {config.box_types.length ? (
@@ -627,7 +828,7 @@ export default function AmazonShipmentPage() {
                   <p className="muted">Nhập số units tối đa nếu thùng này chỉ chứa riêng SKU đó. Mixed fill dùng tổng `units ÷ capacity`.</p>
                 </div>
                 <div className="amazonCapacityGrid">
-                  {imported.items.map((item) => {
+                  {workingItems.map((item) => {
                     const mapping = item.mapping;
                     const key = capacityKey(boxType.id, item.amazon_sku);
                     return (
@@ -653,6 +854,11 @@ export default function AmazonShipmentPage() {
                       </div>
                     );
                   })}
+                  {!workingItems.length ? (
+                    <div className="muted amazonCapacityEmpty">
+                      Chọn SKU phía trên để nhập sức chứa riêng của từng SKU.
+                    </div>
+                  ) : null}
                 </div>
               </div>
             ))}
@@ -668,7 +874,7 @@ export default function AmazonShipmentPage() {
             <div className="row">
               <div className="field"><label>Minimum boxes</label><input className="input amazonNumberInput" type="number" min={5} max={100} value={minBoxes} onChange={(event) => setMinBoxes(event.target.value)} /></div>
               <div className="field"><label>Maximum boxes</label><input className="input amazonNumberInput" type="number" min={5} max={100} value={maxBoxes} onChange={(event) => setMaxBoxes(event.target.value)} /></div>
-              <button className="btn primary amazonOptimizeButton" type="button" disabled={busy === "optimize"} onClick={() => void optimize()}>
+              <button className="btn primary amazonOptimizeButton" type="button" disabled={busy === "optimize" || !workingItems.length} onClick={() => void optimize()}>
                 {busy === "optimize" ? "Optimizing…" : "Find optimized plans"}
               </button>
             </div>
@@ -749,13 +955,57 @@ export default function AmazonShipmentPage() {
                   </div>
                   <div className="amazonExportBar">
                     <div>
-                      <strong>Amazon-ready CSV</strong>
-                      <span>Quantity và Box N units sẽ được thay bằng phương án đang chọn.</span>
+                      <strong>1. Create Workflow file theo phương án đã chọn</strong>
+                      <span>
+                        Nếu optimizer có chỉnh quantity, dùng file này để tạo hoặc cập nhật workflow trên Amazon.
+                      </span>
                     </div>
-                    <button className="btn primary" type="button" disabled={busy === "export"} onClick={() => void exportCsv()}>
-                      {busy === "export" ? "Exporting…" : "Download optimized CSV"}
+                    <button
+                      className="btn primary"
+                      type="button"
+                      disabled={busy === "adjusted-manifest"}
+                      onClick={() => void exportAdjustedManifest()}
+                    >
+                      {busy === "adjusted-manifest" ? "Creating…" : "Download optimized workflow XLSX"}
                     </button>
                   </div>
+
+                  <div className="amazonExportBar amazonPackingExport">
+                    <div>
+                      <strong>2. Điền Box Packing Information của Amazon</strong>
+                      <span>
+                        Chỉ upload file .xlsx Amazon trả về sau khi workflow đã có đúng SKU và quantity.
+                        File này không cần để optimize.
+                      </span>
+                      <input
+                        className="input"
+                        type="file"
+                        accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                        onChange={(event) => setPackingTemplateFile(event.target.files?.[0] ?? null)}
+                      />
+                      {packingTemplateFile ? <small>{packingTemplateFile.name}</small> : null}
+                    </div>
+                    <button
+                      className="btn primary"
+                      type="button"
+                      disabled={busy === "pack-xlsx" || !packingTemplateFile}
+                      onClick={() => void exportPackingXlsx()}
+                    >
+                      {busy === "pack-xlsx" ? "Filling…" : "Fill & download Amazon XLSX"}
+                    </button>
+                  </div>
+
+                  {workingSource === "csv" && sourceCsv ? (
+                    <div className="amazonExportBar amazonLegacyExport">
+                      <div>
+                        <strong>Legacy CSV output</strong>
+                        <span>Chỉ dành cho shipment đã import bằng Pack individual units CSV cũ.</span>
+                      </div>
+                      <button className="btn" type="button" disabled={busy === "export"} onClick={() => void exportCsv()}>
+                        {busy === "export" ? "Exporting…" : "Download optimized CSV"}
+                      </button>
+                    </div>
+                  ) : null}
                 </div>
               ) : null}
             </section>

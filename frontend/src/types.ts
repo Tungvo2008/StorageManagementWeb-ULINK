@@ -32,6 +32,7 @@ export type AmazonWebProduct = {
   id: number;
   sku: string;
   name: string;
+  image_url: string | null;
   quantity_on_hand: number;
   is_sold_on_amazon: boolean;
   amazon_sku: string | null;

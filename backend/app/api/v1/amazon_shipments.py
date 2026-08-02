@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import base64
+import binascii
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, File, HTTPException, Response, UploadFile, status
@@ -21,6 +23,7 @@ from app.schemas.amazon_shipment import (
     AmazonMappingRead,
     AmazonMappingUpsert,
     AmazonManifestExportRequest,
+    AmazonPackXlsxExportRequest,
     AmazonOptimizePlanRead,
     AmazonOptimizeRequest,
     AmazonOptimizeResponse,
@@ -33,6 +36,7 @@ from app.services.amazon_shipment import (
     optimize_identical_cartons,
     parse_amazon_pack_csv,
     render_amazon_manifest_xlsx,
+    render_amazon_pack_xlsx,
     render_amazon_pack_csv,
 )
 
@@ -131,6 +135,7 @@ def get_config(db: Session = Depends(get_db)) -> AmazonShipmentConfigRead:
                 id=product.id,
                 sku=product.sku,
                 name=product.name,
+                image_url=product.image_url,
                 quantity_on_hand=int(product.quantity_on_hand),
                 is_sold_on_amazon=bool(product.is_sold_on_amazon),
                 amazon_sku=product.amazon_sku,
@@ -471,6 +476,42 @@ def export_amazon_csv(payload: AmazonCsvExportRequest) -> Response:
         media_type="text/csv; charset=utf-8",
         headers={
             "Content-Disposition": 'attachment; filename="amazon-optimized-box-packing.csv"'
+        },
+    )
+
+
+@router.post("/packing-template/export")
+def export_amazon_pack_xlsx(payload: AmazonPackXlsxExportRequest) -> Response:
+    try:
+        source = base64.b64decode(payload.source_xlsx_base64, validate=True)
+    except (binascii.Error, ValueError) as exc:
+        raise HTTPException(status_code=400, detail="Invalid Amazon XLSX payload") from exc
+    if len(source) > 10 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="Amazon XLSX must be 10 MB or smaller")
+    try:
+        output = render_amazon_pack_xlsx(
+            source,
+            per_box_quantities={
+                item.amazon_sku: item.per_box_quantity for item in payload.items
+            },
+            boxes=[
+                {
+                    "name": box.name,
+                    "weight_lb": box.weight_lb,
+                    "length_in": box.length_in,
+                    "width_in": box.width_in,
+                    "height_in": box.height_in,
+                }
+                for box in payload.boxes
+            ],
+        )
+    except (RuntimeError, ValueError) as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return Response(
+        content=output,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={
+            "Content-Disposition": 'attachment; filename="amazon-box-packing-information-filled.xlsx"'
         },
     )
 

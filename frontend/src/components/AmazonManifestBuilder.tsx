@@ -1,14 +1,20 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-import { downloadJsonFile } from "../api/client";
+import { assetUrl, downloadJsonFile } from "../api/client";
 import type { AmazonWebProduct } from "../types";
 
 
 type Props = {
   products: AmazonWebProduct[];
+  onSelectionChange?: (items: AmazonManifestSelection[]) => void;
 };
 
-export default function AmazonManifestBuilder({ products }: Props) {
+export type AmazonManifestSelection = {
+  product_id: number;
+  quantity: number | null;
+};
+
+export default function AmazonManifestBuilder({ products, onSelectionChange }: Props) {
   const [query, setQuery] = useState("");
   const [selectedProductIds, setSelectedProductIds] = useState<number[]>([]);
   const [quantities, setQuantities] = useState<Record<number, string>>({});
@@ -33,10 +39,21 @@ export default function AmazonManifestBuilder({ products }: Props) {
   }, [amazonProducts, query]);
 
   const selectedSet = useMemo(() => new Set(selectedProductIds), [selectedProductIds]);
+  const selectedItems = useMemo<AmazonManifestSelection[]>(() => selectedProductIds.map((productId) => {
+    const quantity = Number(quantities[productId]);
+    return {
+      product_id: productId,
+      quantity: Number.isInteger(quantity) && quantity > 0 ? quantity : null,
+    };
+  }), [quantities, selectedProductIds]);
   const totalUnits = selectedProductIds.reduce(
     (sum, productId) => sum + Math.max(0, Number(quantities[productId] || 0)),
     0,
   );
+
+  useEffect(() => {
+    onSelectionChange?.(selectedItems);
+  }, [onSelectionChange, selectedItems]);
 
   function setSelected(productId: number, selected: boolean): void {
     setSelectedProductIds((current) => (
@@ -95,7 +112,7 @@ export default function AmazonManifestBuilder({ products }: Props) {
     <section className="card amazonSection amazonManifestBuilder">
       <div className="amazonSectionHeader">
         <div>
-          <span className="amazonStep">A</span>
+          <span className="amazonStep">1</span>
           <h2>Create workflow SKU file</h2>
         </div>
         <span className="muted">Dùng trực tiếp ManifestFileUpload_Template_MPL.xlsx đã lưu trong app.</span>
@@ -137,6 +154,7 @@ export default function AmazonManifestBuilder({ products }: Props) {
             <thead>
               <tr>
                 <th>Add</th>
+                <th>Image</th>
                 <th>Amazon Merchant SKU</th>
                 <th>Web SKU</th>
                 <th>Product</th>
@@ -156,6 +174,20 @@ export default function AmazonManifestBuilder({ products }: Props) {
                         checked={selected}
                         onChange={(event) => setSelected(product.id, event.target.checked)}
                       />
+                    </td>
+                    <td>
+                      <div className="amazonManifestThumb" title={product.name}>
+                        <span>{(product.name || product.sku || "?").slice(0, 1).toUpperCase()}</span>
+                        {product.image_url ? (
+                          <img
+                            src={assetUrl(product.image_url)}
+                            alt=""
+                            onError={(event) => {
+                              event.currentTarget.style.display = "none";
+                            }}
+                          />
+                        ) : null}
+                      </div>
                     </td>
                     <td><strong>{product.amazon_sku}</strong></td>
                     <td>{product.sku}</td>
