@@ -1458,6 +1458,76 @@ th { color: #111; background: #f9fafb; }
   font-size: 13px;
 }
 
+.amazonProductSettings {
+  border-color: #b7cbea;
+  background: #f4f8ff;
+}
+
+.amazonManifestBuilder {
+  border-color: #b6cce9;
+  background: linear-gradient(180deg, #ffffff, #f9fbff);
+}
+
+.amazonManifestToolbar {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) auto auto;
+  gap: 9px;
+}
+
+.amazonManifestStats {
+  grid-template-columns: repeat(3, minmax(120px, 1fr));
+}
+
+.amazonManifestTableScroller table {
+  min-width: 850px;
+}
+
+.amazonManifestTable th:first-child,
+.amazonManifestTable td:first-child {
+  width: 58px;
+  text-align: center;
+}
+
+.amazonManifestTable td:nth-child(2) {
+  min-width: 240px;
+}
+
+.amazonManifestTable td:nth-child(4) {
+  min-width: 300px;
+  max-width: 480px;
+}
+
+.amazonManifestSelected td {
+  background: #f1f7ff;
+}
+
+.amazonManifestSuccess {
+  padding: 10px 12px;
+  border: 1px solid #a7d7b4;
+  border-radius: 10px;
+  color: #166534;
+  background: #f0fdf4;
+  font-size: 13px;
+}
+
+.amazonManifestEmpty,
+.amazonManifestEmptyState {
+  padding: 18px;
+  text-align: center;
+}
+
+.amazonManifestEmptyState {
+  border: 1px dashed #b7c9df;
+  border-radius: 12px;
+  color: var(--muted);
+  background: #f8fbff;
+}
+
+.amazonManifestExportBar {
+  border-color: #78a8e2;
+  background: #eaf3ff;
+}
+
 @media (max-width: 1100px) {
   .amazonBoxForm {
     grid-template-columns: repeat(3, minmax(140px, 1fr));
@@ -1471,6 +1541,8 @@ th { color: #111; background: #f9fafb; }
 @media (max-width: 700px) {
   .amazonHero,
   .amazonStats,
+  .amazonManifestStats,
+  .amazonManifestToolbar,
   .amazonBoxForm {
     grid-template-columns: 1fr;
   }

@@ -20,6 +20,8 @@ class ProductBase(BaseModel):
     catalog_badges: str | None = Field(default=None, max_length=255)
     catalog_enabled: bool = True
     catalog_sort_order: int = Field(default=0, ge=0, le=1000000)
+    is_sold_on_amazon: bool = False
+    amazon_sku: str | None = Field(default=None, max_length=80)
     base_uom: str | None = Field(default=None, max_length=32, description="Base stock unit (vd: Pc)")
     category_id: int | None = None
     uom: str | None = Field(default=None, max_length=32, description="Unit of measurement (vd: Pc, Pcs, Dozen, Case)")
@@ -53,6 +55,8 @@ class ProductUpdate(BaseModel):
     catalog_badges: str | None = Field(default=None, max_length=255)
     catalog_enabled: bool | None = None
     catalog_sort_order: int | None = Field(default=None, ge=0, le=1000000)
+    is_sold_on_amazon: bool | None = None
+    amazon_sku: str | None = Field(default=None, max_length=80)
     base_uom: str | None = Field(default=None, max_length=32)
     category_id: int | None = None
     uom: str | None = Field(default=None, max_length=32)

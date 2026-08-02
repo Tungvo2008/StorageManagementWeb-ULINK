@@ -20,6 +20,8 @@ type ProductCreate = {
   catalog_badges?: string | null;
   catalog_enabled?: boolean;
   catalog_sort_order?: number;
+  is_sold_on_amazon: boolean;
+  amazon_sku?: string | null;
   base_uom?: string | null;
   uom?: string | null;
   uom_multiplier?: number | null;
@@ -44,6 +46,8 @@ type ProductUpdate = {
   catalog_badges?: string | null;
   catalog_enabled?: boolean | null;
   catalog_sort_order?: number | null;
+  is_sold_on_amazon?: boolean | null;
+  amazon_sku?: string | null;
   base_uom?: string | null;
   unit_price?: string | null;
   currency?: string | null;
@@ -94,6 +98,8 @@ export default function ProductsPage() {
     catalog_badges: "",
     catalog_enabled: true,
     catalog_sort_order: 0,
+    is_sold_on_amazon: false,
+    amazon_sku: "",
     base_uom: "Pc",
     uom: "Pc",
     uom_multiplier: 1,
@@ -143,6 +149,7 @@ export default function ProductsPage() {
         ...form,
         sku: form.sku.trim(),
         name: form.name.trim(),
+        amazon_sku: form.is_sold_on_amazon ? form.amazon_sku?.trim() || null : null,
         base_uom: form.base_uom?.trim() || "Pc",
         uom: useSaleUom ? form.uom?.trim() || "Pc" : form.base_uom?.trim() || "Pc",
         uom_multiplier: useSaleUom ? Math.max(Number(form.uom_multiplier ?? 1), 2) : 1,
@@ -164,6 +171,8 @@ export default function ProductsPage() {
         catalog_badges: "",
         catalog_enabled: true,
         catalog_sort_order: 0,
+        is_sold_on_amazon: false,
+        amazon_sku: "",
         base_uom: "Pc",
         uom: "Pc",
         uom_multiplier: 1,
@@ -246,7 +255,7 @@ export default function ProductsPage() {
     const byKey = new Map<string, { key: string; categoryId: number | null; name: string; items: Product[] }>();
     for (const p of items) {
       const categoryNameForFilter = p.category_id != null ? categoryNameById.get(p.category_id) ?? "" : "Uncategorized";
-      if (!matchesQuery(query, p.id, p.sku, p.name, categoryNameForFilter, p.currency, p.uom)) continue;
+      if (!matchesQuery(query, p.id, p.sku, p.amazon_sku, p.name, categoryNameForFilter, p.currency, p.uom)) continue;
       const key = p.category_id != null ? String(p.category_id) : "uncat";
       const name =
         p.category_id != null ? categoryNameById.get(p.category_id) ?? `Category #${p.category_id}` : "Uncategorized";
@@ -331,6 +340,8 @@ export default function ProductsPage() {
       catalog_badges: p.catalog_badges,
       catalog_enabled: p.catalog_enabled,
       catalog_sort_order: p.catalog_sort_order,
+      is_sold_on_amazon: p.is_sold_on_amazon,
+      amazon_sku: p.amazon_sku,
       base_uom: p.base_uom,
       unit_price: p.unit_price,
       currency: p.currency,
@@ -351,6 +362,7 @@ export default function ProductsPage() {
         ...editForm,
         sku: editForm.sku?.trim() ?? null,
         name: editForm.name?.trim() ?? null,
+        amazon_sku: editForm.is_sold_on_amazon ? editForm.amazon_sku?.trim() || null : null,
         base_uom: editForm.base_uom?.trim() || "Pc",
         uom: useSaleUom ? (editForm.uom?.trim() || editForm.base_uom?.trim() || "Pc") : (editForm.base_uom?.trim() || "Pc"),
         uom_multiplier: useSaleUom ? Math.max(Number(editForm.uom_multiplier ?? 1), 2) : 1,
@@ -434,6 +446,7 @@ export default function ProductsPage() {
                 <th><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "id"))}>ID{mark("id")}</button></th>
                 <th>Image</th>
                 <th><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "sku"))}>SKU{mark("sku")}</button></th>
+                <th>Amazon</th>
                 <th><button className="thSortBtn" type="button" onClick={() => setSort((s) => toggleSort(s, "name"))}>Name{mark("name")}</button></th>
                 <th>Category</th>
                 <th>UOM</th>
@@ -451,7 +464,7 @@ export default function ProductsPage() {
                 return (
                   <Fragment key={`grp-${g.key}`}>
                     <tr key={`cat-${g.key}`} className="category-row">
-                      <td colSpan={12}>
+                      <td colSpan={13}>
                         <div className="row" style={{ justifyContent: "space-between" }}>
                           <div className="row" style={{ gap: 10 }}>
                             <button className="btn" type="button" onClick={() => toggle(g.key)}>
@@ -483,6 +496,11 @@ export default function ProductsPage() {
                               </div>
                             </td>
                             <td>{p.sku}</td>
+                            <td>
+                              {p.is_sold_on_amazon && p.amazon_sku ? (
+                                <div><span className="amazonStatus good">Yes</span><small className="amazonCellNote">{p.amazon_sku}</small></div>
+                              ) : <span className="muted">No</span>}
+                            </td>
                             <td>{p.name}</td>
                             <td>{p.category_id ? categoryNameById.get(p.category_id) ?? "" : ""}</td>
                             <td>
@@ -514,7 +532,7 @@ export default function ProductsPage() {
               })}
               {!loading && grouped.length === 0 && (
                 <tr>
-                  <td colSpan={12} className="muted">
+                  <td colSpan={13} className="muted">
                     No matching products.
                   </td>
                 </tr>
@@ -579,6 +597,33 @@ export default function ProductsPage() {
                 onChange={(e) => setEditForm((s) => ({ ...s, name: e.target.value }))}
               />
             </div>
+          </div>
+
+          <div className="catalogMetaPanel amazonProductSettings">
+            <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
+              <strong>Amazon</strong>
+              <label className="row" style={{ gap: 8 }}>
+                <input
+                  type="checkbox"
+                  checked={Boolean(editForm.is_sold_on_amazon)}
+                  onChange={(e) => setEditForm((s) => ({ ...s, is_sold_on_amazon: e.target.checked }))}
+                />
+                Sold on Amazon
+              </label>
+            </div>
+            {editForm.is_sold_on_amazon ? (
+              <div className="field">
+                <label>Amazon Merchant SKU</label>
+                <input
+                  className="input"
+                  value={editForm.amazon_sku ?? ""}
+                  onChange={(e) => setEditForm((s) => ({ ...s, amazon_sku: e.target.value }))}
+                  placeholder="Merchant SKU shown in Seller Central"
+                  maxLength={80}
+                  required
+                />
+              </div>
+            ) : null}
           </div>
 
           <div className="row" style={{ gap: 8 }}>
@@ -781,6 +826,32 @@ export default function ProductsPage() {
                 required
               />
             </div>
+          </div>
+          <div className="catalogMetaPanel amazonProductSettings">
+            <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
+              <strong>Amazon</strong>
+              <label className="row" style={{ gap: 8 }}>
+                <input
+                  type="checkbox"
+                  checked={form.is_sold_on_amazon}
+                  onChange={(e) => setForm((s) => ({ ...s, is_sold_on_amazon: e.target.checked }))}
+                />
+                Sold on Amazon
+              </label>
+            </div>
+            {form.is_sold_on_amazon ? (
+              <div className="field">
+                <label>Amazon Merchant SKU</label>
+                <input
+                  className="input"
+                  value={form.amazon_sku ?? ""}
+                  onChange={(e) => setForm((s) => ({ ...s, amazon_sku: e.target.value }))}
+                  placeholder="Merchant SKU shown in Seller Central"
+                  maxLength={80}
+                  required
+                />
+              </div>
+            ) : null}
           </div>
           <div className="row" style={{ gap: 8 }}>
             <div className="field" style={{ width: 200 }}>

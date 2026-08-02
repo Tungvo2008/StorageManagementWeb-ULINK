@@ -14,6 +14,8 @@ export type Product = {
   catalog_badges: string | null;
   catalog_enabled: boolean;
   catalog_sort_order: number;
+  is_sold_on_amazon: boolean;
+  amazon_sku: string | null;
   base_uom: string;
   uom: string;
   uom_multiplier: number;
@@ -31,6 +33,8 @@ export type AmazonWebProduct = {
   sku: string;
   name: string;
   quantity_on_hand: number;
+  is_sold_on_amazon: boolean;
+  amazon_sku: string | null;
 };
 
 export type AmazonMapping = {

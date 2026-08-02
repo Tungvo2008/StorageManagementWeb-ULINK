@@ -56,6 +56,8 @@ Logo và thông tin công ty lấy từ `backend/.env`: `COMPANY_LOGO_PATH`, `CA
 
 ## Amazon Shipment Optimizer
 
+- Trong Product, bật `Sold on Amazon` và nhập Amazon Merchant SKU. Hai trường này cũng có trong Product Excel import/export.
+- Phần `Create workflow SKU file` cho phép tìm/chọn các Product Amazon, nhập quantity và tải file `amazon-create-workflow-manifest.xlsx`. App dùng trực tiếp template cố định `backend/assets/amazon/ManifestFileUpload_Template_MPL.xlsx`, không cần upload template mỗi lần.
 - Mở `http://localhost:5173/amazon-shipment` và upload file **Pack individual units CSV** vừa tải từ Seller Central.
 - Lưu mapping giữa Amazon SKU và SKU trên web, unit weight, loại thùng, kích thước và sức chứa riêng của từng SKU để dùng lại.
 - Chọn tối thiểu 5 carton. Mọi carton trong phương án có cùng SKU mix và cùng số units của từng SKU; kích thước và cân nặng có thể sửa riêng cho từng carton.

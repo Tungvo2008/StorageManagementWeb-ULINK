@@ -10,6 +10,8 @@ class AmazonWebProductRead(BaseModel):
     sku: str
     name: str
     quantity_on_hand: int
+    is_sold_on_amazon: bool
+    amazon_sku: str | None
 
 
 class AmazonMappingUpsert(BaseModel):
@@ -187,3 +189,12 @@ class AmazonCsvExportRequest(BaseModel):
     source_csv: str = Field(min_length=1, max_length=10_000_000)
     items: list[AmazonExportItemInput] = Field(min_length=1, max_length=500)
     boxes: list[AmazonExportBoxInput] = Field(min_length=5, max_length=100)
+
+
+class AmazonManifestItemInput(BaseModel):
+    product_id: int = Field(gt=0)
+    quantity: int = Field(ge=1, le=10_000_000)
+
+
+class AmazonManifestExportRequest(BaseModel):
+    items: list[AmazonManifestItemInput] = Field(min_length=1, max_length=500)

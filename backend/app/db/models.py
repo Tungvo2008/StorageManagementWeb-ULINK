@@ -97,6 +97,8 @@ class Product(TimestampMixin, Base):
     catalog_badges: Mapped[str | None] = mapped_column(String(255), nullable=True)
     catalog_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     catalog_sort_order: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    is_sold_on_amazon: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    amazon_sku: Mapped[str | None] = mapped_column(String(80), nullable=True, unique=True, index=True)
 
     # Base unit used for stock counting (smallest unit, vd: Pc).
     base_uom: Mapped[str] = mapped_column(String(32), nullable=False, default="Pc")

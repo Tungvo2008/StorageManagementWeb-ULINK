@@ -1,13 +1,18 @@
 from __future__ import annotations
 
 from decimal import Decimal
+from io import BytesIO
+from pathlib import Path
 import unittest
+
+from openpyxl import load_workbook
 
 from app.services.amazon_shipment import (
     SolverBoxType,
     SolverSku,
     optimize_identical_cartons,
     parse_amazon_pack_csv,
+    render_amazon_manifest_xlsx,
     render_amazon_pack_csv,
 )
 
@@ -62,6 +67,33 @@ class AmazonShipmentCsvTests(unittest.TestCase):
         for item in parsed.item_rows:
             row = parsed.rows[item.row_index]
             self.assertEqual([row[column] for _, column in parsed.box_columns], ["3"] * 5)
+
+    def test_manifest_export_fills_packaged_amazon_template(self) -> None:
+        template_path = (
+            Path(__file__).resolve().parents[1]
+            / "assets"
+            / "amazon"
+            / "ManifestFileUpload_Template_MPL.xlsx"
+        )
+        output = render_amazon_manifest_xlsx(
+            template_path.read_bytes(),
+            items=[("AMZ-SKU-001", 12), ("AMZ-SKU-002", 7)],
+        )
+        workbook = load_workbook(BytesIO(output), read_only=True, data_only=False)
+        self.assertEqual(
+            workbook.sheetnames,
+            [
+                "Instructions",
+                "Data definitions",
+                "Create workflow – template",
+                "Create workflow – example",
+            ],
+        )
+        sheet = workbook["Create workflow – template"]
+        self.assertEqual(sheet["A9"].value, "AMZ-SKU-001")
+        self.assertEqual(sheet["B9"].value, 12)
+        self.assertEqual(sheet["A10"].value, "AMZ-SKU-002")
+        self.assertEqual(sheet["B10"].value, 7)
 
 
 class AmazonShipmentOptimizerTests(unittest.TestCase):

@@ -4,7 +4,7 @@ import csv
 from dataclasses import dataclass
 from decimal import Decimal
 import hashlib
-from io import StringIO
+from io import BytesIO, StringIO
 import re
 from typing import Iterable
 
@@ -346,6 +346,94 @@ def render_amazon_pack_csv(
         raise RuntimeError("Generated Amazon CSV has an invalid box column count")
     if verified.declared_unit_count != total_units:
         raise RuntimeError("Generated Amazon CSV has an invalid unit total")
+    return result
+
+
+def render_amazon_manifest_xlsx(
+    source: bytes,
+    *,
+    items: list[tuple[str, int]],
+) -> bytes:
+    if not items:
+        raise ValueError("Select at least one Amazon SKU")
+    seen_skus: set[str] = set()
+    for amazon_sku, quantity in items:
+        if amazon_sku in seen_skus:
+            raise ValueError(f"Amazon SKU appears more than once: {amazon_sku}")
+        seen_skus.add(amazon_sku)
+        if not amazon_sku or len(amazon_sku) > 80 or not amazon_sku.isascii():
+            raise ValueError(f"Invalid Amazon SKU: {amazon_sku!r}")
+        if quantity < 1:
+            raise ValueError(f"Quantity for {amazon_sku} must be greater than zero")
+
+    try:
+        from openpyxl import load_workbook
+    except Exception as exc:
+        raise RuntimeError("Missing dependency: openpyxl") from exc
+    try:
+        workbook = load_workbook(BytesIO(source), data_only=False, keep_links=True)
+    except Exception as exc:
+        raise ValueError("Could not open the Amazon manifest XLSX template") from exc
+
+    template_sheet = next(
+        (
+            sheet
+            for sheet in workbook.worksheets
+            if sheet.title.strip().casefold() == "create workflow – template".casefold()
+        ),
+        None,
+    )
+    header_row = 0
+    sku_column = 0
+    quantity_column = 0
+    candidate_sheets = [template_sheet] if template_sheet is not None else list(workbook.worksheets)
+    for sheet in candidate_sheets:
+        if sheet is None:
+            continue
+        for row_index in range(1, min(sheet.max_row, 40) + 1):
+            normalized = {
+                str(sheet.cell(row_index, column_index).value or "").strip().casefold(): column_index
+                for column_index in range(1, min(sheet.max_column, 40) + 1)
+            }
+            if "merchant sku" in normalized and "quantity" in normalized:
+                template_sheet = sheet
+                header_row = row_index
+                sku_column = normalized["merchant sku"]
+                quantity_column = normalized["quantity"]
+                break
+        if header_row:
+            break
+    if template_sheet is None or not header_row:
+        raise ValueError(
+            "Could not find the Merchant SKU and Quantity columns in the Amazon template"
+        )
+
+    for row_index in range(header_row + 1, template_sheet.max_row + 1):
+        for column_index in range(1, template_sheet.max_column + 1):
+            template_sheet.cell(row_index, column_index).value = None
+    for offset, (amazon_sku, quantity) in enumerate(items, start=1):
+        row_index = header_row + offset
+        template_sheet.cell(row_index, sku_column).value = amazon_sku
+        template_sheet.cell(row_index, quantity_column).value = quantity
+
+    workbook.active = workbook.worksheets.index(template_sheet)
+    output = BytesIO()
+    workbook.save(output)
+    result = output.getvalue()
+
+    try:
+        verified = load_workbook(BytesIO(result), read_only=True, data_only=False)
+        verified_sheet = verified[template_sheet.title]
+        for offset, (amazon_sku, quantity) in enumerate(items, start=1):
+            row_index = header_row + offset
+            if verified_sheet.cell(row_index, sku_column).value != amazon_sku:
+                raise RuntimeError("Generated manifest has an invalid Amazon SKU row")
+            if verified_sheet.cell(row_index, quantity_column).value != quantity:
+                raise RuntimeError("Generated manifest has an invalid quantity row")
+    except RuntimeError:
+        raise
+    except Exception as exc:
+        raise RuntimeError("Generated Amazon manifest could not be verified") from exc
     return result
 
 

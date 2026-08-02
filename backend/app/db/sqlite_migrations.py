@@ -233,6 +233,11 @@ def _ensure_columns(conn: Connection) -> None:
     }
 
     if "products" in tables:
+        product_columns_before = _existing_columns(conn, "products")
+        should_backfill_amazon_fields = (
+            "is_sold_on_amazon" not in product_columns_before
+            or "amazon_sku" not in product_columns_before
+        )
         _add_column_if_missing(conn, "products", "uom", "uom TEXT NOT NULL DEFAULT 'Pc'")
         _add_column_if_missing(conn, "products", "uom_multiplier", "uom_multiplier INTEGER NOT NULL DEFAULT 1")
         _add_column_if_missing(conn, "products", "category_id", "category_id INTEGER")
@@ -258,6 +263,42 @@ def _ensure_columns(conn: Connection) -> None:
             "catalog_sort_order",
             "catalog_sort_order INTEGER NOT NULL DEFAULT 0",
         )
+        _add_column_if_missing(
+            conn,
+            "products",
+            "is_sold_on_amazon",
+            "is_sold_on_amazon BOOLEAN NOT NULL DEFAULT 0",
+        )
+        _add_column_if_missing(conn, "products", "amazon_sku", "amazon_sku TEXT")
+        conn.execute(
+            text(
+                "CREATE UNIQUE INDEX IF NOT EXISTS ux_products_amazon_sku "
+                "ON products (amazon_sku) WHERE amazon_sku IS NOT NULL"
+            )
+        )
+        if "amazon_product_mappings" in tables and should_backfill_amazon_fields:
+            conn.execute(
+                text(
+                    """
+                    UPDATE products
+                    SET
+                        is_sold_on_amazon = 1,
+                        amazon_sku = (
+                            SELECT mapping.amazon_sku
+                            FROM amazon_product_mappings AS mapping
+                            WHERE mapping.product_id = products.id
+                            ORDER BY mapping.id ASC
+                            LIMIT 1
+                        )
+                    WHERE amazon_sku IS NULL
+                      AND EXISTS (
+                          SELECT 1
+                          FROM amazon_product_mappings AS mapping
+                          WHERE mapping.product_id = products.id
+                      )
+                    """
+                )
+            )
 
     if "categories" in tables:
         _add_column_if_missing(

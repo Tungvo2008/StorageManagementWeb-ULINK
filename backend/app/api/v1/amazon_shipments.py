@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 from fastapi import APIRouter, Depends, File, HTTPException, Response, UploadFile, status
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
@@ -18,6 +20,7 @@ from app.schemas.amazon_shipment import (
     AmazonImportedItemRead,
     AmazonMappingRead,
     AmazonMappingUpsert,
+    AmazonManifestExportRequest,
     AmazonOptimizePlanRead,
     AmazonOptimizeRequest,
     AmazonOptimizeResponse,
@@ -29,12 +32,19 @@ from app.services.amazon_shipment import (
     SolverSku,
     optimize_identical_cartons,
     parse_amazon_pack_csv,
+    render_amazon_manifest_xlsx,
     render_amazon_pack_csv,
 )
 
 
 router = APIRouter(prefix="/amazon-shipments")
 MAX_CSV_BYTES = 5 * 1024 * 1024
+AMAZON_MANIFEST_TEMPLATE_PATH = (
+    Path(__file__).resolve().parents[3]
+    / "assets"
+    / "amazon"
+    / "ManifestFileUpload_Template_MPL.xlsx"
+)
 
 
 def _mapping_read(mapping: AmazonProductMapping) -> AmazonMappingRead:
@@ -122,6 +132,8 @@ def get_config(db: Session = Depends(get_db)) -> AmazonShipmentConfigRead:
                 sku=product.sku,
                 name=product.name,
                 quantity_on_hand=int(product.quantity_on_hand),
+                is_sold_on_amazon=bool(product.is_sold_on_amazon),
+                amazon_sku=product.amazon_sku,
             )
             for product in products
         ],
@@ -136,11 +148,29 @@ def upsert_mapping(
     db: Session = Depends(get_db),
 ) -> AmazonMappingRead:
     amazon_sku = payload.amazon_sku.strip()
+    if not amazon_sku:
+        raise HTTPException(status_code=400, detail="Amazon SKU is required")
     product = None
     if payload.product_id is not None:
         product = db.get(Product, payload.product_id)
         if product is None:
             raise HTTPException(status_code=404, detail="Web product not found")
+        if len(amazon_sku) > 80 or not amazon_sku.isascii():
+            raise HTTPException(
+                status_code=400,
+                detail="Amazon SKU assigned to a product must be 80 or fewer ASCII characters",
+            )
+        assigned_product = db.scalar(
+            select(Product).where(
+                Product.amazon_sku == amazon_sku,
+                Product.id != product.id,
+            )
+        )
+        if assigned_product is not None:
+            raise HTTPException(
+                status_code=409,
+                detail="Amazon SKU is already assigned to another product",
+            )
     mapping = db.scalar(
         select(AmazonProductMapping).where(AmazonProductMapping.amazon_sku == amazon_sku)
     )
@@ -152,6 +182,9 @@ def upsert_mapping(
     mapping.fnsku = (payload.fnsku or "").strip() or None
     mapping.title = (payload.title or "").strip() or None
     mapping.unit_weight_lb = payload.unit_weight_lb
+    if product is not None:
+        product.is_sold_on_amazon = True
+        product.amazon_sku = amazon_sku
     try:
         db.commit()
     except IntegrityError as exc:
@@ -438,5 +471,48 @@ def export_amazon_csv(payload: AmazonCsvExportRequest) -> Response:
         media_type="text/csv; charset=utf-8",
         headers={
             "Content-Disposition": 'attachment; filename="amazon-optimized-box-packing.csv"'
+        },
+    )
+
+
+@router.post("/manifest/export")
+def export_amazon_manifest(
+    payload: AmazonManifestExportRequest,
+    db: Session = Depends(get_db),
+) -> Response:
+    product_ids = [item.product_id for item in payload.items]
+    if len(set(product_ids)) != len(product_ids):
+        raise HTTPException(status_code=400, detail="Each product can only be selected once")
+    products = db.scalars(select(Product).where(Product.id.in_(product_ids))).all()
+    product_by_id = {product.id: product for product in products}
+    missing_ids = sorted(set(product_ids) - set(product_by_id))
+    if missing_ids:
+        raise HTTPException(
+            status_code=404,
+            detail="Products not found: " + ", ".join(str(value) for value in missing_ids),
+        )
+
+    manifest_items: list[tuple[str, int]] = []
+    for item in payload.items:
+        product = product_by_id[item.product_id]
+        if not product.is_sold_on_amazon or not product.amazon_sku:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Product {product.sku} is not configured for Amazon",
+            )
+        manifest_items.append((product.amazon_sku, item.quantity))
+
+    try:
+        source = AMAZON_MANIFEST_TEMPLATE_PATH.read_bytes()
+        output = render_amazon_manifest_xlsx(source, items=manifest_items)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=500, detail="Amazon manifest template is missing") from exc
+    except (RuntimeError, ValueError) as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return Response(
+        content=output,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={
+            "Content-Disposition": 'attachment; filename="amazon-create-workflow-manifest.xlsx"'
         },
     )

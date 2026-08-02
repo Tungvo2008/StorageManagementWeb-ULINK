@@ -13,7 +13,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from app.api.deps import get_db
 from app.core.config import settings
-from app.db.models import Category, Product
+from app.db.models import AmazonProductMapping, Category, Product
 from app.schemas.product import ProductCreate, ProductImportResult, ProductRead, ProductUpdate
 
 
@@ -168,6 +168,72 @@ def _resolve_sku(
     return _ensure_unique_sku(generated, taken)
 
 
+def _prepare_amazon_fields(
+    db: Session,
+    *,
+    is_sold_on_amazon: bool,
+    amazon_sku: str | None,
+    current_product_id: int | None = None,
+) -> tuple[bool, str | None]:
+    if not is_sold_on_amazon:
+        return False, None
+    normalized_sku = (amazon_sku or "").strip()
+    if not normalized_sku:
+        raise HTTPException(status_code=400, detail="Amazon SKU is required when the product is sold on Amazon")
+    if len(normalized_sku) > 80:
+        raise HTTPException(status_code=400, detail="Amazon SKU must be 80 characters or fewer")
+    if not normalized_sku.isascii():
+        raise HTTPException(status_code=400, detail="Amazon SKU must use English/ASCII characters")
+
+    existing_product = db.scalar(select(Product).where(Product.amazon_sku == normalized_sku))
+    if existing_product is not None and existing_product.id != current_product_id:
+        raise HTTPException(status_code=409, detail="Amazon SKU is already assigned to another product")
+    existing_mapping = db.scalar(
+        select(AmazonProductMapping).where(AmazonProductMapping.amazon_sku == normalized_sku)
+    )
+    if (
+        existing_mapping is not None
+        and existing_mapping.product_id is not None
+        and existing_mapping.product_id != current_product_id
+    ):
+        raise HTTPException(status_code=409, detail="Amazon SKU is already mapped to another product")
+    return True, normalized_sku
+
+
+def _sync_product_amazon_mapping(db: Session, product: Product) -> None:
+    if not product.is_sold_on_amazon or not product.amazon_sku:
+        return
+    target = db.scalar(
+        select(AmazonProductMapping).where(AmazonProductMapping.amazon_sku == product.amazon_sku)
+    )
+    if target is not None:
+        if target.product_id not in (None, product.id):
+            raise HTTPException(status_code=409, detail="Amazon SKU is already mapped to another product")
+        target.product_id = product.id
+        if not target.title:
+            target.title = product.name
+        return
+
+    current = db.scalar(
+        select(AmazonProductMapping)
+        .where(AmazonProductMapping.product_id == product.id)
+        .order_by(AmazonProductMapping.id.asc())
+    )
+    if current is not None:
+        current.amazon_sku = product.amazon_sku
+        if not current.title:
+            current.title = product.name
+        return
+
+    db.add(
+        AmazonProductMapping(
+            product_id=product.id,
+            amazon_sku=product.amazon_sku,
+            title=product.name,
+        )
+    )
+
+
 class _ProductExcelImportError(ValueError):
     def __init__(self, errors: list[str]):
         super().__init__("\n".join(errors))
@@ -197,6 +263,8 @@ def _build_products_template_xlsx() -> bytes:
         "catalog_badges",
         "catalog_enabled",
         "catalog_sort_order",
+        "is_sold_on_amazon",
+        "amazon_sku",
     ]
     ws.append(headers)
     ws.append(
@@ -218,6 +286,8 @@ def _build_products_template_xlsx() -> bytes:
             "new,best seller",
             True,
             0,
+            False,
+            "",
         ]
     )
     for cell in ws[1]:
@@ -239,6 +309,8 @@ def _build_products_template_xlsx() -> bytes:
     ws.column_dimensions["O"].width = 24
     ws.column_dimensions["P"].width = 18
     ws.column_dimensions["Q"].width = 18
+    ws.column_dimensions["R"].width = 20
+    ws.column_dimensions["S"].width = 28
 
     buf = BytesIO()
     wb.save(buf)
@@ -271,6 +343,8 @@ def _build_products_export_xlsx(products: list[Product]) -> bytes:
             "catalog_badges",
             "catalog_enabled",
             "catalog_sort_order",
+            "is_sold_on_amazon",
+            "amazon_sku",
         ]
     )
     for p in products:
@@ -295,6 +369,8 @@ def _build_products_export_xlsx(products: list[Product]) -> bytes:
                 p.catalog_badges or "",
                 bool(p.catalog_enabled),
                 int(p.catalog_sort_order or 0),
+                bool(p.is_sold_on_amazon),
+                p.amazon_sku or "",
             ]
         )
     for cell in ws[1]:
@@ -318,6 +394,8 @@ def _build_products_export_xlsx(products: list[Product]) -> bytes:
     ws.column_dimensions["Q"].width = 24
     ws.column_dimensions["R"].width = 18
     ws.column_dimensions["S"].width = 18
+    ws.column_dimensions["T"].width = 20
+    ws.column_dimensions["U"].width = 28
 
     buf = BytesIO()
     wb.save(buf)
@@ -390,11 +468,33 @@ def _parse_products_import_xlsx(file_bytes: bytes) -> list[dict[str, Any]]:
             if "catalog_sort_order" in idx and idx["catalog_sort_order"] < len(row_vals)
             else None
         )
+        is_sold_on_amazon_raw = (
+            row_vals[idx["is_sold_on_amazon"]]
+            if "is_sold_on_amazon" in idx and idx["is_sold_on_amazon"] < len(row_vals)
+            else None
+        )
+        amazon_sku = _cell_str(
+            row_vals[idx["amazon_sku"]]
+            if "amazon_sku" in idx and idx["amazon_sku"] < len(row_vals)
+            else ""
+        )
 
         base_uom = base_uom or "Pc"
         uom = uom or "Pc"
         is_active = _parse_bool(is_active_raw, default=True)
         catalog_enabled = _parse_bool(catalog_enabled_raw, default=True)
+        is_sold_on_amazon = _parse_bool(
+            is_sold_on_amazon_raw,
+            default=bool(amazon_sku),
+        )
+        if is_sold_on_amazon and not amazon_sku:
+            errors.append(f"Row {row_i}: amazon_sku is required when is_sold_on_amazon is true")
+            continue
+        if amazon_sku and (len(amazon_sku) > 80 or not amazon_sku.isascii()):
+            errors.append(f"Row {row_i}: amazon_sku must be 80 or fewer ASCII characters")
+            continue
+        if not is_sold_on_amazon:
+            amazon_sku = ""
         try:
             catalog_case_pack = (
                 int(catalog_case_pack_raw)
@@ -443,6 +543,8 @@ def _parse_products_import_xlsx(file_bytes: bytes) -> list[dict[str, Any]]:
                 "catalog_badges": catalog_badges,
                 "catalog_enabled": catalog_enabled,
                 "catalog_sort_order": catalog_sort_order,
+                "is_sold_on_amazon": is_sold_on_amazon,
+                "amazon_sku": amazon_sku,
                 "_catalog_fields_present": {
                     field_name
                     for field_name in (
@@ -458,6 +560,9 @@ def _parse_products_import_xlsx(file_bytes: bytes) -> list[dict[str, Any]]:
                     )
                     if field_name in idx
                 },
+                "_amazon_fields_present": bool(
+                    {"is_sold_on_amazon", "amazon_sku"}.intersection(idx)
+                ),
             }
         )
 
@@ -494,6 +599,11 @@ def create_product(product_in: ProductCreate, db: Session = Depends(get_db)) -> 
     if uom_multiplier <= 1:
         uom_multiplier = 1
         uom = base_uom
+    is_sold_on_amazon, amazon_sku = _prepare_amazon_fields(
+        db,
+        is_sold_on_amazon=product_in.is_sold_on_amazon,
+        amazon_sku=product_in.amazon_sku,
+    )
     product = Product(
         category_id=category_id,
         sku=sku,
@@ -509,6 +619,8 @@ def create_product(product_in: ProductCreate, db: Session = Depends(get_db)) -> 
         catalog_badges=product_in.catalog_badges,
         catalog_enabled=product_in.catalog_enabled,
         catalog_sort_order=product_in.catalog_sort_order,
+        is_sold_on_amazon=is_sold_on_amazon,
+        amazon_sku=amazon_sku,
         base_uom=base_uom,
         uom=uom,
         uom_multiplier=uom_multiplier,
@@ -519,6 +631,8 @@ def create_product(product_in: ProductCreate, db: Session = Depends(get_db)) -> 
         is_active=product_in.is_active,
     )
     db.add(product)
+    db.flush()
+    _sync_product_amazon_mapping(db, product)
     db.commit()
     db.refresh(product)
     return product
@@ -604,6 +718,18 @@ if _has_python_multipart():
             }
 
             product = existing_by_sku.get(key)
+            amazon_fields: dict[str, object] = {}
+            if item["_amazon_fields_present"]:
+                is_sold_on_amazon, amazon_sku = _prepare_amazon_fields(
+                    db,
+                    is_sold_on_amazon=bool(item["is_sold_on_amazon"]),
+                    amazon_sku=item["amazon_sku"] or None,
+                    current_product_id=product.id if product is not None else None,
+                )
+                amazon_fields = {
+                    "is_sold_on_amazon": is_sold_on_amazon,
+                    "amazon_sku": amazon_sku,
+                }
             if product is None:
                 product = Product(
                     sku=sku,
@@ -618,8 +744,10 @@ if _has_python_multipart():
                     unit_price=unit_price,
                     cost_price=cost_price,
                     **catalog_fields,
+                    **amazon_fields,
                 )
                 db.add(product)
+                db.flush()
                 existing_by_sku[key] = product
                 created += 1
             else:
@@ -634,7 +762,11 @@ if _has_python_multipart():
                 product.is_active = is_active
                 for field_name, field_value in catalog_fields.items():
                     setattr(product, field_name, field_value)
+                for field_name, field_value in amazon_fields.items():
+                    setattr(product, field_name, field_value)
                 updated += 1
+            if amazon_fields:
+                _sync_product_amazon_mapping(db, product)
 
         db.commit()
         return ProductImportResult(created=created, updated=updated)
@@ -706,8 +838,21 @@ def update_product(product_id: int, product_in: ProductUpdate, db: Session = Dep
             existing_skus_upper=existing_skus_upper,
             current_sku_upper=current_sku_upper,
         )
+    if "is_sold_on_amazon" in data or "amazon_sku" in data:
+        is_sold_on_amazon, amazon_sku = _prepare_amazon_fields(
+            db,
+            is_sold_on_amazon=bool(
+                data.get("is_sold_on_amazon", product.is_sold_on_amazon)
+            ),
+            amazon_sku=data.get("amazon_sku", product.amazon_sku),
+            current_product_id=product.id,
+        )
+        data["is_sold_on_amazon"] = is_sold_on_amazon
+        data["amazon_sku"] = amazon_sku
     for key, value in data.items():
         setattr(product, key, value)
+    db.flush()
+    _sync_product_amazon_mapping(db, product)
     db.commit()
     db.refresh(product)
     return product

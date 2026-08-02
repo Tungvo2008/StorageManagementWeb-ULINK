@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { apiJson, apiUpload, downloadJsonFile } from "../api/client";
+import AmazonManifestBuilder from "../components/AmazonManifestBuilder";
 import type {
   AmazonBoxType,
   AmazonCsvImport,
@@ -422,6 +423,8 @@ export default function AmazonShipmentPage() {
 
       {error ? <div className="card amazonMessage error">{error}</div> : null}
       {notice ? <div className="card amazonMessage amazonSuccess">{notice}</div> : null}
+
+      {config ? <AmazonManifestBuilder products={config.products} /> : null}
 
       <section className="card amazonSection">
         <div className="amazonSectionHeader">
