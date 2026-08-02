@@ -17,6 +17,7 @@ import ProductsPage from "./pages/ProductsPage";
 import SalesPage from "./pages/SalesPage";
 import UsersPage from "./pages/UsersPage";
 import { clearToken, getToken } from "./auth";
+import AmazonShipmentPage from "./pages/AmazonShipmentPage";
 
 function RequireAuth({ children }: { children: JSX.Element }) {
   const token = getToken();
@@ -90,6 +91,14 @@ export default function App() {
           element={
             <RequireAuth>
               <CatalogPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/amazon-shipment"
+          element={
+            <RequireAuth>
+              <AmazonShipmentPage />
             </RequireAuth>
           }
         />

@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends
 
 from app.api.deps import get_current_user
+from app.api.v1.amazon_shipments import router as amazon_shipments_router
 from app.api.v1.auth import router as auth_router
 from app.api.v1.categories import router as categories_router
 from app.api.v1.catalog import router as catalog_router
@@ -19,6 +20,7 @@ api_router.include_router(auth_router, tags=["auth"])
 
 auth_deps = [Depends(get_current_user)]
 api_router.include_router(categories_router, tags=["categories"], dependencies=auth_deps)
+api_router.include_router(amazon_shipments_router, tags=["amazon-shipments"], dependencies=auth_deps)
 api_router.include_router(catalog_router, tags=["catalog"], dependencies=auth_deps)
 api_router.include_router(products_router, tags=["products"], dependencies=auth_deps)
 api_router.include_router(customers_router, tags=["customers"], dependencies=auth_deps)

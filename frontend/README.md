@@ -16,5 +16,4 @@ npm install
 npm run dev
 ```
 
-Mặc định UI gọi backend tại `VITE_API_BASE_URL=http://localhost:8000`.
-
+Trong development, Vite proxy các request `/api` sang backend tại `http://127.0.0.1:8000` để tránh CORS. `VITE_API_BASE_URL` chỉ được dùng cho production build.

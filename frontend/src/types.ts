@@ -26,6 +26,127 @@ export type Product = {
   updated_at: string;
 };
 
+export type AmazonWebProduct = {
+  id: number;
+  sku: string;
+  name: string;
+  quantity_on_hand: number;
+};
+
+export type AmazonMapping = {
+  id: number;
+  amazon_sku: string;
+  product_id: number | null;
+  product_sku: string | null;
+  product_name: string | null;
+  quantity_on_hand: number | null;
+  asin: string | null;
+  fnsku: string | null;
+  title: string | null;
+  unit_weight_lb: number | null;
+};
+
+export type AmazonCapacity = {
+  id: number;
+  mapping_id: number;
+  amazon_sku: string;
+  units_capacity: number;
+};
+
+export type AmazonBoxType = {
+  id: number;
+  name: string;
+  length_in: number;
+  width_in: number;
+  height_in: number;
+  empty_weight_lb: number;
+  max_weight_lb: number | null;
+  is_active: boolean;
+  capacities: AmazonCapacity[];
+};
+
+export type AmazonShipmentConfig = {
+  products: AmazonWebProduct[];
+  mappings: AmazonMapping[];
+  box_types: AmazonBoxType[];
+};
+
+export type AmazonImportedItem = {
+  amazon_sku: string;
+  title: string;
+  asin: string | null;
+  fnsku: string | null;
+  requested_quantity: number;
+  mapping: AmazonMapping | null;
+};
+
+export type AmazonImportedBox = {
+  number: number;
+  name: string | null;
+  weight_lb: number | null;
+  length_in: number | null;
+  width_in: number | null;
+  height_in: number | null;
+};
+
+export type AmazonCsvImport = {
+  pack_group_number: string;
+  workflow_name: string;
+  declared_sku_count: number;
+  declared_unit_count: number;
+  existing_box_count: number;
+  items: AmazonImportedItem[];
+  boxes: AmazonImportedBox[];
+  warnings: string[];
+};
+
+export type AmazonPlanItem = {
+  amazon_sku: string;
+  title: string | null;
+  requested_quantity: number;
+  available_quantity: number;
+  per_box_quantity: number;
+  adjusted_quantity: number;
+  quantity_delta: number;
+  unit_weight_lb: number | null;
+  capacity_units: number;
+  capacity_fraction: number;
+};
+
+export type AmazonFeasibleBox = {
+  id: number;
+  name: string;
+  length_in: number;
+  width_in: number;
+  height_in: number;
+  empty_weight_lb: number;
+  max_weight_lb: number | null;
+  capacity_utilization: number;
+  estimated_weight_lb: number | null;
+};
+
+export type AmazonOptimizePlan = {
+  key: string;
+  strategy: string;
+  box_count: number;
+  selected_box_type_id: number;
+  selected_box_type_name: string;
+  requested_unit_count: number;
+  adjusted_unit_count: number;
+  absolute_quantity_change: number;
+  units_per_box: number;
+  capacity_utilization: number;
+  estimated_weight_lb: number | null;
+  items: AmazonPlanItem[];
+  feasible_box_types: AmazonFeasibleBox[];
+  warnings: string[];
+};
+
+export type AmazonOptimizeResponse = {
+  plans: AmazonOptimizePlan[];
+  warnings: string[];
+};
+
 export type Category = {
   id: number;
   name: string;

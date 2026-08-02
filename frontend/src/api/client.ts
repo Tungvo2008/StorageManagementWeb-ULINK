@@ -1,9 +1,16 @@
 import { clearToken, getToken } from "../auth";
 
 function resolveApiBaseUrl(): string {
+  // In local development Vite proxies `/api` to FastAPI. Keeping requests on
+  // the same origin avoids CORS/mixed-content issues even when a shell-level
+  // VITE_API_BASE_URL happens to be present on the developer machine.
+  if (import.meta.env.DEV) {
+    return "";
+  }
+
   const configured = (import.meta.env.VITE_API_BASE_URL ?? "").trim();
   if (!configured) {
-    return import.meta.env.DEV ? "http://localhost:8000" : "";
+    return "";
   }
 
   if (typeof window !== "undefined") {
@@ -157,6 +164,41 @@ export async function downloadFile(path: string, filename: string): Promise<void
   const downloadedFilename = matchedFilenameStar?.[1]
     ? decodeURIComponent(matchedFilenameStar[1])
     : matchedFilename?.[1] ?? filename;
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = downloadedFilename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+export async function downloadJsonFile(
+  path: string,
+  payload: unknown,
+  filename: string,
+): Promise<void> {
+  const res = await fetch(apiHref(path), {
+    method: "POST",
+    headers: {
+      ...authHeaders(),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const text = await readErrorMessage(res);
+    if (res.status === 401) {
+      handleUnauthorized();
+    }
+    throw new Error(text || res.statusText);
+  }
+
+  const blob = await res.blob();
+  const disposition = res.headers.get("content-disposition") ?? "";
+  const matchedFilename = disposition.match(/filename\s*=\s*"?([^";]+)"?/i);
+  const downloadedFilename = matchedFilename?.[1] ?? filename;
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;

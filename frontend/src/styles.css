@@ -1052,7 +1052,440 @@ th { color: #111; background: #f9fafb; }
   .loginForm .btn {
     width: 100%;
   }
-  .imageManagerGrid {
+.imageManagerGrid {
     grid-template-columns: 1fr;
+  }
+}
+
+.amazonShipmentPage {
+  display: grid;
+  gap: 16px;
+}
+
+.amazonHero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
+  align-items: center;
+  gap: 20px;
+  color: #eef6ff;
+  border-color: #173a68;
+  background:
+    radial-gradient(circle at 82% 10%, rgba(72, 155, 255, 0.34), transparent 34%),
+    linear-gradient(135deg, #0b1f3b, #123e72);
+}
+
+.amazonHero h1 {
+  margin: 4px 0 8px;
+  font-size: clamp(28px, 4vw, 44px);
+  letter-spacing: -0.04em;
+}
+
+.amazonHero p {
+  max-width: 760px;
+  margin: 0;
+  color: #c7d8ec;
+  line-height: 1.55;
+}
+
+.amazonEyebrow {
+  color: #8fc6ff;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.amazonRuleCard {
+  display: grid;
+  gap: 6px;
+  padding: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.amazonRuleCard strong {
+  font-size: 17px;
+}
+
+.amazonRuleCard span {
+  color: #c7d8ec;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.amazonMessage {
+  padding: 12px 16px;
+}
+
+.amazonSuccess {
+  color: #166534;
+  border-color: #a7d7b4;
+  background: #f0fdf4;
+}
+
+.amazonSection {
+  display: grid;
+  gap: 16px;
+}
+
+.amazonSection h2,
+.amazonSection h3 {
+  margin: 0;
+}
+
+.amazonSectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.amazonSectionHeader > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.amazonStep {
+  width: 30px;
+  height: 30px;
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 9px;
+  color: #fff;
+  background: #15509b;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.amazonStats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+.amazonStats > div {
+  display: grid;
+  gap: 3px;
+  padding: 13px;
+  border-radius: 11px;
+  background: #f3f7fc;
+}
+
+.amazonStats strong {
+  color: #123e72;
+  font-size: 22px;
+}
+
+.amazonStats span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.amazonTableScroller {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.amazonTableScroller table {
+  min-width: 900px;
+}
+
+.amazonSkuTable td:first-child {
+  min-width: 260px;
+  max-width: 420px;
+}
+
+.amazonCellNote {
+  max-width: 420px;
+  margin-top: 4px;
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--muted);
+  line-height: 1.35;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.amazonNumberInput {
+  width: 92px;
+  text-align: right;
+}
+
+.amazonWeightInput {
+  width: 112px;
+  text-align: right;
+}
+
+.amazonProductSelect {
+  width: min(360px, 40vw);
+}
+
+.amazonStatus {
+  padding: 5px 8px;
+  border-radius: 999px;
+  color: #9a3412;
+  background: #fff1e8;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.amazonStatus.good {
+  color: #166534;
+  background: #eaf8ee;
+}
+
+.amazonBoxTypeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 10px;
+}
+
+.amazonBoxType {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 13px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.amazonBoxType.selected {
+  border-color: #76a7e4;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.08);
+  background: #f4f8ff;
+}
+
+.amazonBoxType > span {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.amazonBoxType small {
+  overflow: hidden;
+  color: var(--muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.amazonBoxForm {
+  display: grid;
+  grid-template-columns: minmax(180px, 1.4fr) repeat(5, minmax(120px, 0.7fr)) auto;
+  align-items: end;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.amazonBoxFormActions {
+  align-self: end;
+  padding-bottom: 1px;
+}
+
+.amazonCapacityPanel {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid #cbd8e8;
+  border-radius: 12px;
+  background: #f8fbff;
+}
+
+.amazonCapacityPanel p {
+  margin: 5px 0 0;
+  font-size: 13px;
+}
+
+.amazonCapacityGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 8px;
+}
+
+.amazonCapacityRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 92px auto;
+  align-items: center;
+  gap: 8px;
+  padding: 9px;
+  border: 1px solid #dce5ef;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.amazonCapacityRow > div {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.amazonCapacityRow strong,
+.amazonCapacityRow small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.amazonCapacityRow small {
+  color: var(--muted);
+}
+
+.amazonOptimizeButton {
+  align-self: end;
+  min-height: 38px;
+}
+
+.amazonPlanGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.amazonPlanCard {
+  display: grid;
+  gap: 5px;
+  padding: 14px;
+  text-align: left;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  color: var(--text);
+  background: #fff;
+  cursor: pointer;
+}
+
+.amazonPlanCard:hover {
+  border-color: #89afe0;
+}
+
+.amazonPlanCard.selected {
+  border-color: #15509b;
+  box-shadow: 0 0 0 2px rgba(21, 80, 155, 0.1);
+  background: #f4f8ff;
+}
+
+.amazonPlanCard > span {
+  color: #15509b;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.amazonPlanCard > strong {
+  font-size: 17px;
+}
+
+.amazonPlanCard > small {
+  color: var(--muted);
+}
+
+.amazonPlanDetail {
+  display: grid;
+  gap: 16px;
+  padding-top: 4px;
+}
+
+.amazonInlineWarning {
+  padding: 10px 12px;
+  border: 1px solid #f0cc82;
+  border-radius: 10px;
+  color: #8a4b00;
+  background: #fff8e8;
+  font-size: 13px;
+}
+
+.amazonDelta {
+  color: #a34b00;
+  font-weight: 800;
+}
+
+.amazonAssignmentGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 10px;
+}
+
+.amazonAssignmentCard {
+  display: grid;
+  gap: 10px;
+  padding: 13px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.amazonDimensionRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 5px;
+}
+
+.amazonDimensionRow input {
+  min-width: 0;
+  width: 100%;
+  text-align: center;
+}
+
+.amazonExportBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 15px;
+  border: 1px solid #9fc1ea;
+  border-radius: 13px;
+  background: #edf5ff;
+}
+
+.amazonExportBar > div {
+  display: grid;
+  gap: 3px;
+}
+
+.amazonExportBar span {
+  color: #48627f;
+  font-size: 13px;
+}
+
+@media (max-width: 1100px) {
+  .amazonBoxForm {
+    grid-template-columns: repeat(3, minmax(140px, 1fr));
+  }
+  .amazonWideField,
+  .amazonBoxFormActions {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 700px) {
+  .amazonHero,
+  .amazonStats,
+  .amazonBoxForm {
+    grid-template-columns: 1fr;
+  }
+  .amazonSectionHeader,
+  .amazonExportBar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .amazonSectionHeader > div {
+    align-items: flex-start;
+  }
+  .amazonProductSelect {
+    width: 300px;
+  }
+  .amazonExportBar .btn {
+    width: 100%;
   }
 }

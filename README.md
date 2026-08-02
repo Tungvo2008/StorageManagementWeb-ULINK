@@ -54,6 +54,14 @@ python scripts/generate_catalog_pdf.py \
 Có thể thêm `--category-id 1`, `--brand "Brand Name"`, `--sku UL10001,UL10002`, hoặc `--availability in_stock`.
 Logo và thông tin công ty lấy từ `backend/.env`: `COMPANY_LOGO_PATH`, `CATALOG_WEBSITE`, `CATALOG_EMAIL`, `CATALOG_PHONE`; màu thương hiệu dùng `CATALOG_BRAND_COLOR`.
 
+## Amazon Shipment Optimizer
+
+- Mở `http://localhost:5173/amazon-shipment` và upload file **Pack individual units CSV** vừa tải từ Seller Central.
+- Lưu mapping giữa Amazon SKU và SKU trên web, unit weight, loại thùng, kích thước và sức chứa riêng của từng SKU để dùng lại.
+- Chọn tối thiểu 5 carton. Mọi carton trong phương án có cùng SKU mix và cùng số units của từng SKU; kích thước và cân nặng có thể sửa riêng cho từng carton.
+- Mixed capacity được tính theo tổng `units / single-SKU capacity`. Optimizer đề xuất cả phương án thay đổi quantity ít nhất và phương án lấp đầy thùng hơn.
+- Chọn phương án, kiểm tra quantity điều chỉnh, rồi tải CSV đã điền sẵn để upload lại Amazon. Nếu phương án có thay đổi quantity, cần sửa quantity trong workflow Amazon cho khớp trước khi upload.
+
 ## Luồng thao tác (MVP)
 
 1. Tạo `Products`

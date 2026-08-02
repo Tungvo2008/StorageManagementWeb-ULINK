@@ -115,6 +115,58 @@ class Product(TimestampMixin, Base):
 
     category: Mapped["Category"] = relationship(back_populates="products")
     stock_movements: Mapped[list[StockMovement]] = relationship(back_populates="product")
+    amazon_mappings: Mapped[list["AmazonProductMapping"]] = relationship(back_populates="product")
+
+
+class AmazonProductMapping(TimestampMixin, Base):
+    __tablename__ = "amazon_product_mappings"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    product_id: Mapped[int | None] = mapped_column(ForeignKey("products.id"), nullable=True, index=True)
+    amazon_sku: Mapped[str] = mapped_column(String(255), nullable=False, unique=True, index=True)
+    asin: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    fnsku: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    title: Mapped[str | None] = mapped_column(Text, nullable=True)
+    unit_weight_lb: Mapped[Decimal | None] = mapped_column(Numeric(10, 4), nullable=True)
+
+    product: Mapped[Product | None] = relationship(back_populates="amazon_mappings")
+    capacities: Mapped[list["AmazonBoxCapacity"]] = relationship(
+        back_populates="mapping",
+        cascade="all, delete-orphan",
+    )
+
+
+class AmazonBoxType(TimestampMixin, Base):
+    __tablename__ = "amazon_box_types"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(128), nullable=False, unique=True, index=True)
+    length_in: Mapped[Decimal] = mapped_column(Numeric(10, 3), nullable=False)
+    width_in: Mapped[Decimal] = mapped_column(Numeric(10, 3), nullable=False)
+    height_in: Mapped[Decimal] = mapped_column(Numeric(10, 3), nullable=False)
+    empty_weight_lb: Mapped[Decimal] = mapped_column(Numeric(10, 4), nullable=False, default=Decimal("0"))
+    max_weight_lb: Mapped[Decimal | None] = mapped_column(Numeric(10, 4), nullable=True)
+    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+
+    capacities: Mapped[list["AmazonBoxCapacity"]] = relationship(
+        back_populates="box_type",
+        cascade="all, delete-orphan",
+    )
+
+
+class AmazonBoxCapacity(TimestampMixin, Base):
+    __tablename__ = "amazon_box_capacities"
+    __table_args__ = (
+        UniqueConstraint("box_type_id", "mapping_id", name="uq_amazon_box_capacity_profile"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    box_type_id: Mapped[int] = mapped_column(ForeignKey("amazon_box_types.id"), nullable=False, index=True)
+    mapping_id: Mapped[int] = mapped_column(ForeignKey("amazon_product_mappings.id"), nullable=False, index=True)
+    units_capacity: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    box_type: Mapped[AmazonBoxType] = relationship(back_populates="capacities")
+    mapping: Mapped[AmazonProductMapping] = relationship(back_populates="capacities")
 
 
 class Category(TimestampMixin, Base):
