@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { apiJson, apiUpload, downloadJsonFile } from "../api/client";
+import AmazonBoxProfileManager from "../components/AmazonBoxProfileManager";
 import AmazonManifestBuilder, { type AmazonManifestSelection } from "../components/AmazonManifestBuilder";
 import type {
-  AmazonBoxType,
   AmazonCsvImport,
   AmazonImportedItem,
   AmazonMapping,
@@ -18,16 +18,6 @@ type MappingDraft = {
   unitWeightLb: string;
 };
 
-type BoxForm = {
-  name: string;
-  lengthIn: string;
-  widthIn: string;
-  heightIn: string;
-  emptyWeightLb: string;
-  maxWeightLb: string;
-  isActive: boolean;
-};
-
 type BoxAssignment = {
   boxTypeId: number;
   name: string;
@@ -37,23 +27,9 @@ type BoxAssignment = {
   heightIn: string;
 };
 
-const EMPTY_BOX_FORM: BoxForm = {
-  name: "",
-  lengthIn: "",
-  widthIn: "",
-  heightIn: "",
-  emptyWeightLb: "0",
-  maxWeightLb: "50",
-  isActive: true,
-};
-
 function decimalText(value: number | null): string {
   if (value == null) return "";
   return Number.isInteger(value) ? String(value) : String(Number(value.toFixed(4)));
-}
-
-function capacityKey(boxTypeId: number, amazonSku: string): string {
-  return `${boxTypeId}::${amazonSku}`;
 }
 
 function fileBase64(file: File): Promise<string> {
@@ -83,10 +59,8 @@ export default function AmazonShipmentPage() {
   const [mappingDrafts, setMappingDrafts] = useState<Record<string, MappingDraft>>({});
   const [requestedQuantities, setRequestedQuantities] = useState<Record<string, string>>({});
   const [availableQuantities, setAvailableQuantities] = useState<Record<string, string>>({});
-  const [capacityDrafts, setCapacityDrafts] = useState<Record<string, string>>({});
   const [selectedBoxTypeIds, setSelectedBoxTypeIds] = useState<number[]>([]);
-  const [boxForm, setBoxForm] = useState<BoxForm>(EMPTY_BOX_FORM);
-  const [editingBoxId, setEditingBoxId] = useState<number | null>(null);
+  const [boxManagerOpen, setBoxManagerOpen] = useState(false);
   const [minBoxes, setMinBoxes] = useState("5");
   const [maxBoxes, setMaxBoxes] = useState("20");
   const [plans, setPlans] = useState<AmazonOptimizePlan[]>([]);
@@ -106,13 +80,6 @@ export default function AmazonShipmentPage() {
       );
       initializedBoxSelection.current = true;
     }
-    const nextCapacities: Record<string, string> = {};
-    for (const boxType of next.box_types) {
-      for (const capacity of boxType.capacities) {
-        nextCapacities[capacityKey(boxType.id, capacity.amazon_sku)] = String(capacity.units_capacity);
-      }
-    }
-    setCapacityDrafts((current) => ({ ...nextCapacities, ...current }));
     setImported((current) => {
       if (!current) return current;
       const mappingBySku = new Map(next.mappings.map((mapping) => [mapping.amazon_sku, mapping]));
@@ -137,11 +104,6 @@ export default function AmazonShipmentPage() {
     () => plans.find((plan) => plan.key === selectedPlanKey) ?? null,
     [plans, selectedPlanKey],
   );
-
-  const selectedBoxTypes = useMemo(() => {
-    if (!config) return [];
-    return config.box_types.filter((boxType) => selectedBoxTypeIds.includes(boxType.id));
-  }, [config, selectedBoxTypeIds]);
 
   const directItems = useMemo<AmazonImportedItem[]>(() => {
     if (!config) return [];
@@ -274,85 +236,6 @@ export default function AmazonShipmentPage() {
       setNotice(`Đã lưu mapping cho ${amazonSku}.`);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Không lưu được mapping.");
-    } finally {
-      setBusy("");
-    }
-  }
-
-  function startEditBox(boxType: AmazonBoxType): void {
-    setEditingBoxId(boxType.id);
-    setBoxForm({
-      name: boxType.name,
-      lengthIn: decimalText(boxType.length_in),
-      widthIn: decimalText(boxType.width_in),
-      heightIn: decimalText(boxType.height_in),
-      emptyWeightLb: decimalText(boxType.empty_weight_lb),
-      maxWeightLb: decimalText(boxType.max_weight_lb),
-      isActive: boxType.is_active,
-    });
-  }
-
-  async function saveBoxType(): Promise<void> {
-    if (!boxForm.name.trim()) {
-      setError("Tên loại thùng không được để trống.");
-      return;
-    }
-    setBusy("box");
-    setError("");
-    try {
-      const payload = {
-        name: boxForm.name.trim(),
-        length_in: Number(boxForm.lengthIn),
-        width_in: Number(boxForm.widthIn),
-        height_in: Number(boxForm.heightIn),
-        empty_weight_lb: Number(boxForm.emptyWeightLb || 0),
-        max_weight_lb: boxForm.maxWeightLb ? Number(boxForm.maxWeightLb) : null,
-        is_active: boxForm.isActive,
-      };
-      const saved = await apiJson<AmazonBoxType>(
-        editingBoxId
-          ? `/api/v1/amazon-shipments/box-types/${editingBoxId}`
-          : "/api/v1/amazon-shipments/box-types",
-        {
-          method: editingBoxId ? "PUT" : "POST",
-          body: JSON.stringify(payload),
-        },
-      );
-      await loadConfig();
-      setSelectedBoxTypeIds((current) =>
-        current.includes(saved.id) ? current : [...current, saved.id],
-      );
-      setEditingBoxId(null);
-      setBoxForm(EMPTY_BOX_FORM);
-      setNotice(`Đã lưu loại thùng ${saved.name}.`);
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Không lưu được loại thùng.");
-    } finally {
-      setBusy("");
-    }
-  }
-
-  async function saveCapacity(boxTypeId: number, mappingId: number, amazonSku: string): Promise<void> {
-    const value = Number(capacityDrafts[capacityKey(boxTypeId, amazonSku)]);
-    if (!Number.isInteger(value) || value < 1) {
-      setError("Units-per-box phải là số nguyên lớn hơn 0.");
-      return;
-    }
-    setBusy(`capacity:${boxTypeId}:${amazonSku}`);
-    setError("");
-    try {
-      await apiJson("/api/v1/amazon-shipments/capacities", {
-        method: "PUT",
-        body: JSON.stringify({
-          box_type_id: boxTypeId,
-          mapping_id: mappingId,
-          units_capacity: value,
-        }),
-      });
-      await loadConfig();
-      setNotice(`Đã lưu sức chứa ${amazonSku}.`);
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Không lưu được sức chứa.");
     } finally {
       setBusy("");
     }
@@ -771,14 +654,19 @@ export default function AmazonShipmentPage() {
             <div className="amazonSectionHeader">
               <div>
                 <span className="amazonStep">3</span>
-                <h2>Box profiles</h2>
+                <h2>Select box profiles</h2>
               </div>
-              <span className="muted">Kích thước và sức chứa được lưu trong database để dùng lại.</span>
+              <button className="btn" type="button" onClick={() => setBoxManagerOpen(true)}>
+                Manage box profiles
+              </button>
             </div>
+            <p className="muted amazonBoxSelectionHelp">
+              Chỉ tick những loại thùng optimizer được phép dùng. Tạo, sửa và nhập SKU capacity trong form quản lý riêng.
+            </p>
 
             {config.box_types.length ? (
               <div className="amazonBoxTypeGrid">
-                {config.box_types.map((boxType) => (
+                {config.box_types.filter((boxType) => boxType.is_active).map((boxType) => (
                   <label key={boxType.id} className={selectedBoxTypeIds.includes(boxType.id) ? "amazonBoxType selected" : "amazonBoxType"}>
                     <input
                       type="checkbox"
@@ -794,74 +682,16 @@ export default function AmazonShipmentPage() {
                       <small>{decimalText(boxType.length_in)} × {decimalText(boxType.width_in)} × {decimalText(boxType.height_in)} in</small>
                       <small>Tare {decimalText(boxType.empty_weight_lb)} lb · Max {decimalText(boxType.max_weight_lb) || "—"} lb</small>
                     </span>
-                    <button className="btn" type="button" onClick={(event) => {
-                      event.preventDefault();
-                      startEditBox(boxType);
-                    }}>
-                      Edit
-                    </button>
+                    <small className="amazonBoxCapacityCount">{boxType.capacities.length} SKU capacities</small>
                   </label>
                 ))}
               </div>
-            ) : <p className="muted">Chưa có loại thùng nào. Tạo loại thùng đầu tiên bên dưới.</p>}
-
-            <div className="amazonBoxForm">
-              <div className="field amazonWideField">
-                <label>Box name</label>
-                <input className="input" value={boxForm.name} onChange={(event) => setBoxForm((current) => ({ ...current, name: event.target.value }))} placeholder="19x24x17" />
+            ) : (
+              <div className="amazonBoxSelectionEmpty">
+                <span>Chưa có box profile đang hoạt động.</span>
+                <button className="btn primary" type="button" onClick={() => setBoxManagerOpen(true)}>Create first profile</button>
               </div>
-              <div className="field"><label>Length (in)</label><input className="input" type="number" min={0.01} step="0.01" value={boxForm.lengthIn} onChange={(event) => setBoxForm((current) => ({ ...current, lengthIn: event.target.value }))} /></div>
-              <div className="field"><label>Width (in)</label><input className="input" type="number" min={0.01} step="0.01" value={boxForm.widthIn} onChange={(event) => setBoxForm((current) => ({ ...current, widthIn: event.target.value }))} /></div>
-              <div className="field"><label>Height (in)</label><input className="input" type="number" min={0.01} step="0.01" value={boxForm.heightIn} onChange={(event) => setBoxForm((current) => ({ ...current, heightIn: event.target.value }))} /></div>
-              <div className="field"><label>Empty weight (lb)</label><input className="input" type="number" min={0} step="0.01" value={boxForm.emptyWeightLb} onChange={(event) => setBoxForm((current) => ({ ...current, emptyWeightLb: event.target.value }))} /></div>
-              <div className="field"><label>Max weight (lb)</label><input className="input" type="number" min={0.01} step="0.01" value={boxForm.maxWeightLb} onChange={(event) => setBoxForm((current) => ({ ...current, maxWeightLb: event.target.value }))} /></div>
-              <div className="row amazonBoxFormActions">
-                <button className="btn primary" type="button" disabled={busy === "box"} onClick={() => void saveBoxType()}>{editingBoxId ? "Update box" : "Add box"}</button>
-                {editingBoxId ? <button className="btn" type="button" onClick={() => { setEditingBoxId(null); setBoxForm(EMPTY_BOX_FORM); }}>Cancel</button> : null}
-              </div>
-            </div>
-
-            {selectedBoxTypes.map((boxType) => (
-              <div className="amazonCapacityPanel" key={boxType.id}>
-                <div>
-                  <h3>{boxType.name} capacity</h3>
-                  <p className="muted">Nhập số units tối đa nếu thùng này chỉ chứa riêng SKU đó. Mixed fill dùng tổng `units ÷ capacity`.</p>
-                </div>
-                <div className="amazonCapacityGrid">
-                  {workingItems.map((item) => {
-                    const mapping = item.mapping;
-                    const key = capacityKey(boxType.id, item.amazon_sku);
-                    return (
-                      <div className="amazonCapacityRow" key={item.amazon_sku}>
-                        <div><strong>{item.amazon_sku}</strong><small>{mapping?.product_sku ?? "Save mapping first"}</small></div>
-                        <input
-                          className="input amazonNumberInput"
-                          type="number"
-                          min={1}
-                          placeholder="Units"
-                          disabled={!mapping}
-                          value={capacityDrafts[key] ?? ""}
-                          onChange={(event) => setCapacityDrafts((current) => ({ ...current, [key]: event.target.value }))}
-                        />
-                        <button
-                          className="btn"
-                          type="button"
-                          disabled={!mapping || busy === `capacity:${boxType.id}:${item.amazon_sku}`}
-                          onClick={() => mapping && void saveCapacity(boxType.id, mapping.id, item.amazon_sku)}
-                        >
-                          Save
-                        </button>
-                      </div>
-                    );
-                  })}
-                  {!workingItems.length ? (
-                    <div className="muted amazonCapacityEmpty">
-                      Chọn SKU phía trên để nhập sức chứa riêng của từng SKU.
-                    </div>
-                  ) : null}
-                </div>
-              </div>
-            ))}
+            )}
           </section>
 
           <section className="card amazonSection">
@@ -1011,6 +841,17 @@ export default function AmazonShipmentPage() {
             </section>
           ) : null}
         </>
+      ) : null}
+      {config ? (
+        <AmazonBoxProfileManager
+          open={boxManagerOpen}
+          config={config}
+          onClose={() => setBoxManagerOpen(false)}
+          onReload={loadConfig}
+          onSavedBox={(boxTypeId) => setSelectedBoxTypeIds((current) => (
+            current.includes(boxTypeId) ? current : [...current, boxTypeId]
+          ))}
+        />
       ) : null}
     </div>
   );

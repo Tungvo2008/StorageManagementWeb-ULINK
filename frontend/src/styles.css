@@ -1291,6 +1291,172 @@ th { color: #111; background: #f9fafb; }
   white-space: nowrap;
 }
 
+.amazonBoxSelectionHelp {
+  margin: -7px 0 0;
+}
+
+.amazonBoxCapacityCount {
+  text-align: right;
+}
+
+.amazonBoxSelectionEmpty {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 15px;
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  color: var(--muted);
+  background: #fbfcfe;
+}
+
+.amazonBoxManagerBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(7, 20, 38, 0.66);
+  backdrop-filter: blur(3px);
+}
+
+.amazonBoxManagerModal {
+  width: min(1480px, 100%);
+  max-height: calc(100vh - 48px);
+  display: grid;
+  gap: 16px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 22px;
+  box-shadow: 0 24px 80px rgba(7, 20, 38, 0.3);
+}
+
+.amazonBoxManagerHeader,
+.amazonBoxManagerFormTitle,
+.amazonBoxManagerCapacityHeader,
+.amazonBoxManagerFormActions,
+.amazonBoxManagerSidebarTitle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.amazonBoxManagerHeader h2,
+.amazonBoxManagerFormTitle h3,
+.amazonBoxManagerCapacityHeader h3 {
+  margin: 0;
+}
+
+.amazonBoxManagerHeader p,
+.amazonBoxManagerCapacityHeader p {
+  margin: 5px 0 0;
+}
+
+.amazonBoxManagerHeader .amazonEyebrow {
+  color: #15509b;
+}
+
+.amazonBoxManagerLayout {
+  min-height: 580px;
+  display: grid;
+  grid-template-columns: 290px minmax(0, 1fr);
+  gap: 14px;
+}
+
+.amazonBoxManagerSidebar,
+.amazonBoxManagerFormCard,
+.amazonBoxManagerCapacityCard {
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: #f8fafc;
+}
+
+.amazonBoxManagerSidebar {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.amazonBoxManagerProfile {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  text-align: left;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  color: var(--text);
+  background: #fff;
+  cursor: pointer;
+}
+
+.amazonBoxManagerProfile.selected {
+  border-color: #76a7e4;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.08);
+  background: #f0f6ff;
+}
+
+.amazonBoxManagerProfile > span:first-child {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.amazonBoxManagerProfile strong,
+.amazonBoxManagerProfile small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.amazonBoxManagerProfile small {
+  color: var(--muted);
+}
+
+.amazonBoxManagerContent {
+  min-width: 0;
+  display: grid;
+  align-content: start;
+  gap: 14px;
+}
+
+.amazonBoxManagerFormCard,
+.amazonBoxManagerCapacityCard {
+  display: grid;
+  gap: 14px;
+}
+
+.amazonBoxManagerForm {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.amazonBoxManagerForm .amazonWideField {
+  grid-column: 1 / -1;
+}
+
+.amazonBoxManagerForm .field,
+.amazonBoxManagerForm .input {
+  min-width: 0;
+  width: 100%;
+}
+
+.amazonBoxManagerFormActions {
+  padding-top: 2px;
+}
+
+.amazonBoxManagerCapacityHeader .select {
+  min-width: 220px;
+}
+
 .amazonBoxForm {
   display: grid;
   grid-template-columns: minmax(180px, 1.4fr) repeat(5, minmax(120px, 0.7fr)) auto;
@@ -1606,6 +1772,19 @@ th { color: #111; background: #f9fafb; }
   .amazonBoxForm {
     grid-template-columns: repeat(3, minmax(140px, 1fr));
   }
+  .amazonBoxManagerLayout {
+    grid-template-columns: 1fr;
+  }
+  .amazonBoxManagerSidebar {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .amazonBoxManagerSidebarTitle {
+    grid-column: 1 / -1;
+  }
+  .amazonBoxManagerForm {
+    grid-template-columns: repeat(3, minmax(130px, 1fr));
+  }
   .amazonWideField,
   .amazonBoxFormActions {
     grid-column: 1 / -1;
@@ -1632,6 +1811,33 @@ th { color: #111; background: #f9fafb; }
     width: 300px;
   }
   .amazonExportBar .btn {
+    width: 100%;
+  }
+  .amazonBoxManagerBackdrop {
+    padding: 0;
+  }
+  .amazonBoxManagerModal {
+    width: 100%;
+    max-height: 100vh;
+    min-height: 100vh;
+    border-radius: 0;
+  }
+  .amazonBoxManagerHeader,
+  .amazonBoxManagerFormTitle,
+  .amazonBoxManagerCapacityHeader,
+  .amazonBoxManagerFormActions,
+  .amazonBoxSelectionEmpty {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .amazonBoxManagerSidebar,
+  .amazonBoxManagerForm {
+    grid-template-columns: 1fr;
+  }
+  .amazonBoxManagerSidebarTitle {
+    grid-column: auto;
+  }
+  .amazonBoxManagerCapacityHeader .select {
     width: 100%;
   }
 }
