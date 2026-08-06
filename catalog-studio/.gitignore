@@ -1,0 +1,14 @@
+backend/.env
+backend/.venv/
+backend/catalog.db
+backend/assets/uploads/*
+!backend/assets/uploads/.gitkeep
+frontend/.env
+frontend/node_modules/
+frontend/dist/
+frontend/tsconfig.tsbuildinfo
+**/__pycache__/
+*.py[cod]
+.DS_Store
+tmp/
+output/
