@@ -7,6 +7,7 @@
 - Quản lý product và category độc lập.
 - Tab Images riêng để upload ảnh JPG, PNG hoặc WEBP tối đa 10 MB.
 - Bulk upload nhiều ảnh bằng cách đặt tên file trùng SKU, ví dụ `UL10001.jpg`.
+- Mỗi sản phẩm lưu tối đa 8 ảnh; có thể chọn Primary image dùng trên catalog/PDF.
 - Tải template Excel và import hàng loạt.
 - SKU đã tồn tại được cập nhật; SKU trống được tạo tự động từ tên.
 - Chọn sản phẩm trực quan theo search, category và tồn kho.
@@ -41,7 +42,7 @@ Mở `http://localhost:5174`.
 
 1. Vào **Products**, tải **Excel template**.
 2. Điền sản phẩm rồi bấm **Import Excel**. Nếu SKU đã có, dữ liệu sản phẩm đó sẽ được cập nhật.
-3. Vào **Images** để upload/replace từng ảnh, hoặc dùng **Bulk upload by SKU** cho nhiều ảnh cùng lúc.
+3. Vào **Images** để thêm tối đa 8 ảnh mỗi sản phẩm, chọn ảnh Primary, hoặc dùng **Bulk upload by SKU**. Ảnh bổ sung dùng tên `SKU__2.jpg`, `SKU__3.jpg`.
 4. Vào **Build catalog**, search/filter và chọn sản phẩm muốn xuất.
 5. Chọn các trường cần hiện, bấm **Preview PDF** hoặc **Download PDF**.
 

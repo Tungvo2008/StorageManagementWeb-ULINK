@@ -21,18 +21,19 @@ from app.catalog_render import (
     render_catalog_pdf,
 )
 from app.config import BASE_DIR, settings
-from app.db import Base, engine, get_db
+from app.db import Base, SessionLocal, engine, get_db
 from app.excel import boolean, build_template, decimal, integer, parse_workbook, text
-from app.models import Category, Product
-from app.schemas import CategoryCreate, CategoryRead, ImportResult, ProductCreate, ProductRead, ProductUpdate
+from app.models import Category, Product, ProductImage
+from app.schemas import CategoryCreate, CategoryRead, ImportResult, ProductCreate, ProductImageRead, ProductRead, ProductUpdate
 
 
 configured_upload_dir = Path(settings.UPLOAD_DIR).expanduser()
 UPLOAD_DIR = configured_upload_dir if configured_upload_dir.is_absolute() else BASE_DIR / configured_upload_dir
 MAX_IMAGE_BYTES = 10 * 1024 * 1024
+MAX_IMAGES_PER_PRODUCT = 8
 ALLOWED_IMAGE_TYPES = {"image/jpeg": ".jpg", "image/png": ".png", "image/webp": ".webp"}
 
-app = FastAPI(title="Ulink Catalog Studio API", version="1.1.0")
+app = FastAPI(title="Ulink Catalog Studio API", version="1.2.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
@@ -46,6 +47,18 @@ app.add_middleware(
 def startup() -> None:
     UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
     Base.metadata.create_all(bind=engine)
+    db = SessionLocal()
+    try:
+        products = db.scalars(select(Product).options(selectinload(Product.images))).all()
+        changed = False
+        for product in products:
+            if product.image_url and not product.images:
+                db.add(ProductImage(product_id=product.id, image_url=product.image_url, is_primary=True, sort_order=0))
+                changed = True
+        if changed:
+            db.commit()
+    finally:
+        db.close()
 
 
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
@@ -55,7 +68,42 @@ app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 def product_payload(product: Product) -> ProductRead:
     data = ProductRead.model_validate(product).model_dump()
     data["category_name"] = product.category.name if product.category else "Uncategorized"
+    data["images"] = [ProductImageRead.model_validate(image).model_dump() for image in product.images]
     return ProductRead(**data)
+
+
+def load_product(db: Session, product_id: int) -> Product | None:
+    return db.scalar(
+        select(Product)
+        .options(selectinload(Product.category), selectinload(Product.images))
+        .where(Product.id == product_id)
+        .execution_options(populate_existing=True)
+    )
+
+
+def delete_upload_file(image_url: str | None) -> None:
+    if image_url and image_url.startswith("/uploads/"):
+        (UPLOAD_DIR / Path(image_url).name).unlink(missing_ok=True)
+
+
+async def save_upload(product_id: int, file: UploadFile) -> str:
+    suffix = ALLOWED_IMAGE_TYPES.get(file.content_type or "")
+    if suffix is None:
+        raise HTTPException(status_code=400, detail="Use JPG, PNG, or WEBP")
+    payload = await file.read(MAX_IMAGE_BYTES + 1)
+    if not payload:
+        raise HTTPException(status_code=400, detail="Image is empty")
+    if len(payload) > MAX_IMAGE_BYTES:
+        raise HTTPException(status_code=413, detail="Image must be 10 MB or smaller")
+    try:
+        from PIL import Image
+        with Image.open(BytesIO(payload)) as image:
+            image.verify()
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail="Invalid image file") from exc
+    filename = f"{product_id}-{uuid4().hex}{suffix}"
+    (UPLOAD_DIR / filename).write_bytes(payload)
+    return f"/uploads/{filename}"
 
 
 def slug_sku(value: str) -> str:
@@ -140,7 +188,9 @@ def delete_category(category_id: int, db: Session = Depends(get_db)):
 @app.get("/api/products", response_model=list[ProductRead])
 def list_products(db: Session = Depends(get_db)):
     products = db.scalars(
-        select(Product).options(selectinload(Product.category)).order_by(Product.sort_order, Product.name)
+        select(Product)
+        .options(selectinload(Product.category), selectinload(Product.images))
+        .order_by(Product.sort_order, Product.name)
     ).all()
     return [product_payload(product) for product in products]
 
@@ -155,7 +205,7 @@ def create_product(payload: ProductCreate, db: Session = Depends(get_db)):
     db.add(product)
     db.commit()
     db.refresh(product)
-    product = db.scalar(select(Product).options(selectinload(Product.category)).where(Product.id == product.id))
+    product = load_product(db, product.id)
     return product_payload(product)
 
 
@@ -172,18 +222,20 @@ def update_product(product_id: int, payload: ProductUpdate, db: Session = Depend
     for key, value in values.items():
         setattr(product, key, value)
     db.commit()
-    product = db.scalar(select(Product).options(selectinload(Product.category)).where(Product.id == product.id))
+    product = load_product(db, product.id)
     return product_payload(product)
 
 
 @app.delete("/api/products/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_product(product_id: int, db: Session = Depends(get_db)):
-    product = db.get(Product, product_id)
+    product = load_product(db, product_id)
     if product is None:
         raise HTTPException(status_code=404, detail="Product not found")
-    if product.image_url and product.image_url.startswith("/uploads/"):
-        image_path = UPLOAD_DIR / Path(product.image_url).name
-        image_path.unlink(missing_ok=True)
+    image_urls = {image.image_url for image in product.images}
+    if product.image_url:
+        image_urls.add(product.image_url)
+    for image_url in image_urls:
+        delete_upload_file(image_url)
     db.delete(product)
     db.commit()
     return Response(status_code=204)
@@ -191,32 +243,83 @@ def delete_product(product_id: int, db: Session = Depends(get_db)):
 
 @app.post("/api/products/{product_id}/image", response_model=ProductRead)
 async def upload_image(product_id: int, file: UploadFile = File(...), db: Session = Depends(get_db)):
-    product = db.get(Product, product_id)
+    product = load_product(db, product_id)
     if product is None:
         raise HTTPException(status_code=404, detail="Product not found")
-    suffix = ALLOWED_IMAGE_TYPES.get(file.content_type or "")
-    if suffix is None:
-        raise HTTPException(status_code=400, detail="Use JPG, PNG, or WEBP")
-    payload = await file.read(MAX_IMAGE_BYTES + 1)
-    if not payload:
-        raise HTTPException(status_code=400, detail="Image is empty")
-    if len(payload) > MAX_IMAGE_BYTES:
-        raise HTTPException(status_code=413, detail="Image must be 10 MB or smaller")
-    try:
-        from PIL import Image
-        with Image.open(BytesIO(payload)) as image:
-            image.verify()
-    except Exception as exc:
-        raise HTTPException(status_code=400, detail="Invalid image file") from exc
-    old_path = UPLOAD_DIR / Path(product.image_url).name if product.image_url and product.image_url.startswith("/uploads/") else None
-    filename = f"{product.id}-{uuid4().hex}{suffix}"
-    (UPLOAD_DIR / filename).write_bytes(payload)
-    if old_path:
-        old_path.unlink(missing_ok=True)
-    product.image_url = f"/uploads/{filename}"
+    image_url = await save_upload(product.id, file)
+    primary = next((image for image in product.images if image.is_primary), None)
+    if primary is None:
+        primary = ProductImage(product_id=product.id, image_url=image_url, is_primary=True, sort_order=0)
+        db.add(primary)
+    else:
+        delete_upload_file(primary.image_url)
+        primary.image_url = image_url
+    product.image_url = image_url
     db.commit()
-    product = db.scalar(select(Product).options(selectinload(Product.category)).where(Product.id == product.id))
+    product = load_product(db, product.id)
     return product_payload(product)
+
+
+@app.post("/api/products/{product_id}/images", response_model=ProductRead)
+async def add_product_image(product_id: int, file: UploadFile = File(...), db: Session = Depends(get_db)):
+    product = load_product(db, product_id)
+    if product is None:
+        raise HTTPException(status_code=404, detail="Product not found")
+    if len(product.images) >= MAX_IMAGES_PER_PRODUCT:
+        raise HTTPException(status_code=400, detail=f"A product can have at most {MAX_IMAGES_PER_PRODUCT} images")
+    image_url = await save_upload(product.id, file)
+    is_primary = not product.images
+    db.add(
+        ProductImage(
+            product_id=product.id,
+            image_url=image_url,
+            is_primary=is_primary,
+            sort_order=max((image.sort_order for image in product.images), default=-1) + 1,
+        )
+    )
+    if is_primary:
+        product.image_url = image_url
+    db.commit()
+    return product_payload(load_product(db, product.id))
+
+
+@app.post("/api/products/{product_id}/images/{image_id}/primary", response_model=ProductRead)
+def set_primary_image(product_id: int, image_id: int, db: Session = Depends(get_db)):
+    product = load_product(db, product_id)
+    if product is None:
+        raise HTTPException(status_code=404, detail="Product not found")
+    target = next((image for image in product.images if image.id == image_id), None)
+    if target is None:
+        raise HTTPException(status_code=404, detail="Image not found")
+    for image in product.images:
+        image.is_primary = image.id == target.id
+    product.image_url = target.image_url
+    db.commit()
+    return product_payload(load_product(db, product.id))
+
+
+@app.delete("/api/products/{product_id}/images/{image_id}", response_model=ProductRead)
+def delete_product_image(product_id: int, image_id: int, db: Session = Depends(get_db)):
+    product = load_product(db, product_id)
+    if product is None:
+        raise HTTPException(status_code=404, detail="Product not found")
+    target = next((image for image in product.images if image.id == image_id), None)
+    if target is None:
+        raise HTTPException(status_code=404, detail="Image not found")
+    was_primary = target.is_primary
+    delete_upload_file(target.image_url)
+    db.delete(target)
+    db.flush()
+    remaining = [image for image in product.images if image.id != image_id]
+    if was_primary:
+        next_primary = remaining[0] if remaining else None
+        if next_primary:
+            next_primary.is_primary = True
+            product.image_url = next_primary.image_url
+        else:
+            product.image_url = None
+    db.commit()
+    return product_payload(load_product(db, product.id))
 
 
 @app.get("/api/products-template.xlsx")

@@ -135,7 +135,7 @@ function App() {
           <button className={tab === "products" ? "active" : ""} onClick={() => setTab("products")}>Products</button>
           <button className={tab === "images" ? "active" : ""} onClick={() => setTab("images")}>Images</button>
         </nav>
-        <span className="version">v1.1.0</span>
+        <span className="version">v1.2.0</span>
       </header>
 
       <main>
@@ -289,12 +289,18 @@ function ImageManager({ products, categories, reload, setMessage }: {
 
   const imageCount = products.filter((product) => product.image_url).length;
 
-  async function uploadOne(product: Product, file?: File) {
-    if (!file) return;
+  async function uploadMany(product: Product, files: FileList | null) {
+    if (!files?.length) return;
+    if (product.images.length + files.length > 8) {
+      setMessage(`A product can have at most 8 images. ${product.name} currently has ${product.images.length}.`);
+      return;
+    }
     setUploading((current) => new Set(current).add(product.id));
     try {
-      await api.uploadImage(product.id, file);
-      setMessage(`Image saved for ${product.name}.`);
+      for (const file of Array.from(files)) {
+        await api.addImage(product.id, file);
+      }
+      setMessage(`${files.length} image(s) saved for ${product.name}.`);
       await reload();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Upload failed");
@@ -313,7 +319,7 @@ function ImageManager({ products, categories, reload, setMessage }: {
     const matched: { product: Product; file: File }[] = [];
     const unmatched: string[] = [];
     for (const file of Array.from(files)) {
-      const filenameSku = file.name.replace(/\.[^.]+$/, "").trim().toUpperCase();
+      const filenameSku = file.name.replace(/\.[^.]+$/, "").trim().toUpperCase().replace(/__\d+$/, "");
       const product = bySku.get(filenameSku);
       product ? matched.push({ product, file }) : unmatched.push(file.name);
     }
@@ -326,7 +332,7 @@ function ImageManager({ products, categories, reload, setMessage }: {
     const failed: string[] = [];
     for (const { product, file } of matched) {
       try {
-        await api.uploadImage(product.id, file);
+        await api.addImage(product.id, file);
         saved += 1;
       } catch {
         failed.push(file.name);
@@ -343,6 +349,17 @@ function ImageManager({ products, categories, reload, setMessage }: {
     if (bulkInput.current) bulkInput.current.value = "";
   }
 
+  async function setPrimary(product: Product, imageId: number) {
+    try { await api.setPrimaryImage(product.id, imageId); await reload(); }
+    catch (error) { setMessage(error instanceof Error ? error.message : "Cannot set primary image"); }
+  }
+
+  async function removeImage(product: Product, imageId: number) {
+    if (!confirm("Delete this image?")) return;
+    try { await api.deleteImage(product.id, imageId); await reload(); }
+    catch (error) { setMessage(error instanceof Error ? error.message : "Cannot delete image"); }
+  }
+
   return <>
     <section className="page-heading image-heading">
       <div><span className="eyebrow">IMAGE LIBRARY</span><h1>Product images</h1><p>Upload originals here. Catalog PDFs automatically create lightweight optimized copies.</p></div>
@@ -356,7 +373,7 @@ function ImageManager({ products, categories, reload, setMessage }: {
         <div><strong>{products.length}</strong><span>Total products</span></div>
         <div><strong>{imageCount}</strong><span>With image</span></div>
         <div className={products.length - imageCount ? "attention" : ""}><strong>{products.length - imageCount}</strong><span>Missing image</span></div>
-        <p>For bulk upload, name each file exactly as its SKU, for example <code>UL10001.jpg</code>.</p>
+        <p>Bulk upload names: <code>UL10001.jpg</code>, then <code>UL10001__2.jpg</code>, <code>UL10001__3.jpg</code> for additional views.</p>
       </div>
       <div className="filters image-filters">
         <input placeholder="Search SKU, product, or brand…" value={search} onChange={(event) => setSearch(event.target.value)} />
@@ -365,8 +382,11 @@ function ImageManager({ products, categories, reload, setMessage }: {
       </div>
       <div className="image-grid">
         {visible.map((product) => <article className={`image-card ${product.image_url ? "has-image" : "missing-image"}`} key={product.id}>
-          <div className="image-stage"><ProductImage product={product} />{uploading.has(product.id) && <div className="upload-mask">Uploading…</div>}</div>
-          <div className="image-card-body"><small>{product.category_name}</small><h3>{product.name}</h3><code>{product.sku}</code><label className="button image-button">{product.image_url ? "Replace image" : "+ Upload image"}<input type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => void uploadOne(product, event.target.files?.[0])} /></label></div>
+          <div className="image-stage"><ProductImage product={product} />{product.image_url && <span className="primary-badge">Primary</span>}{uploading.has(product.id) && <div className="upload-mask">Uploading…</div>}</div>
+          <div className="image-card-body"><small>{product.category_name}</small><h3>{product.name}</h3><code>{product.sku}</code>
+            <div className="gallery-strip">{product.images.map((image) => <div className={image.is_primary ? "primary" : ""} key={image.id}><button title="Set as primary" onClick={() => void setPrimary(product, image.id)}><img src={imageUrl(image.image_url)} alt="" /></button><button className="gallery-delete" title="Delete image" onClick={() => void removeImage(product, image.id)}>×</button></div>)}</div>
+            <label className="button image-button">+ Add images ({product.images.length}/8)<input multiple type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => void uploadMany(product, event.target.files)} /></label>
+          </div>
         </article>)}
         {!visible.length && <div className="empty">No products match these filters.</div>}
       </div>

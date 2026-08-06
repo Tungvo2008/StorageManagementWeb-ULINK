@@ -33,6 +33,15 @@ export const api = {
     body.append("file", file);
     return request<Product>(`/api/products/${id}/image`, { method: "POST", body });
   },
+  addImage: async (id: number, file: File) => {
+    const body = new FormData();
+    body.append("file", file);
+    return request<Product>(`/api/products/${id}/images`, { method: "POST", body });
+  },
+  setPrimaryImage: (productId: number, imageId: number) =>
+    request<Product>(`/api/products/${productId}/images/${imageId}/primary`, { method: "POST" }),
+  deleteImage: (productId: number, imageId: number) =>
+    request<Product>(`/api/products/${productId}/images/${imageId}`, { method: "DELETE" }),
 };
 
 export function imageUrl(value: string | null): string {

@@ -59,9 +59,18 @@ class ProductUpdate(BaseModel):
     sort_order: int | None = None
 
 
+class ProductImageRead(BaseModel):
+    id: int
+    image_url: str
+    is_primary: bool
+    sort_order: int
+    model_config = ConfigDict(from_attributes=True)
+
+
 class ProductRead(ProductBase):
     id: int
     category_name: str = "Uncategorized"
+    images: list[ProductImageRead] = Field(default_factory=list)
     model_config = ConfigDict(from_attributes=True)
 
 

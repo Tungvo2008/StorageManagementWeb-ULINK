@@ -1,5 +1,12 @@
 export type Category = { id: number; name: string; sort_order: number };
 
+export type ProductImage = {
+  id: number;
+  image_url: string;
+  is_primary: boolean;
+  sort_order: number;
+};
+
 export type Product = {
   id: number;
   sku: string;
@@ -19,6 +26,7 @@ export type Product = {
   catalog_enabled: boolean;
   is_active: boolean;
   sort_order: number;
+  images: ProductImage[];
 };
 
-export type ProductDraft = Omit<Product, "id" | "category_name">;
+export type ProductDraft = Omit<Product, "id" | "category_name" | "images">;
