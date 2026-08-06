@@ -14,7 +14,12 @@ from app.models import Product
 
 
 PRODUCTS_PER_PAGE = 12
-CATALOG_IMAGE_DIR = Path(__file__).resolve().parents[1] / "assets" / "uploads"
+configured_image_dir = Path(settings.UPLOAD_DIR).expanduser()
+CATALOG_IMAGE_DIR = (
+    configured_image_dir
+    if configured_image_dir.is_absolute()
+    else Path(__file__).resolve().parents[1] / configured_image_dir
+)
 CATALOG_LOGO_FALLBACK = Path(__file__).resolve().parents[1] / "assets" / "logo.png"
 PUBLIC_IMAGE_PREFIX = "/uploads/"
 

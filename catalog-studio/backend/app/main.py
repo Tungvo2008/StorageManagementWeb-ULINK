@@ -27,7 +27,8 @@ from app.models import Category, Product
 from app.schemas import CategoryCreate, CategoryRead, ImportResult, ProductCreate, ProductRead, ProductUpdate
 
 
-UPLOAD_DIR = BASE_DIR / "assets" / "uploads"
+configured_upload_dir = Path(settings.UPLOAD_DIR).expanduser()
+UPLOAD_DIR = configured_upload_dir if configured_upload_dir.is_absolute() else BASE_DIR / configured_upload_dir
 MAX_IMAGE_BYTES = 10 * 1024 * 1024
 ALLOWED_IMAGE_TYPES = {"image/jpeg": ".jpg", "image/png": ".png", "image/webp": ".webp"}
 

@@ -46,10 +46,31 @@ Mở `http://localhost:5174`.
 
 ## Dữ liệu và backup
 
-- Database mặc định: `catalog-studio/backend/catalog.db`.
-- Ảnh gốc: `catalog-studio/backend/assets/uploads/`.
+- Local development: database ở `catalog-studio/backend/catalog.db`, ảnh ở `catalog-studio/backend/assets/uploads/`.
+- Production: database ở `/var/lib/catalog-studio/catalog.db`, ảnh ở `/var/lib/catalog-studio/uploads/`.
 - Cần backup cả database và thư mục ảnh.
 - Các file trên đã được `.gitignore`; không nên đẩy dữ liệu thật lên GitHub.
+
+Tạo một archive an toàn gồm SQLite database và toàn bộ ảnh:
+
+```bash
+cd ~/StorageManagementWeb-ULINK/catalog-studio
+./backup.sh
+```
+
+Backup được lưu mặc định tại `~/catalog-studio-backups/`.
+
+Khôi phục một backup:
+
+```bash
+sudo systemctl stop catalog-studio
+mkdir -p /tmp/catalog-restore
+tar -xzf ~/catalog-studio-backups/catalog-studio-YYYYMMDD-HHMMSS.tar.gz -C /tmp/catalog-restore
+sudo cp /tmp/catalog-restore/catalog.db /var/lib/catalog-studio/catalog.db
+sudo cp -R /tmp/catalog-restore/uploads/. /var/lib/catalog-studio/uploads/
+sudo chown -R "$USER:$USER" /var/lib/catalog-studio
+sudo systemctl start catalog-studio
+```
 
 ## Deploy
 
@@ -92,4 +113,4 @@ curl http://127.0.0.1:8001/api/health
 curl -I http://127.0.0.1:8081
 ```
 
-Database và ảnh không nằm trong Git. Khi deploy lại, script giữ nguyên `backend/catalog.db`, `backend/.env` và `backend/assets/uploads/`.
+Database và ảnh không nằm trong Git. Khi deploy lại, script giữ nguyên toàn bộ `/var/lib/catalog-studio/`. Vì vậy `git pull`, build frontend và restart service không xóa ảnh.
