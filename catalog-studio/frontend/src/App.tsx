@@ -22,7 +22,7 @@ const emptyProduct: ProductDraft = {
 };
 
 function App() {
-  const [tab, setTab] = useState<"catalog" | "products">("catalog");
+  const [tab, setTab] = useState<"catalog" | "products" | "images">("catalog");
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selected, setSelected] = useState<Set<number>>(new Set());
@@ -133,8 +133,9 @@ function App() {
         <nav>
           <button className={tab === "catalog" ? "active" : ""} onClick={() => setTab("catalog")}>Build catalog</button>
           <button className={tab === "products" ? "active" : ""} onClick={() => setTab("products")}>Products</button>
+          <button className={tab === "images" ? "active" : ""} onClick={() => setTab("images")}>Images</button>
         </nav>
-        <span className="version">v1.0.0</span>
+        <span className="version">v1.1.0</span>
       </header>
 
       <main>
@@ -151,13 +152,15 @@ function App() {
             preview={() => catalogProducts.length ? window.open(catalogUrl("inline"), "_blank") : setMessage("Choose at least one product.")}
             download={downloadPdf} busy={busy}
           />
-        ) : (
+        ) : tab === "products" ? (
           <ProductManager
             products={filtered} categories={categories} search={search} setSearch={setSearch}
             categoryId={categoryId} setCategoryId={setCategoryId} availability={availability} setAvailability={setAvailability}
             edit={setEditing} importRef={importRef} importExcel={importExcel} reload={load} setMessage={setMessage}
             manageCategories={() => setCategoryManager(true)}
           />
+        ) : (
+          <ImageManager products={products} categories={categories} reload={load} setMessage={setMessage} />
         )}
       </main>
       {editing && <ProductModal product={editing === "new" ? null : editing} categories={categories} close={() => setEditing(null)} saved={async () => { setEditing(null); await load(); }} />}
@@ -261,6 +264,112 @@ function ProductManager(props: ManagerProps) {
         <div className="library-image"><ProductImage product={product} /><label className="image-upload">Replace image<input type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => upload(product, event.target.files?.[0])} /></label></div>
         <div className="library-body"><div className="tag-row"><span>{product.category_name}</span><i className={product.catalog_enabled ? "live" : "off"}>{product.catalog_enabled ? "Catalog" : "Hidden"}</i></div><h3>{product.name}</h3><p>{product.brand || "ULINK"} · {product.sku}</p><dl><div><dt>Size</dt><dd>{product.unit_size || "—"}</dd></div><div><dt>Case</dt><dd>{product.case_pack || "—"}</dd></div><div><dt>Price</dt><dd>${Number(product.wholesale_price).toFixed(2)}</dd></div></dl><div className="card-actions"><button onClick={() => props.edit(product)}>Edit</button><button className="danger" onClick={() => remove(product)}>Delete</button></div></div>
       </article>)}</div>
+    </section>
+  </>;
+}
+
+function ImageManager({ products, categories, reload, setMessage }: {
+  products: Product[];
+  categories: Category[];
+  reload: () => Promise<void>;
+  setMessage: (value: string) => void;
+}) {
+  const [search, setSearch] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+  const [imageStatus, setImageStatus] = useState("all");
+  const [uploading, setUploading] = useState<Set<number>>(new Set());
+  const bulkInput = useRef<HTMLInputElement>(null);
+
+  const visible = useMemo(() => products.filter((product) => {
+    const needle = search.trim().toLowerCase();
+    return (!needle || `${product.sku} ${product.name} ${product.brand}`.toLowerCase().includes(needle))
+      && (!categoryId || product.category_id === Number(categoryId))
+      && (imageStatus === "all" || (imageStatus === "with") === Boolean(product.image_url));
+  }), [products, search, categoryId, imageStatus]);
+
+  const imageCount = products.filter((product) => product.image_url).length;
+
+  async function uploadOne(product: Product, file?: File) {
+    if (!file) return;
+    setUploading((current) => new Set(current).add(product.id));
+    try {
+      await api.uploadImage(product.id, file);
+      setMessage(`Image saved for ${product.name}.`);
+      await reload();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Upload failed");
+    } finally {
+      setUploading((current) => {
+        const next = new Set(current);
+        next.delete(product.id);
+        return next;
+      });
+    }
+  }
+
+  async function bulkUpload(files: FileList | null) {
+    if (!files?.length) return;
+    const bySku = new Map(products.map((product) => [product.sku.trim().toUpperCase(), product]));
+    const matched: { product: Product; file: File }[] = [];
+    const unmatched: string[] = [];
+    for (const file of Array.from(files)) {
+      const filenameSku = file.name.replace(/\.[^.]+$/, "").trim().toUpperCase();
+      const product = bySku.get(filenameSku);
+      product ? matched.push({ product, file }) : unmatched.push(file.name);
+    }
+    if (!matched.length) {
+      setMessage("No image filename matched a product SKU. Example: UL10001.jpg");
+      return;
+    }
+    setUploading(new Set(matched.map(({ product }) => product.id)));
+    let saved = 0;
+    const failed: string[] = [];
+    for (const { product, file } of matched) {
+      try {
+        await api.uploadImage(product.id, file);
+        saved += 1;
+      } catch {
+        failed.push(file.name);
+      }
+    }
+    setUploading(new Set());
+    await reload();
+    const details = [
+      `${saved} image(s) uploaded`,
+      unmatched.length ? `${unmatched.length} filename(s) did not match SKU` : "",
+      failed.length ? `${failed.length} upload(s) failed` : "",
+    ].filter(Boolean).join(" · ");
+    setMessage(details);
+    if (bulkInput.current) bulkInput.current.value = "";
+  }
+
+  return <>
+    <section className="page-heading image-heading">
+      <div><span className="eyebrow">IMAGE LIBRARY</span><h1>Product images</h1><p>Upload originals here. Catalog PDFs automatically create lightweight optimized copies.</p></div>
+      <div className="hero-actions">
+        <button className="secondary" onClick={() => bulkInput.current?.click()}>Bulk upload by SKU</button>
+        <input ref={bulkInput} hidden multiple type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => void bulkUpload(event.target.files)} />
+      </div>
+    </section>
+    <section className="image-library">
+      <div className="image-summary">
+        <div><strong>{products.length}</strong><span>Total products</span></div>
+        <div><strong>{imageCount}</strong><span>With image</span></div>
+        <div className={products.length - imageCount ? "attention" : ""}><strong>{products.length - imageCount}</strong><span>Missing image</span></div>
+        <p>For bulk upload, name each file exactly as its SKU, for example <code>UL10001.jpg</code>.</p>
+      </div>
+      <div className="filters image-filters">
+        <input placeholder="Search SKU, product, or brand…" value={search} onChange={(event) => setSearch(event.target.value)} />
+        <select value={categoryId} onChange={(event) => setCategoryId(event.target.value)}><option value="">All categories</option>{categories.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select>
+        <select value={imageStatus} onChange={(event) => setImageStatus(event.target.value)}><option value="all">All image statuses</option><option value="with">With image</option><option value="missing">Missing image</option></select>
+      </div>
+      <div className="image-grid">
+        {visible.map((product) => <article className={`image-card ${product.image_url ? "has-image" : "missing-image"}`} key={product.id}>
+          <div className="image-stage"><ProductImage product={product} />{uploading.has(product.id) && <div className="upload-mask">Uploading…</div>}</div>
+          <div className="image-card-body"><small>{product.category_name}</small><h3>{product.name}</h3><code>{product.sku}</code><label className="button image-button">{product.image_url ? "Replace image" : "+ Upload image"}<input type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => void uploadOne(product, event.target.files?.[0])} /></label></div>
+        </article>)}
+        {!visible.length && <div className="empty">No products match these filters.</div>}
+      </div>
     </section>
   </>;
 }

@@ -32,7 +32,7 @@ UPLOAD_DIR = configured_upload_dir if configured_upload_dir.is_absolute() else B
 MAX_IMAGE_BYTES = 10 * 1024 * 1024
 ALLOWED_IMAGE_TYPES = {"image/jpeg": ".jpg", "image/png": ".png", "image/webp": ".webp"}
 
-app = FastAPI(title="Ulink Catalog Studio API", version="1.0.0")
+app = FastAPI(title="Ulink Catalog Studio API", version="1.1.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,

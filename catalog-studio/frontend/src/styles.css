@@ -115,6 +115,31 @@ input:focus, select:focus { border-color: #4187cd; box-shadow: 0 0 0 3px #2d77bd
 .card-actions button { padding: 7px 10px; font-size: 11px; }
 .danger { color: #b42318; }
 
+.image-heading { background: linear-gradient(120deg, #15304f, #15509b 58%, #20946c); }
+.image-library { padding: 22px; border: 1px solid #dfe6ed; border-radius: 16px; background: white; box-shadow: 0 10px 25px #24415d0a; }
+.image-summary { display: grid; grid-template-columns: 145px 145px 145px 1fr; gap: 12px; align-items: stretch; margin-bottom: 20px; }
+.image-summary > div { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 9px; padding: 15px; border-radius: 12px; background: #f2f6fa; }
+.image-summary > div.attention { color: #9b4c13; background: #fff3e6; }
+.image-summary strong { font-size: 27px; color: #15509b; }
+.image-summary .attention strong { color: #b35a17; }
+.image-summary span { color: #66758a; font-size: 11px; font-weight: 800; }
+.image-summary p { align-self: center; margin: 0; padding-left: 10px; color: #6c798b; font-size: 12px; }
+.image-summary code { padding: 3px 6px; border-radius: 5px; color: #15509b; background: #eaf2fb; }
+.image-filters { max-width: 900px; }
+.image-grid { display: grid; grid-template-columns: repeat(5, minmax(190px, 1fr)); gap: 14px; }
+.image-card { overflow: hidden; border: 1px solid #dce3e9; border-radius: 14px; background: white; transition: transform .18s ease, box-shadow .18s ease; }
+.image-card:hover { transform: translateY(-2px); box-shadow: 0 10px 22px #203e5b1c; }
+.image-card.missing-image { border-style: dashed; }
+.image-stage { position: relative; height: 210px; padding: 11px; background: #f5f7f9; }
+.image-stage > img, .image-stage > .placeholder { width: 100%; height: 100%; object-fit: contain; border-radius: 9px; }
+.upload-mask { position: absolute; inset: 0; display: grid; place-items: center; color: white; background: #102c4acc; font-weight: 850; }
+.image-card-body { display: grid; gap: 6px; padding: 14px; }
+.image-card-body small { overflow: hidden; color: #15509b; font-size: 9px; font-weight: 900; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
+.image-card-body h3 { min-height: 38px; margin: 0; font-size: 14px; line-height: 1.3; }
+.image-card-body code { overflow: hidden; color: #768396; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.image-button { display: block; margin-top: 5px; padding: 8px 10px; text-align: center; color: #15509b; background: #f1f6fc; border-color: #cfdff0; font-size: 11px; }
+.image-button input { display: none; }
+
 .modal-backdrop { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 24px; background: #0b1d30a6; backdrop-filter: blur(5px); }
 .modal { width: min(800px, 100%); max-height: calc(100vh - 48px); overflow: auto; padding: 25px; border-radius: 17px; background: white; box-shadow: 0 30px 80px #07132180; }
 .modal-head { display: flex; justify-content: space-between; align-items: start; margin-bottom: 20px; }
@@ -140,6 +165,9 @@ input:focus, select:focus { border-color: #4187cd; box-shadow: 0 0 0 3px #2d77bd
   .control-panel .section-title, .control-panel .option-list, .control-panel .selection-stat { grid-column: 1 / -1; }
   .product-picker { grid-template-columns: repeat(3, 1fr); }
   .library-grid { grid-template-columns: repeat(2, 1fr); }
+  .image-grid { grid-template-columns: repeat(3, 1fr); }
+  .image-summary { grid-template-columns: repeat(3, 1fr); }
+  .image-summary p { grid-column: 1 / -1; padding: 3px; }
 }
 
 @media (max-width: 760px) {
@@ -155,6 +183,8 @@ input:focus, select:focus { border-color: #4187cd; box-shadow: 0 0 0 3px #2d77bd
   .filters { grid-template-columns: 1fr; }
   .product-picker { grid-template-columns: repeat(2, minmax(140px, 1fr)); max-height: 600px; }
   .library-grid { grid-template-columns: 1fr; }
+  .image-grid { grid-template-columns: repeat(2, 1fr); }
+  .image-summary { grid-template-columns: 1fr 1fr 1fr; }
   .library-card { grid-template-columns: 135px 1fr; }
   .form-grid { grid-template-columns: 1fr 1fr; }
   .form-grid label.wide { grid-column: 1 / -1; }
@@ -166,6 +196,9 @@ input:focus, select:focus { border-color: #4187cd; box-shadow: 0 0 0 3px #2d77bd
   .product-picker { grid-template-columns: 1fr; }
   .pick-card { grid-template-columns: 105px 1fr; grid-template-rows: 130px; }
   .library-card { grid-template-columns: 1fr; }
+  .image-grid { grid-template-columns: 1fr; }
+  .image-summary { grid-template-columns: 1fr; }
+  .image-summary p { grid-column: auto; }
   .library-image { height: 220px; }
   .form-grid { grid-template-columns: 1fr; }
   .form-grid label.wide { grid-column: auto; }
