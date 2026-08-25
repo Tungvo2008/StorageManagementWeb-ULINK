@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from decimal import Decimal
 
-from fastapi import APIRouter, Depends, HTTPException, Response, UploadFile, File, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, UploadFile, File, status
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 from sqlalchemy.orm import selectinload
@@ -755,6 +755,91 @@ def _export_rows_to_xlsx(headers: list[str], rows: list[list[object]], *, sheet_
     buf = BytesIO()
     wb.save(buf)
     return buf.getvalue()
+
+
+@router.get("/stock/export.xlsx")
+def export_inventory_stock(
+    query: str = "",
+    sort_key: str = Query(default="last_received"),
+    sort_dir: str = Query(default="desc", pattern="^(asc|desc)$"),
+    db: Session = Depends(get_db),
+) -> Response:
+    items = list_receipt_summary(db)
+    normalized_query = query.strip().casefold()
+    if normalized_query:
+        items = [
+            item
+            for item in items
+            if normalized_query
+            in " ".join(
+                [item.category_name or "No category", item.sku, item.product_name]
+            ).casefold()
+        ]
+
+    sorters = {
+        "category_name": lambda item: (item.category_name or "No category").casefold(),
+        "sku": lambda item: item.sku.casefold(),
+        "product_name": lambda item: item.product_name.casefold(),
+        "received_base": lambda item: item.total_received_base_qty,
+        "received_sale": lambda item: item.total_received_sale_qty,
+        "onhand": lambda item: item.quantity_on_hand,
+        "receipts": lambda item: item.receipt_count,
+        "lines": lambda item: item.line_count,
+        "value": lambda item: item.total_received_amount,
+        "last_received": lambda item: item.last_received_at or datetime.min.replace(tzinfo=timezone.utc),
+    }
+    sorter = sorters.get(sort_key, sorters["last_received"])
+    items.sort(key=sorter, reverse=sort_dir == "desc")
+
+    headers = [
+        "Category",
+        "SKU",
+        "Product",
+        "Base UOM",
+        "Sale UOM",
+        "UOM multiplier",
+        "Received (base)",
+        "Received (sale)",
+        "On hand (base)",
+        "On hand (sale)",
+        "Receipt refs",
+        "Receipt lines",
+        "Total received value",
+        "Currency",
+        "Last received",
+    ]
+    rows: list[list[object]] = []
+    for item in items:
+        multiplier = max(item.uom_multiplier, 1)
+        rows.append(
+            [
+                item.category_name or "No category",
+                item.sku,
+                item.product_name,
+                item.base_uom,
+                item.uom,
+                multiplier,
+                item.total_received_base_qty,
+                float(item.total_received_sale_qty),
+                item.quantity_on_hand,
+                item.quantity_on_hand / multiplier,
+                item.receipt_count,
+                item.line_count,
+                float(item.total_received_amount),
+                item.currency,
+                item.last_received_at,
+            ]
+        )
+
+    try:
+        xlsx = _export_rows_to_xlsx(headers, rows, sheet_name="Inventory")
+    except RuntimeError as exc:
+        raise HTTPException(status_code=501, detail=str(exc)) from exc
+    return Response(
+        content=xlsx,
+        media_type=XLSX_MIME,
+        headers={"Content-Disposition": 'attachment; filename="inventory-stock.xlsx"'},
+    )
 
 
 @router.get("/receipts/export.xlsx")

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { NavLink } from "react-router-dom";
-import { apiJson } from "../api/client";
+import { apiJson, downloadFile } from "../api/client";
 import type { InventoryReceiptSummary } from "../types";
 import type { SortState } from "../utils/table";
 import { matchesQuery, sortBy, toggleSort } from "../utils/table";
@@ -14,6 +14,7 @@ export default function InventorySummaryPage() {
   const [rows, setRows] = useState<InventoryReceiptSummary[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const [query, setQuery] = useState("");
   const [categorySort, setCategorySort] = useState<
     SortState<"category_name" | "products" | "received_base_qty" | "on_hand_base_qty" | "value">
@@ -153,6 +154,23 @@ export default function InventorySummaryPage() {
     return detailSort.dir === "asc" ? " ↑" : " ↓";
   }
 
+  async function exportInventory() {
+    setExporting(true);
+    setError(null);
+    try {
+      const params = new URLSearchParams({
+        query,
+        sort_key: detailSort.key,
+        sort_dir: detailSort.dir,
+      });
+      await downloadFile(`/api/v1/inventory/stock/export.xlsx?${params.toString()}`, "inventory-stock.xlsx");
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setExporting(false);
+    }
+  }
+
   return (
     <div className="card">
       <div className="row" style={{ justifyContent: "space-between" }}>
@@ -165,6 +183,9 @@ export default function InventorySummaryPage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
+          <button className="btn" onClick={() => void exportInventory()} disabled={loading || exporting}>
+            {exporting ? "Exporting..." : "Export Excel"}
+          </button>
           <button className="btn" onClick={() => void load()} disabled={loading}>
             Refresh
           </button>
