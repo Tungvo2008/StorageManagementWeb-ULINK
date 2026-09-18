@@ -84,6 +84,13 @@ def _safe_filename_part(value: str) -> str:
     return cleaned or "customer"
 
 
+def _ascii_filename_part(value: str) -> str:
+    cleaned = value.encode("ascii", "ignore").decode("ascii")
+    cleaned = re.sub(r"[^A-Za-z0-9_. -]+", " ", cleaned)
+    cleaned = re.sub(r"\s+", " ", cleaned).strip().strip(".")
+    return cleaned or "customer"
+
+
 def _normalize_line_type(value: object) -> InvoiceLineType:
     if isinstance(value, InvoiceLineType):
         return value
@@ -600,7 +607,11 @@ def download_invoice_pdf(invoice_id: int, db: Session = Depends(get_db)) -> Resp
     if note_slug and note_slug.lower() != "customer":
         filename = f"{filename} - {note_slug}"
     filename = f"{filename}.pdf"
-    content_disposition = f"attachment; filename=\"{filename}\"; filename*=UTF-8''{quote(filename)}"
+    ascii_filename = f"{_ascii_filename_part(invoice.invoice_number)} - {_ascii_filename_part(buyer_slug)}"
+    if note_slug and note_slug.lower() != "customer":
+        ascii_filename = f"{ascii_filename} - {_ascii_filename_part(note_slug)}"
+    ascii_filename = f"{ascii_filename}.pdf"
+    content_disposition = f"attachment; filename=\"{ascii_filename}\"; filename*=UTF-8''{quote(filename)}"
     return Response(
         content=pdf_bytes,
         media_type="application/pdf",
