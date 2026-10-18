@@ -79,8 +79,10 @@ def main():
                 clean_count += 1
             
             # 2. Check remote and attempt push
-            rem = subprocess.run(["git", "remote"], cwd=str(p), capture_output=True, text=True)
+            rem = subprocess.run(["git", "remote", "-v"], cwd=str(p), capture_output=True, text=True)
             if "origin" in rem.stdout:
+                if "https://github.com/Tungvo2008/" in rem.stdout:
+                    subprocess.run(["git", "remote", "set-url", "origin", f"git@github.com:Tungvo2008/{proj}.git"], cwd=str(p))
                 push_res = subprocess.run(
                     ["git", "push", "origin", "main"],
                     cwd=str(p),

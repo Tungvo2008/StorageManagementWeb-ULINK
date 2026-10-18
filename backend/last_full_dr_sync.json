@@ -1,0 +1,15 @@
+{
+  "timestamp": 1792330367.595785,
+  "last_sync_utc": "2026-10-18T13:32:47.595762+00:00",
+  "status": "success",
+  "primary_host": "web-server",
+  "backup_host": "100.118.251.55",
+  "replicated_scopes": [
+    "storage.db (verified SQLite online snapshot)",
+    "assistant databases (app.db, storage.db, assistant.db, semantic_memory.db)",
+    "live assets (511MB images/bills/labels)",
+    "workspaces (all 20 projects & codebases in /home/thanhtung)",
+    "archives (daily ulink-backups snapshots)",
+    "system-configs (cloudflared, user systemd units, crontabs)"
+  ]
+}
