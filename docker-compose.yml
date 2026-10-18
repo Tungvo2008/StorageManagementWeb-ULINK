@@ -1,0 +1,57 @@
+services:
+  storage-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.storage-backend
+    env_file: ./backend/.env
+    restart: unless-stopped
+    volumes:
+      - ./backend/storage.db:/app/storage.db
+      - ./backend/assets:/app/assets
+      - ./backend/exports:/app/exports
+      - ./backend/app:/app/app
+    expose: ["8000"]
+
+  storage-frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    depends_on: [storage-backend]
+    restart: unless-stopped
+    ports: ["127.0.0.1:8080:80"]
+    volumes:
+      - ./frontend/dist:/usr/share/nginx/html:ro
+      - ./backend/assets:/usr/share/nginx/assets:ro
+      - ./docker/nginx-storage.conf:/etc/nginx/conf.d/default.conf:ro
+
+  catalog-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.catalog-backend
+    env_file: ./catalog-studio/backend/.env
+    environment:
+      DATABASE_URL: sqlite:////app/catalog.db
+      UPLOAD_DIR: /app/uploads
+    restart: unless-stopped
+    volumes:
+      - /var/lib/catalog-studio/catalog.db:/app/catalog.db
+      - /var/lib/catalog-studio/uploads:/app/uploads
+    expose: ["8001"]
+
+  catalog-frontend:
+    build:
+      context: .
+      dockerfile: catalog-studio/frontend/Dockerfile
+    depends_on: [catalog-backend]
+    restart: unless-stopped
+    ports: ["127.0.0.1:8081:80"]
+
+  cloudflared-storage:
+    image: cloudflare/cloudflared:latest
+    user: "0:0"
+    command: tunnel --config /etc/cloudflared/storage-management.yml run
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - /home/thanhtung/.cloudflared/storage-management.yml:/etc/cloudflared/storage-management.yml:ro
+      - /home/thanhtung/.cloudflared/d709a14b-6dcd-4e15-8219-ceafe760116b.json:/etc/cloudflared/credentials.json:ro

@@ -232,6 +232,9 @@ def _ensure_columns(conn: Connection) -> None:
         for r in conn.execute(text("SELECT name FROM sqlite_master WHERE type='table'")).mappings().all()
     }
 
+    if "storefront_inquiries" in tables:
+        _add_column_if_missing(conn, "storefront_inquiries", "address", "address VARCHAR(500)")
+
     if "products" in tables:
         product_columns_before = _existing_columns(conn, "products")
         should_backfill_amazon_fields = (
@@ -248,6 +251,11 @@ def _ensure_columns(conn: Connection) -> None:
         _add_column_if_missing(conn, "products", "catalog_short_name", "catalog_short_name TEXT")
         _add_column_if_missing(conn, "products", "unit_size", "unit_size TEXT")
         _add_column_if_missing(conn, "products", "catalog_case_pack", "catalog_case_pack INTEGER")
+        _add_column_if_missing(conn, "products", "hs_code", "hs_code TEXT")
+        for field in ("carton_net_weight_kg", "carton_gross_weight_kg", "carton_length_cm", "carton_width_cm", "carton_height_cm"):
+            _add_column_if_missing(conn, "products", field, f"{field} NUMERIC")
+        _add_column_if_missing(conn, "products", "cartons_per_20ft", "cartons_per_20ft INTEGER")
+        _add_column_if_missing(conn, "products", "cartons_per_40ft", "cartons_per_40ft INTEGER")
         _add_column_if_missing(conn, "products", "country_of_origin", "country_of_origin TEXT")
         _add_column_if_missing(conn, "products", "upc", "upc TEXT")
         _add_column_if_missing(conn, "products", "catalog_badges", "catalog_badges TEXT")
@@ -338,6 +346,13 @@ def _ensure_columns(conn: Connection) -> None:
         _add_column_if_missing(conn, "stock_movements", "issue_id", "issue_id INTEGER")
         _add_column_if_missing(conn, "stock_movements", "issue_line_id", "issue_line_id INTEGER")
         _add_column_if_missing(conn, "stock_movements", "sale_order_id", "sale_order_id INTEGER")
+        _add_column_if_missing(conn, "stock_movements", "invoice_id", "invoice_id INTEGER")
+        _add_column_if_missing(conn, "stock_movements", "invoice_line_id", "invoice_line_id INTEGER")
+        conn.execute(text("CREATE INDEX IF NOT EXISTS ix_stock_movements_invoice_id ON stock_movements (invoice_id)"))
+
+    if "inventory_issues" in tables:
+        _add_column_if_missing(conn, "inventory_issues", "invoice_id", "invoice_id INTEGER")
+        conn.execute(text("CREATE INDEX IF NOT EXISTS ix_inventory_issues_invoice_id ON inventory_issues (invoice_id)"))
 
     if "sale_orders" in tables:
         _add_column_if_missing(conn, "sale_orders", "order_discount_amount", "order_discount_amount NUMERIC NOT NULL DEFAULT 0")
@@ -368,3 +383,56 @@ def _ensure_columns(conn: Connection) -> None:
         )
         conn.execute(text("CREATE INDEX IF NOT EXISTS ix_invoice_payments_invoice_id ON invoice_payments (invoice_id)"))
         conn.execute(text("CREATE INDEX IF NOT EXISTS ix_invoice_payments_paid_at ON invoice_payments (paid_at)"))
+
+    if "products" in tables:
+        _add_column_if_missing(conn, "products", "highlights", "highlights TEXT DEFAULT '[]'")
+        _add_column_if_missing(conn, "products", "specifications", "specifications TEXT DEFAULT '{}'")
+        _add_column_if_missing(conn, "products", "show_price", "show_price BOOLEAN DEFAULT 1")
+        _add_column_if_missing(conn, "products", "price_label", "price_label VARCHAR(64)")
+        _add_column_if_missing(conn, "products", "min_order_quantity", "min_order_quantity INTEGER DEFAULT 1")
+        _add_column_if_missing(conn, "products", "lead_time", "lead_time VARCHAR(64)")
+        _add_column_if_missing(conn, "products", "variant_group_id", "variant_group_id VARCHAR(64)")
+        _add_column_if_missing(conn, "products", "color_name", "color_name VARCHAR(64)")
+        _add_column_if_missing(conn, "products", "color_hex", "color_hex VARCHAR(16)")
+        _add_column_if_missing(conn, "products", "price_tiers", "price_tiers TEXT DEFAULT '[]'")
+        _add_column_if_missing(conn, "products", "metafields", "metafields TEXT DEFAULT '{}'")
+        _add_column_if_missing(conn, "products", "related_product_skus", "related_product_skus TEXT DEFAULT '[]'")
+        conn.execute(text("CREATE INDEX IF NOT EXISTS ix_products_variant_group_id ON products (variant_group_id)"))
+
+    if "product_images" not in tables:
+        conn.execute(
+            text(
+                """
+                CREATE TABLE product_images (
+                    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                    product_id INTEGER NOT NULL,
+                    image_url TEXT NOT NULL,
+                    alt_text VARCHAR(255),
+                    sort_order INTEGER NOT NULL DEFAULT 0,
+                    is_primary BOOLEAN NOT NULL DEFAULT 0,
+                    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY(product_id) REFERENCES products (id) ON DELETE CASCADE
+                )
+                """
+            )
+        )
+        conn.execute(text("CREATE INDEX IF NOT EXISTS ix_product_images_product_id ON product_images (product_id)"))
+        conn.execute(
+            text(
+                """
+                INSERT INTO product_images (product_id, image_url, alt_text, sort_order, is_primary)
+                SELECT id, image_url, name, 0, 1
+                FROM products
+                WHERE image_url IS NOT NULL AND TRIM(image_url) != ''
+                """
+            )
+        )
+
+    if "towel_web_content" in tables:
+        _add_column_if_missing(
+            conn,
+            "towel_web_content",
+            "is_published",
+            "is_published BOOLEAN NOT NULL DEFAULT 0",
+        )

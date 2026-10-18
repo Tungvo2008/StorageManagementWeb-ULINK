@@ -1,17 +1,21 @@
 import { useMemo, useState } from "react";
 import Modal from "./Modal";
-import type { Category, Product } from "../types";
+import type { Category, CustomerPriceItem, Product } from "../types";
 
 export default function ProductPickerModal({
   open,
   products,
   categories,
+  customerPrices,
+  customerName,
   onAdd,
   onClose,
 }: {
   open: boolean;
   products: Product[];
   categories: Category[];
+  customerPrices?: Record<number, CustomerPriceItem>;
+  customerName?: string | null;
   onAdd: (product: Product) => void;
   onClose: () => void;
 }) {
@@ -33,6 +37,30 @@ export default function ProductPickerModal({
 
   return (
     <Modal open={open} title="Chọn sản phẩm" onClose={onClose}>
+      {customerName && (
+        <div
+          style={{
+            marginBottom: 12,
+            padding: "8px 12px",
+            borderRadius: 8,
+            background: "#ecfdf5",
+            border: "1px solid #a7f3d0",
+            color: "#065f46",
+            fontSize: "0.88rem",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <span>
+            🏪 Đang áp dụng bảng giá của: <strong>{customerName}</strong>
+          </span>
+          <span style={{ fontSize: "0.8rem", color: "#047857" }}>
+            Tự động điền giá thỏa thuận cho chợ
+          </span>
+        </div>
+      )}
+
       <div className="row" style={{ alignItems: "stretch", marginBottom: 10 }}>
         <div className="field" style={{ flex: 1, minWidth: 260 }}>
           <label>Search</label>
@@ -74,28 +102,61 @@ export default function ProductPickerModal({
             </tr>
           </thead>
           <tbody>
-            {filtered.map((p) => (
-              <tr key={p.id}>
-                <td>{p.sku}</td>
-                <td>{p.name}</td>
-                <td>{p.category_id ? categoryNameById.get(p.category_id) ?? "" : ""}</td>
-                <td>
-                  {p.uom}
-                  {p.uom_multiplier > 1 ? <span className="muted"> (x{p.uom_multiplier})</span> : null}
-                </td>
-                <td className="right">
-                  {p.unit_price} {p.currency}
-                </td>
-                <td className="right">
-                  {p.uom_multiplier > 0 ? (p.quantity_on_hand / p.uom_multiplier).toFixed(2) : ""}
-                </td>
-                <td className="right">
-                  <button className="btn primary" type="button" onClick={() => onAdd(p)}>
-                    Add
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {filtered.map((p) => {
+              const custPrice = customerPrices?.[p.id]?.custom_price;
+              const hasCustomPrice = custPrice != null && Number(custPrice) > 0;
+              return (
+                <tr key={p.id} style={{ background: hasCustomPrice ? "#f0fdf4" : undefined }}>
+                  <td style={{ fontWeight: 600 }}>{p.sku}</td>
+                  <td>
+                    <div>{p.name}</div>
+                    {hasCustomPrice && (
+                      <span
+                        style={{
+                          fontSize: "0.72rem",
+                          padding: "1px 5px",
+                          borderRadius: 4,
+                          background: "#bbf7d0",
+                          color: "#166534",
+                          fontWeight: 600,
+                        }}
+                      >
+                        ✓ Giá chợ
+                      </span>
+                    )}
+                  </td>
+                  <td>{p.category_id ? categoryNameById.get(p.category_id) ?? "" : ""}</td>
+                  <td>
+                    {p.uom}
+                    {p.uom_multiplier > 1 ? <span className="muted"> (x{p.uom_multiplier})</span> : null}
+                  </td>
+                  <td className="right">
+                    {hasCustomPrice ? (
+                      <div>
+                        <div style={{ fontWeight: 700, color: "#047857" }}>
+                          ${Number(custPrice).toFixed(2)}
+                        </div>
+                        <div className="muted" style={{ fontSize: "0.75rem" }}>
+                          Gốc: ${p.unit_price}
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        {p.unit_price} {p.currency}
+                      </div>
+                    )}
+                  </td>
+                  <td className="right">
+                    {p.uom_multiplier > 0 ? (p.quantity_on_hand / p.uom_multiplier).toFixed(2) : ""}
+                  </td>
+                  <td className="right">
+                    <button className="btn primary" type="button" onClick={() => onAdd(p)}>
+                      Add
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
             {filtered.length === 0 && (
               <tr>
                 <td colSpan={7} className="muted">
@@ -113,4 +174,3 @@ export default function ProductPickerModal({
     </Modal>
   );
 }
-

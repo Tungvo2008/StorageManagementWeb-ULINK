@@ -7,8 +7,8 @@ import { apiUrl } from "../api/client";
 type TokenResponse = { access_token: string; token_type: string };
 
 export default function LoginPage() {
-  const [username, setUsername] = useState("admin");
-  const [password, setPassword] = useState("admin");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -46,16 +46,13 @@ export default function LoginPage() {
       <h2 style={{ marginTop: 0 }}>Login</h2>
       <div className="muted">Đăng nhập để sử dụng hệ thống.</div>
       {error && <div className="error" style={{ marginTop: 12 }}>{error}</div>}
-      <form onSubmit={onSubmit} className="row loginForm" style={{ marginTop: 12 }}>
+      <form onSubmit={onSubmit} autoComplete="off" className="row loginForm" style={{ marginTop: 12 }}>
         <input className="input" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
-        <input className="input" placeholder="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+        <input className="input" placeholder="Password" type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} />
         <button className="btn primary" type="submit" disabled={loading}>
           {loading ? "Signing in..." : "Sign in"}
         </button>
       </form>
-      <div className="muted" style={{ marginTop: 10 }}>
-        Dev default: admin/admin (đổi trong backend `.env`).
-      </div>
     </div>
   );
 }

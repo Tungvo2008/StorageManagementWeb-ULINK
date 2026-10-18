@@ -8,16 +8,24 @@ import CustomerEditPage from "./pages/CustomerEditPage";
 import InventoryIssuePage from "./pages/InventoryIssuePage";
 import InventoryLogPage from "./pages/InventoryLogPage";
 import InventoryReceivePage from "./pages/InventoryReceivePage";
+import InventoryStockPage from "./pages/InventoryStockPage";
 import InventorySummaryPage from "./pages/InventorySummaryPage";
 import InvoicesPage from "./pages/InvoicesPage";
 import LoginPage from "./pages/LoginPage";
 import PricingPage from "./pages/PricingPage";
 import ProductImagesPage from "./pages/ProductImagesPage";
+import WebsiteContentPage from "./pages/WebsiteContentPage";
 import ProductsPage from "./pages/ProductsPage";
 import SalesPage from "./pages/SalesPage";
 import UsersPage from "./pages/UsersPage";
 import { clearToken, getToken } from "./auth";
 import AmazonShipmentPage from "./pages/AmazonShipmentPage";
+import GroceryPage from "./pages/GroceryPage";
+import TrustCargoPage from "./pages/TrustCargoPage";
+import BotLogPage from "./pages/BotLogPage";
+import QuotesPage from "./pages/QuotesPage";
+import ShowcasePage from "./pages/ShowcasePage";
+import InventoryBatchesPage from "./pages/InventoryBatchesPage";
 
 function RequireAuth({ children }: { children: JSX.Element }) {
   const token = getToken();
@@ -69,6 +77,8 @@ export default function App() {
     <Layout>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/quotes" element={<RequireAuth><QuotesPage /></RequireAuth>} />
+        <Route path="/showcase" element={<RequireAuth><ShowcasePage /></RequireAuth>} />
         <Route path="/" element={<Navigate to="/products" replace />} />
         <Route
           path="/products"
@@ -86,6 +96,8 @@ export default function App() {
             </RequireAuth>
           }
         />
+        <Route path="/towel-web" element={<Navigate to="/website-content" replace />} />
+        <Route path="/website-content" element={<RequireAuth><WebsiteContentPage /></RequireAuth>} />
         <Route
           path="/catalog"
           element={
@@ -138,16 +150,29 @@ export default function App() {
           path="/inventory"
           element={
             <RequireAuth>
+              <ProductsPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/inventory/summary"
+          element={
+            <RequireAuth>
               <InventorySummaryPage />
             </RequireAuth>
           }
         />
         <Route
-          path="/inventory/receive"
-          element={<Navigate to="/inventory/receipt-log" replace />}
+          path="/batches"
+          element={
+            <RequireAuth>
+              <InventoryBatchesPage />
+            </RequireAuth>
+          }
         />
+        <Route path="/inventory/batches" element={<Navigate to="/batches" replace />} />
         <Route
-          path="/inventory/receipt-log"
+          path="/receipts"
           element={
             <RequireAuth>
               <InventoryReceivePage />
@@ -155,18 +180,21 @@ export default function App() {
           }
         />
         <Route
+          path="/stock-history"
+          element={
+            <RequireAuth>
+              <InventoryLogPage />
+            </RequireAuth>
+          }
+        />
+        <Route path="/inventory/receive" element={<Navigate to="/receipts" replace />} />
+        <Route path="/inventory/receipt-log" element={<Navigate to="/receipts" replace />} />
+        <Route path="/inventory/log" element={<Navigate to="/stock-history" replace />} />
+        <Route
           path="/inventory/issue"
           element={
             <RequireAuth>
               <InventoryIssuePage />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/inventory/log"
-          element={
-            <RequireAuth>
-              <InventoryLogPage />
             </RequireAuth>
           }
         />
@@ -184,6 +212,30 @@ export default function App() {
           element={
             <RequireAuth>
               <InvoicesPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/grocery"
+          element={
+            <RequireAuth>
+              <GroceryPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/trust-cargo"
+          element={
+            <RequireAuth>
+              <TrustCargoPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/bot-logs"
+          element={
+            <RequireAuth>
+              <BotLogPage />
             </RequireAuth>
           }
         />

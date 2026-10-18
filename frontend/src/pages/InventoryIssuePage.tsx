@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import { apiJson, apiUpload, downloadFile } from "../api/client";
 import type { InventoryIssue, Invoice, Product } from "../types";
-import { NavLink } from "react-router-dom";
 import { getCurrentUsername } from "../auth";
 import Modal from "../components/Modal";
 import type { SortState } from "../utils/table";
@@ -621,17 +620,6 @@ export default function InventoryIssuePage() {
         </div>
         <div className="muted" style={{ marginTop: 6 }}>
           Tạo phiếu xuất thủ công và xem luôn các invoice đã đồng bộ.
-        </div>
-        <div className="inventoryTabs">
-          <NavLink to="/inventory" end className={({ isActive }) => (isActive ? "active" : "")}>
-            Inventory
-          </NavLink>
-          <NavLink to="/inventory/receipt-log" className={({ isActive }) => (isActive ? "active" : "")}>
-            Receipt log
-          </NavLink>
-          <NavLink to="/inventory/issue" className={({ isActive }) => (isActive ? "active" : "")}>
-            Issue
-          </NavLink>
         </div>
         {error && <div className="error">{error}</div>}
         <div className="row" style={{ gap: 8, marginTop: 8 }}>

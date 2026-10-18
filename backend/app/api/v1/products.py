@@ -13,7 +13,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from app.api.deps import get_db
 from app.core.config import settings
-from app.db.models import AmazonProductMapping, Category, Product
+from app.db.models import AmazonProductMapping, Category, Product, StockMovement, StockMovementType
 from app.schemas.product import ProductCreate, ProductImportResult, ProductRead, ProductUpdate
 
 
@@ -574,8 +574,64 @@ def _parse_products_import_xlsx(file_bytes: bytes) -> list[dict[str, Any]]:
 
 
 @router.get("", response_model=list[ProductRead])
-def list_products(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)) -> list[Product]:
-    stmt = select(Product).options(selectinload(Product.category)).offset(skip).limit(limit)
+def list_products(
+    skip: int = 0,
+    limit: int = 200,
+    search: str | None = None,
+    business_unit: str | None = None,
+    category_id: int | None = None,
+    is_sold_on_amazon: bool | None = None,
+    stock_status: str | None = None,  # in_stock, low_stock, out_of_stock, negative
+    db: Session = Depends(get_db),
+) -> list[Product]:
+    stmt = select(Product).options(selectinload(Product.category))
+    if search:
+        s = f"%{search.strip()}%"
+        stmt = stmt.where(
+            (Product.name.ilike(s)) |
+            (Product.sku.ilike(s)) |
+            (Product.upc.ilike(s)) |
+            (Product.amazon_sku.ilike(s))
+        )
+    if business_unit:
+        stmt = stmt.where(Product.business_unit == business_unit.upper())
+    if category_id is not None:
+        stmt = stmt.where(Product.category_id == category_id)
+    if is_sold_on_amazon is not None:
+        stmt = stmt.where(Product.is_sold_on_amazon == is_sold_on_amazon)
+    
+    if stock_status:
+        st = stock_status.lower()
+        if st == "in_stock":
+            stmt = stmt.where(Product.quantity_on_hand > 0)
+        elif st == "out_of_stock":
+            stmt = stmt.where(Product.quantity_on_hand == 0)
+        elif st == "negative":
+            stmt = stmt.where(Product.quantity_on_hand < 0)
+        elif st == "low_stock":
+            # Low stock threshold <= 10 or <= uom_multiplier
+            stmt = stmt.where(
+                (Product.quantity_on_hand > 0) &
+                (Product.quantity_on_hand <= 10)
+            )
+
+    stmt = stmt.order_by(Product.name.asc()).offset(skip).limit(limit)
+    return db.scalars(stmt).all()
+
+
+@router.get("/alerts/low-stock", response_model=list[ProductRead])
+def list_low_stock_products(
+    threshold: int = 10,
+    db: Session = Depends(get_db),
+) -> list[Product]:
+    """Tra cứu các mặt hàng sắp hết hoặc âm kho cho Bot và Web Dashboard."""
+    stmt = (
+        select(Product)
+        .options(selectinload(Product.category))
+        .where(Product.quantity_on_hand <= threshold)
+        .order_by(Product.quantity_on_hand.asc())
+        .limit(100)
+    )
     return db.scalars(stmt).all()
 
 
@@ -614,6 +670,14 @@ def create_product(product_in: ProductCreate, db: Session = Depends(get_db)) -> 
         catalog_short_name=product_in.catalog_short_name,
         unit_size=product_in.unit_size,
         catalog_case_pack=product_in.catalog_case_pack,
+        hs_code=product_in.hs_code,
+        carton_net_weight_kg=product_in.carton_net_weight_kg,
+        carton_gross_weight_kg=product_in.carton_gross_weight_kg,
+        carton_length_cm=product_in.carton_length_cm,
+        carton_width_cm=product_in.carton_width_cm,
+        carton_height_cm=product_in.carton_height_cm,
+        cartons_per_20ft=product_in.cartons_per_20ft,
+        cartons_per_40ft=product_in.cartons_per_40ft,
         country_of_origin=product_in.country_of_origin,
         upc=product_in.upc,
         catalog_badges=product_in.catalog_badges,
@@ -621,17 +685,27 @@ def create_product(product_in: ProductCreate, db: Session = Depends(get_db)) -> 
         catalog_sort_order=product_in.catalog_sort_order,
         is_sold_on_amazon=is_sold_on_amazon,
         amazon_sku=amazon_sku,
+        business_unit=(product_in.business_unit or "TOWEL").strip().upper(),
         base_uom=base_uom,
         uom=uom,
         uom_multiplier=uom_multiplier,
         cost_price=product_in.cost_price or Decimal("0"),
         unit_price=product_in.unit_price or Decimal("0"),
         currency=currency,
-        quantity_on_hand=product_in.quantity_on_hand,
+        quantity_on_hand=product_in.quantity_on_hand or 0,
         is_active=product_in.is_active,
     )
     db.add(product)
     db.flush()
+    if product.quantity_on_hand > 0:
+        db.add(
+            StockMovement(
+                product_id=product.id,
+                movement_type=StockMovementType.IN,
+                quantity_delta=product.quantity_on_hand,
+                note="Khởi tạo tồn kho ban đầu khi tạo sản phẩm",
+            )
+        )
     _sync_product_amazon_mapping(db, product)
     db.commit()
     db.refresh(product)
@@ -875,6 +949,10 @@ def delete_product(product_id: int, db: Session = Depends(get_db)) -> None:
     if product is None:
         return
     _delete_managed_product_image(product.image_url)
+    for sm in list(product.stock_movements):
+        db.delete(sm)
+    for am in list(product.amazon_mappings):
+        am.product_id = None
     db.delete(product)
     db.commit()
 

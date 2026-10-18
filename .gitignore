@@ -1,7 +1,11 @@
 backend/.venv/
 frontend/node_modules/
-backend/.env
-backend/storage.db
+catalog-studio/backend/.venv/
+catalog-studio/frontend/node_modules/
+catalog-studio/frontend/dist/
+backend/.env*
+frontend/.env*
+backend/storage.db*
 frontend/dist/
 .DS_Store
 
@@ -9,15 +13,27 @@ frontend/dist/
 **/__pycache__/
 *.pyc
 *.pyo
+.pytest_cache/
 
 # Frontend local env/build cache
-frontend/.env
-frontend/.env.local
-frontend/.env.*.local
 frontend/tsconfig.tsbuildinfo
 
-# Local database backups
-backend/storage.db.bak.*
+# Local database backups and exports
+backend/storage.db*
+*.db
+*.db-*
+backend/exports/
+backend/assets/product-images/
+backend/assets/product-images-original/
+backend/assets/cargo-images/
+*.pdf
+*.xlsx
+*.tar.gz
+*.tgz
+*.zip
+*.bak*
+*.bak
 
-# Generated catalog PDFs
-backend/exports/catalog/*.pdf
+# Temporary and agent files
+.agents/
+frontend/Dockerfile.tmp/

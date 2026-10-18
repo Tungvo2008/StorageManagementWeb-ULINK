@@ -138,10 +138,13 @@ export function assetUrl(path: string | null | undefined): string {
   if (/^(https?:)?\/\//i.test(path) || path.startsWith("data:") || path.startsWith("blob:")) {
     return path;
   }
-  const normalizedPath = path.replace(
+  let normalizedPath = path.replace(
     "/api/v1/products/image-files/",
     "/api/v1/public/product-images/",
   );
+  if (normalizedPath.includes("/product-images/") && !normalizedPath.includes("?")) {
+    normalizedPath += "?v=opt2";
+  }
   const base = resolveAssetOrigin();
   if (!base) return normalizedPath;
   return `${base}${normalizedPath.startsWith("/") ? normalizedPath : `/${normalizedPath}`}`;

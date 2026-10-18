@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from decimal import Decimal
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
@@ -39,6 +40,7 @@ def _filtered_categories(
     availability: str,
     skus: str,
     include_inactive: bool,
+    customer_id: int | None = None,
 ) -> tuple[CatalogCategory, ...]:
     products = db.scalars(
         select(Product)
@@ -52,6 +54,16 @@ def _filtered_categories(
     }
     selected_skus = {value.casefold() for value in _parse_csv(skus)}
     brand_filter = brand.strip().casefold()
+
+    price_overrides: dict[int, Decimal] = {}
+    if customer_id:
+        from app.db.models import CustomerProductPrice
+        cp_records = db.scalars(
+            select(CustomerProductPrice).where(CustomerProductPrice.customer_id == customer_id)
+        ).all()
+        for cp in cp_records:
+            if cp.price is not None and cp.price > 0:
+                price_overrides[cp.product_id] = Decimal(str(cp.price))
 
     filtered: list[Product] = []
     for product in products:
@@ -70,7 +82,7 @@ def _filtered_categories(
         if availability == "out_of_stock" and int(product.quantity_on_hand or 0) > 0:
             continue
         filtered.append(product)
-    return build_catalog_categories(filtered)
+    return build_catalog_categories(filtered, price_overrides=price_overrides)
 
 
 def _catalog_query(
@@ -80,6 +92,7 @@ def _catalog_query(
     availability: str,
     skus: str,
     include_inactive: bool,
+    customer_id: int | None = None,
 ) -> tuple[CatalogCategory, ...]:
     if availability not in {"all", "in_stock", "out_of_stock"}:
         raise HTTPException(status_code=400, detail="Invalid availability filter")
@@ -90,6 +103,7 @@ def _catalog_query(
         availability=availability,
         skus=skus,
         include_inactive=include_inactive,
+        customer_id=customer_id,
     )
 
 
@@ -102,6 +116,7 @@ def get_catalog_data(
     include_inactive: bool = False,
     title: str = "",
     version: str = "",
+    customer_id: int | None = None,
     db: Session = Depends(get_db),
 ) -> CatalogDataRead:
     categories = _catalog_query(
@@ -111,6 +126,7 @@ def get_catalog_data(
         availability,
         skus,
         include_inactive,
+        customer_id=customer_id,
     )
     company = get_catalog_company(title=title, version=version)
     pages = paginate_catalog(categories)
@@ -146,6 +162,7 @@ def download_catalog_pdf(
     show_upc: bool = False,
     show_badges: bool = True,
     show_availability: bool = False,
+    customer_id: int | None = None,
     disposition: str = Query(default="attachment", pattern="^(attachment|inline)$"),
     db: Session = Depends(get_db),
 ) -> Response:
@@ -156,10 +173,19 @@ def download_catalog_pdf(
         availability,
         skus,
         include_inactive,
+        customer_id=customer_id,
     )
     if not categories:
         raise HTTPException(status_code=400, detail="No products match the selected catalog filters")
-    company = get_catalog_company(title=title, version=version)
+
+    catalog_title = title
+    if customer_id and not catalog_title.strip():
+        from app.db.models import Customer
+        cust = db.get(Customer, customer_id)
+        if cust:
+            catalog_title = f"Wholesale Price List - {cust.name}"
+
+    company = get_catalog_company(title=catalog_title, version=version)
     try:
         pdf_bytes, warnings = render_catalog_pdf(
             company=company,

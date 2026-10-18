@@ -1,16 +1,18 @@
 from __future__ import annotations
+import uuid
 
-from datetime import datetime, timezone
+from datetime import datetime, timezone, date
 from decimal import Decimal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, UploadFile, File, status
-from sqlalchemy import func, select
+from sqlalchemy import func, select, or_, and_
 from sqlalchemy.orm import Session
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import selectinload, joinedload
 
 from app.api.deps import get_current_user, get_db
 from app.core.config import settings
 from app.db.models import (
+    InventoryBatch,
     Category,
     InventoryIssue,
     InventoryIssueLine,
@@ -22,6 +24,12 @@ from app.db.models import (
     User,
 )
 from app.schemas.inventory import (
+    InventoryBatchRead,
+    InventoryBatchCreate,
+    InventoryBatchUpdate,
+    RepackBatchRequest,
+    AllocateFefoResponse,
+    AllocateFefoItem,
     InventoryIssueCreate,
     InventoryIssueParseNoteRequest,
     InventoryIssueParseNoteResponse,
@@ -324,6 +332,10 @@ def _create_receipt(*, body: InventoryReceiptCreate, db: Session, actor_username
         received_at=received_at,
         received_by=received_by,
         note=body.note,
+        receipt_type=body.receipt_type or "STANDARD",
+        supplier_name=(body.supplier_name or "").strip() or None,
+        container_number=(body.container_number or "").strip() or None,
+        container_cost=quantize_money(Decimal(str(body.container_cost or 0))),
     )
     db.add(receipt)
     db.flush()
@@ -349,6 +361,27 @@ def _create_receipt(*, body: InventoryReceiptCreate, db: Session, actor_username
         currency = (product.currency or settings.DEFAULT_CURRENCY).upper()
         line_total = quantize_money(unit_cost * Decimal(qty))
 
+        # Auto create or link batch if expiry_date is provided
+        if line_in.expiry_date:
+            b_code = (line_in.lot_number or "").strip()
+            if not b_code:
+                b_code = f"LOT-{received_at.strftime('%Y%m%d')}-{product.sku}-{uuid.uuid4().hex[:4].upper()}"
+            existing_batch = db.scalar(select(InventoryBatch).where(InventoryBatch.batch_code == b_code))
+            if existing_batch:
+                existing_batch.quantity_on_hand += base_qty
+            else:
+                new_b = InventoryBatch(
+                    batch_code=b_code,
+                    product_id=product.id,
+                    expiration_date=line_in.expiry_date,
+                    initial_quantity=base_qty,
+                    quantity_on_hand=base_qty,
+                    inbound_reference=receipt.container_number or receipt.receipt_number or f"Receipt #{receipt.id}",
+                    status="ACTIVE",
+                    notes=line_in.note,
+                )
+                db.add(new_b)
+
         rec_line = InventoryReceiptLine(
             receipt_id=receipt.id,
             product_id=product.id,
@@ -361,12 +394,17 @@ def _create_receipt(*, body: InventoryReceiptCreate, db: Session, actor_username
             currency=currency,
             line_total=line_total,
             note=line_in.note,
+            lot_number=(line_in.lot_number or "").strip() or None,
+            expiry_date=line_in.expiry_date,
+            carton_count=line_in.carton_count,
+            pieces_per_carton=line_in.pieces_per_carton,
+            allocated_cost=quantize_money(Decimal(str(line_in.allocated_cost or 0))),
         )
         lines.append(rec_line)
         db.add(rec_line)
         db.flush()
 
-        _apply_moving_average_cost(product=product, base_qty=base_qty, line_total=line_total)
+        # _apply_moving_average_cost(product=product, base_qty=base_qty, line_total=line_total)  # Disabled: Cost managed externally by user
         product.quantity_on_hand += base_qty
 
         movements.append(
@@ -980,3 +1018,336 @@ def get_issue(issue_id: int, db: Session = Depends(get_db)) -> InventoryIssue:
     if issue is None:
         raise HTTPException(status_code=404, detail="Issue not found")
     return issue
+
+
+# ==================== DATE & BATCH MANAGEMENT ENDPOINTS ====================
+
+def _enrich_batch_read(b: InventoryBatch, today: date) -> InventoryBatchRead:
+    days_rem = (b.expiration_date - today).days if b.expiration_date else None
+    if days_rem is None:
+        status_label = "SAFE"
+    elif days_rem <= 0:
+        status_label = "EXPIRED"
+    elif days_rem <= 30:
+        status_label = "CRITICAL"
+    elif days_rem <= 60:
+        status_label = "WARNING"
+    else:
+        status_label = "SAFE"
+
+    parent_code = b.parent_batch.batch_code if b.parent_batch else None
+    p_sku = b.product.sku if b.product else None
+    p_name = b.product.name if b.product else None
+    p_uom = b.product.uom if b.product else None
+
+    return InventoryBatchRead(
+        id=b.id,
+        batch_code=b.batch_code,
+        product_id=b.product_id,
+        product_sku=p_sku,
+        product_name=p_name,
+        product_uom=p_uom,
+        expiration_date=b.expiration_date,
+        manufacture_date=b.manufacture_date,
+        initial_quantity=b.initial_quantity,
+        quantity_on_hand=b.quantity_on_hand,
+        inbound_reference=b.inbound_reference,
+        storage_location=b.storage_location,
+        status=b.status,
+        notes=b.notes,
+        parent_batch_id=b.parent_batch_id,
+        parent_batch_code=parent_code,
+        days_remaining=days_rem,
+        expiry_status=status_label,
+        created_at=b.created_at,
+        updated_at=b.updated_at,
+    )
+
+
+@router.get("/batches", response_model=list[InventoryBatchRead])
+def list_inventory_batches(
+    product_id: int | None = None,
+    status: str | None = None,
+    expiring_within_days: int | None = None,
+    search: str | None = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> list[InventoryBatchRead]:
+    today = date.today()
+    query = (
+        select(InventoryBatch)
+        .options(joinedload(InventoryBatch.product), joinedload(InventoryBatch.parent_batch))
+        .order_by(InventoryBatch.expiration_date.asc())
+    )
+
+    if product_id:
+        query = query.where(InventoryBatch.product_id == product_id)
+    if status:
+        query = query.where(InventoryBatch.status == status.upper())
+    if search:
+        s = f"%{search.strip()}%"
+        query = query.join(Product).where(
+            or_(
+                InventoryBatch.batch_code.ilike(s),
+                InventoryBatch.inbound_reference.ilike(s),
+                Product.name.ilike(s),
+                Product.sku.ilike(s),
+            )
+        )
+
+    batches = db.scalars(query).all()
+    results: list[InventoryBatchRead] = []
+
+    for b in batches:
+        enriched = _enrich_batch_read(b, today)
+        if expiring_within_days is not None:
+            if enriched.days_remaining is None or enriched.days_remaining > expiring_within_days:
+                continue
+        results.append(enriched)
+
+    return results
+
+
+@router.get("/batches/expiring", response_model=list[InventoryBatchRead])
+def list_expiring_batches(
+    days: int = 60,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> list[InventoryBatchRead]:
+    today = date.today()
+    query = (
+        select(InventoryBatch)
+        .options(joinedload(InventoryBatch.product), joinedload(InventoryBatch.parent_batch))
+        .where(
+            and_(
+                InventoryBatch.status == "ACTIVE",
+                InventoryBatch.quantity_on_hand > 0,
+            )
+        )
+        .order_by(InventoryBatch.expiration_date.asc())
+    )
+    batches = db.scalars(query).all()
+    results = []
+    for b in batches:
+        enriched = _enrich_batch_read(b, today)
+        if enriched.days_remaining is not None and enriched.days_remaining <= days:
+            results.append(enriched)
+    return results
+
+
+@router.post("/batches", response_model=InventoryBatchRead, status_code=201)
+def create_inventory_batch(
+    body: InventoryBatchCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> InventoryBatchRead:
+    product = db.get(Product, body.product_id)
+    if not product:
+        raise HTTPException(status_code=404, detail="Không tìm thấy sản phẩm")
+
+    code = (body.batch_code or "").strip()
+    if not code:
+        code = f"LOT-{datetime.now().strftime('%Y%m%d')}-{product.sku}-{uuid.uuid4().hex[:4].upper()}"
+
+    # Check unique
+    existing = db.scalar(select(InventoryBatch).where(InventoryBatch.batch_code == code))
+    if existing:
+        raise HTTPException(status_code=400, detail=f"Mã lô '{code}' đã tồn tại!")
+
+    batch = InventoryBatch(
+        batch_code=code,
+        product_id=product.id,
+        expiration_date=body.expiration_date,
+        manufacture_date=body.manufacture_date,
+        initial_quantity=body.quantity,
+        quantity_on_hand=body.quantity,
+        inbound_reference=body.inbound_reference,
+        storage_location=body.storage_location,
+        status="ACTIVE",
+        notes=body.notes,
+    )
+    db.add(batch)
+    db.commit()
+    db.refresh(batch)
+
+    # Re-fetch with relationships
+    b = db.scalar(
+        select(InventoryBatch)
+        .options(joinedload(InventoryBatch.product), joinedload(InventoryBatch.parent_batch))
+        .where(InventoryBatch.id == batch.id)
+    )
+    return _enrich_batch_read(b, date.today())
+
+
+@router.patch("/batches/{batch_id}", response_model=InventoryBatchRead)
+def update_inventory_batch(
+    batch_id: int,
+    body: InventoryBatchUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> InventoryBatchRead:
+    batch = db.get(InventoryBatch, batch_id)
+    if not batch:
+        raise HTTPException(status_code=404, detail="Không tìm thấy lô hàng")
+
+    if body.expiration_date is not None:
+        batch.expiration_date = body.expiration_date
+    if body.manufacture_date is not None:
+        batch.manufacture_date = body.manufacture_date
+    if body.quantity_on_hand is not None:
+        batch.quantity_on_hand = body.quantity_on_hand
+        if batch.quantity_on_hand <= 0:
+            batch.status = "DEPLETED"
+        elif batch.status == "DEPLETED" and batch.quantity_on_hand > 0:
+            batch.status = "ACTIVE"
+    if body.storage_location is not None:
+        batch.storage_location = body.storage_location.strip() or None
+    if body.status is not None:
+        batch.status = body.status.upper()
+    if body.notes is not None:
+        batch.notes = body.notes
+
+    db.commit()
+    b = db.scalar(
+        select(InventoryBatch)
+        .options(joinedload(InventoryBatch.product), joinedload(InventoryBatch.parent_batch))
+        .where(InventoryBatch.id == batch.id)
+    )
+    return _enrich_batch_read(b, date.today())
+
+
+@router.post("/batches/repack", response_model=InventoryBatchRead, status_code=201)
+def repack_inventory_batch(
+    body: RepackBatchRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> InventoryBatchRead:
+    source_batch = db.get(InventoryBatch, body.source_batch_id)
+    if not source_batch:
+        raise HTTPException(status_code=404, detail="Không tìm thấy Lô hàng xá nguồn")
+    if source_batch.quantity_on_hand < body.source_quantity_deducted:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Số lượng tồn trong Lô nguồn ({source_batch.quantity_on_hand}) không đủ để xuất ({body.source_quantity_deducted})"
+        )
+
+    target_product = db.get(Product, body.target_product_id)
+    if not target_product:
+        raise HTTPException(status_code=404, detail="Không tìm thấy sản phẩm thành phẩm mục tiêu")
+
+    # 1. Deduct from source batch & source product
+    source_batch.quantity_on_hand -= body.source_quantity_deducted
+    if source_batch.quantity_on_hand == 0:
+        source_batch.status = "DEPLETED"
+
+    source_product = db.get(Product, source_batch.product_id)
+    if source_product:
+        source_product.quantity_on_hand = max(0, source_product.quantity_on_hand - body.source_quantity_deducted)
+
+    # 2. Create new target batch with inherited Expiration Date!
+    target_code = (body.target_batch_code or "").strip()
+    if not target_code:
+        target_code = f"PKG-{datetime.now().strftime('%Y%m%d')}-{target_product.sku}-{uuid.uuid4().hex[:4].upper()}"
+
+    new_batch = InventoryBatch(
+        batch_code=target_code,
+        product_id=target_product.id,
+        expiration_date=source_batch.expiration_date,  # KẾ THỪA 100% DATE TỪ BAO GỐC!
+        manufacture_date=date.today(),               # Ngày đóng gói
+        initial_quantity=body.target_quantity_produced,
+        quantity_on_hand=body.target_quantity_produced,
+        inbound_reference=f"Repack từ {source_batch.batch_code}",
+        storage_location=body.storage_location,
+        status="ACTIVE",
+        notes=body.notes or f"Đóng gói từ lô {source_batch.batch_code}",
+        parent_batch_id=source_batch.id,              # TRUY VẾT NGUỒN GỐC!
+    )
+    db.add(new_batch)
+
+    # 3. Increase target product stock
+    target_product.quantity_on_hand += body.target_quantity_produced
+
+    # 4. Record stock movements
+    now_dt = _utcnow()
+    mv_out = StockMovement(
+        product_id=source_batch.product_id,
+        movement_type=StockMovementType.OUT,
+        quantity_delta=-body.source_quantity_deducted,
+        note=f"Xuất repack sang {target_code}",
+        created_at=now_dt,
+    )
+    mv_in = StockMovement(
+        product_id=target_product.id,
+        movement_type=StockMovementType.IN,
+        quantity_delta=body.target_quantity_produced,
+        note=f"Nhập repack từ {source_batch.batch_code}",
+        created_at=now_dt,
+    )
+    db.add_all([mv_out, mv_in])
+
+    db.commit()
+    db.refresh(new_batch)
+
+    b = db.scalar(
+        select(InventoryBatch)
+        .options(joinedload(InventoryBatch.product), joinedload(InventoryBatch.parent_batch))
+        .where(InventoryBatch.id == new_batch.id)
+    )
+    return _enrich_batch_read(b, date.today())
+
+
+@router.post("/batches/allocate-fefo", response_model=AllocateFefoResponse)
+def allocate_fefo(
+    product_id: int,
+    quantity: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> AllocateFefoResponse:
+    if quantity <= 0:
+        raise HTTPException(status_code=400, detail="Số lượng yêu cầu phải > 0")
+
+    product = db.get(Product, product_id)
+    if not product:
+        raise HTTPException(status_code=404, detail="Không tìm thấy sản phẩm")
+
+    # Select active batches ordered by FEFO (expiration_date ASC)
+    query = (
+        select(InventoryBatch)
+        .where(
+            and_(
+                InventoryBatch.product_id == product_id,
+                InventoryBatch.status == "ACTIVE",
+                InventoryBatch.quantity_on_hand > 0,
+            )
+        )
+        .order_by(InventoryBatch.expiration_date.asc())
+    )
+    batches = db.scalars(query).all()
+
+    remaining_to_allocate = quantity
+    allocations: list[AllocateFefoItem] = []
+
+    for b in batches:
+        if remaining_to_allocate <= 0:
+            break
+        take = min(b.quantity_on_hand, remaining_to_allocate)
+        allocations.append(
+            AllocateFefoItem(
+                batch_id=b.id,
+                batch_code=b.batch_code,
+                expiration_date=b.expiration_date,
+                storage_location=b.storage_location,
+                allocated_quantity=take,
+                quantity_available=b.quantity_on_hand,
+            )
+        )
+        remaining_to_allocate -= take
+
+    total_allocated = quantity - remaining_to_allocate
+    return AllocateFefoResponse(
+        product_id=product_id,
+        requested_quantity=quantity,
+        allocated_quantity=total_allocated,
+        unallocated_quantity=remaining_to_allocate,
+        allocations=allocations,
+    )

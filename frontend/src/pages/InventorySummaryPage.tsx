@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { NavLink } from "react-router-dom";
 import { apiJson, downloadFile } from "../api/client";
 import type { InventoryReceiptSummary } from "../types";
 import type { SortState } from "../utils/table";
@@ -193,17 +192,6 @@ export default function InventorySummaryPage() {
       </div>
       <div className="muted" style={{ marginTop: 6 }}>
         Thống kê tổng hợp tất cả sản phẩm đã nhập kho từ receipt lines.
-      </div>
-      <div className="inventoryTabs">
-        <NavLink to="/inventory" end className={({ isActive }) => (isActive ? "active" : "")}>
-          Inventory
-        </NavLink>
-        <NavLink to="/inventory/receipt-log" className={({ isActive }) => (isActive ? "active" : "")}>
-          Receipt log
-        </NavLink>
-        <NavLink to="/inventory/issue" className={({ isActive }) => (isActive ? "active" : "")}>
-          Issue
-        </NavLink>
       </div>
 
       <div className="row" style={{ gap: 8, marginTop: 10 }}>

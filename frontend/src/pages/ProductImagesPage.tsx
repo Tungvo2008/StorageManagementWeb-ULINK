@@ -152,6 +152,8 @@ export default function ProductImagesPage() {
                 {product.image_url ? (
                   // eslint-disable-next-line jsx-a11y/alt-text
                   <img
+                    loading="lazy"
+                    decoding="async"
                     src={imageSrc}
                     onError={(e) => {
                       e.currentTarget.style.display = "none";

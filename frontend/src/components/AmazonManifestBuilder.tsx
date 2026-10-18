@@ -14,19 +14,53 @@ export type AmazonManifestSelection = {
   quantity: number | null;
 };
 
+const STORAGE_KEY_SELECTIONS = "amazon_manifest_builder_selected_ids_v1";
+const STORAGE_KEY_QUANTITIES = "amazon_manifest_builder_quantities_v1";
+
 export default function AmazonManifestBuilder({ products, onSelectionChange }: Props) {
   const [query, setQuery] = useState("");
-  const [selectedProductIds, setSelectedProductIds] = useState<number[]>([]);
-  const [quantities, setQuantities] = useState<Record<number, string>>({});
+  const [unitFilter, setUnitFilter] = useState<string>("ALL");
+  const [selectedProductIds, setSelectedProductIds] = useState<number[]>(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY_SELECTIONS);
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [quantities, setQuantities] = useState<Record<number, string>>(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY_QUANTITIES);
+      return raw ? JSON.parse(raw) : {};
+    } catch {
+      return {};
+    }
+  });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
 
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY_SELECTIONS, JSON.stringify(selectedProductIds));
+    } catch {}
+  }, [selectedProductIds]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY_QUANTITIES, JSON.stringify(quantities));
+    } catch {}
+  }, [quantities]);
+
   const amazonProducts = useMemo(
     () => products
-      .filter((product) => product.is_sold_on_amazon && product.amazon_sku)
+      .filter((product) => {
+        if (!product.is_sold_on_amazon || !product.amazon_sku) return false;
+        if (unitFilter !== "ALL" && (product.business_unit || "TOWEL") !== unitFilter) return false;
+        return true;
+      })
       .sort((left, right) => (left.amazon_sku ?? "").localeCompare(right.amazon_sku ?? "")),
-    [products],
+    [products, unitFilter],
   );
   const filteredProducts = useMemo(() => {
     const normalized = query.trim().toLocaleLowerCase();
@@ -122,6 +156,18 @@ export default function AmazonManifestBuilder({ products, onSelectionChange }: P
       {notice ? <div className="amazonManifestSuccess">{notice}</div> : null}
 
       <div className="amazonManifestToolbar">
+        <select
+          className="input"
+          value={unitFilter}
+          onChange={(event) => setUnitFilter(event.target.value)}
+          style={{ width: "auto", minWidth: "150px" }}
+          aria-label="Filter business unit"
+        >
+          <option value="ALL">Tất cả ngành hàng</option>
+          <option value="TOWEL">Khăn (TOWEL)</option>
+          <option value="SUPPLY">Nail Supply</option>
+          <option value="GROCERY">Bách Hóa / Ăn Vặt</option>
+        </select>
         <input
           className="input"
           type="search"
@@ -135,12 +181,20 @@ export default function AmazonManifestBuilder({ products, onSelectionChange }: P
         <button
           className="btn"
           type="button"
-          onClick={() => setSelectedProductIds([])}
+          onClick={() => {
+            setSelectedProductIds([]);
+            setQuantities({});
+            try {
+              localStorage.removeItem(STORAGE_KEY_SELECTIONS);
+              localStorage.removeItem(STORAGE_KEY_QUANTITIES);
+            } catch {}
+          }}
           disabled={!selectedProductIds.length}
         >
           Clear
         </button>
       </div>
+
 
       <div className="amazonStats amazonManifestStats">
         <div><strong>{amazonProducts.length}</strong><span>Amazon products</span></div>

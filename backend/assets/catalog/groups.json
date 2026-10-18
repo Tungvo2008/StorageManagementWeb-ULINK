@@ -1,0 +1,97 @@
+[
+  {
+    "id": "01",
+    "name": "Muối & sốt chấm",
+    "hero_image": "/api/v1/public/product-images/ulink-editorial-condiments-v1.jpg"
+  },
+  {
+    "id": "02",
+    "name": "Bánh tráng & bánh sợi",
+    "hero_image": "/api/v1/public/product-images/ulink-editorial-pantry-v1.jpg"
+  },
+  {
+    "id": "03",
+    "name": "Thực phẩm chay",
+    "hero_image": "/api/v1/public/product-images/ulink-editorial-pantry-v1.jpg"
+  },
+  {
+    "id": "04",
+    "name": "Canh ăn liền",
+    "hero_image": "/api/v1/public/product-images/ulink-editorial-soups-v1.jpg"
+  },
+  {
+    "id": "05",
+    "name": "Gia vị Cholimex",
+    "hero_image": "/api/v1/public/product-images/ulink-editorial-condiments-v1.jpg"
+  },
+  {
+    "id": "06",
+    "name": "Gia vị & nước mắm",
+    "hero_image": "/api/v1/public/product-images/ulink-editorial-condiments-v1.jpg"
+  },
+  {
+    "id": "07",
+    "name": "Gia vị khô & muối",
+    "hero_image": "/api/v1/public/product-images/ulink-editorial-condiments-v1.jpg"
+  },
+  {
+    "id": "08",
+    "name": "Trái cây chế biến",
+    "hero_image": "/api/v1/public/product-images/ulink-editorial-snacks-v1.jpg"
+  },
+  {
+    "id": "09",
+    "name": "Trái cây & đặc sản ULINK",
+    "hero_image": "/api/v1/public/product-images/ulink-editorial-snacks-v1.jpg"
+  },
+  {
+    "id": "10",
+    "name": "Snack rau củ ULINK",
+    "hero_image": "/api/v1/public/product-images/ulink-editorial-snacks-v1.jpg"
+  },
+  {
+    "id": "11",
+    "name": "Khô & món tẩm vị ULINK",
+    "hero_image": "/api/v1/public/product-images/ulink-editorial-savory-v1.jpg"
+  },
+  {
+    "id": "12",
+    "name": "Kẹo & sữa chua sấy ULINK",
+    "hero_image": "/api/v1/public/product-images/ulink-editorial-sweets-v1.jpg"
+  },
+  {
+    "id": "13",
+    "name": "Nước giải khát",
+    "hero_image": "/api/v1/public/product-images/ulink-editorial-beverages-v1.jpg"
+  },
+  {
+    "id": "14",
+    "name": "Gia vị bổ sung",
+    "hero_image": "/api/v1/public/product-images/ulink-editorial-condiments-v1.jpg"
+  },
+  {
+    "id": "15",
+    "name": "Cà phê & lương thực",
+    "hero_image": "/api/v1/public/product-images/ulink-editorial-coffee-v1.jpg"
+  },
+  {
+    "id": "16",
+    "name": "Đồ ăn vặt bổ sung",
+    "hero_image": "/api/v1/public/product-images/ulink-editorial-snacks-v1.jpg"
+  },
+  {
+    "id": "17",
+    "name": "Kềm & dụng cụ làm móng",
+    "hero_image": "/api/v1/public/product-images/ulink-editorial-nails-v1.jpg"
+  },
+  {
+    "id": "18",
+    "name": "Trà Atiso & trà thảo mộc",
+    "hero_image": "/api/v1/public/product-images/ulink-editorial-tea-v1.jpg"
+  },
+  {
+    "id": "19",
+    "name": "Lịch & quà tặng",
+    "hero_image": "/api/v1/public/product-images/ulink-editorial-calendar-v1.jpg"
+  }
+]

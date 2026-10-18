@@ -9,6 +9,14 @@ export type Product = {
   catalog_short_name: string | null;
   unit_size: string | null;
   catalog_case_pack: number | null;
+  hs_code: string | null;
+  carton_net_weight_kg: number | null;
+  carton_gross_weight_kg: number | null;
+  carton_length_cm: number | null;
+  carton_width_cm: number | null;
+  carton_height_cm: number | null;
+  cartons_per_20ft: number | null;
+  cartons_per_40ft: number | null;
   country_of_origin: string | null;
   upc: string | null;
   catalog_badges: string | null;
@@ -16,6 +24,7 @@ export type Product = {
   catalog_sort_order: number;
   is_sold_on_amazon: boolean;
   amazon_sku: string | null;
+  business_unit: string;
   base_uom: string;
   uom: string;
   uom_multiplier: number;
@@ -36,6 +45,7 @@ export type AmazonWebProduct = {
   quantity_on_hand: number;
   is_sold_on_amazon: boolean;
   amazon_sku: string | null;
+  business_unit?: string;
 };
 
 export type AmazonMapping = {
@@ -272,6 +282,8 @@ export type StockMovement = {
   receipt_id: number | null;
   issue_id: number | null;
   sale_order_id: number | null;
+  invoice_id?: number | null;
+  invoice_line_id?: number | null;
   movement_type: "IN" | "OUT" | "ADJUST";
   quantity_delta: number;
   note: string | null;
@@ -290,6 +302,11 @@ export type InventoryReceiptLine = {
   currency: string;
   line_total: string;
   note: string | null;
+  lot_number?: string | null;
+  expiry_date?: string | null;
+  carton_count?: number | null;
+  pieces_per_carton?: number | null;
+  allocated_cost?: string | number | null;
 };
 
 export type InventoryReceipt = {
@@ -298,6 +315,10 @@ export type InventoryReceipt = {
   received_at: string;
   received_by: string | null;
   note: string | null;
+  receipt_type?: "STANDARD" | "CONTAINER" | "GROCERY" | "BULK" | "REPACK" | string;
+  supplier_name?: string | null;
+  container_number?: string | null;
+  container_cost?: string | number | null;
   created_at: string;
   updated_at: string;
   lines: InventoryReceiptLine[];
@@ -345,4 +366,204 @@ export type InventoryIssue = {
   created_at: string;
   updated_at: string;
   lines: InventoryIssueLine[];
+};
+
+export type AmazonFbaDispatchLine = {
+  amazon_sku?: string | null;
+  sku?: string | null;
+  product_id?: number | null;
+  quantity: number;
+  box_count?: number | null;
+};
+
+export type AmazonFbaDispatchRequest = {
+  shipment_id?: string | null;
+  issued_by?: string | null;
+  note?: string | null;
+  ignore_stock?: boolean;
+  lines: AmazonFbaDispatchLine[];
+};
+
+export type AmazonFbaDispatchResponseItem = {
+  product_id: number;
+  sku: string;
+  amazon_sku: string | null;
+  product_name: string;
+  quantity: number;
+  box_count?: number | null;
+  quantity_before: number;
+  quantity_after: number;
+};
+
+export type AmazonFbaDispatchResponse = {
+  issue_id: number;
+  issue_number: string;
+  issued_at: string;
+  purpose: string;
+  issued_to: string | null;
+  total_units: number;
+  note: string | null;
+  lines: AmazonFbaDispatchResponseItem[];
+};
+
+
+export type CustomerPriceItem = {
+  product_id: number;
+  sku: string;
+  product_name: string;
+  product_image_url?: string | null;
+  category_name?: string | null;
+  default_price: number | string;
+  custom_price?: number | string | null;
+  effective_price: number | string;
+  last_sold_at?: string | null;
+  last_invoice_number?: string | null;
+  notes?: string | null;
+};
+
+export type AmazonFbaItemStock = {
+  sku: string;
+  asin?: string | null;
+  product_name?: string | null;
+  condition?: string | null;
+  total_quantity: number;
+  fulfillable_quantity: number;
+  inbound_quantity: number;
+  reserved_quantity: number;
+  ulink_product_id?: number | null;
+  ulink_sku?: string | null;
+  ulink_product_name?: string | null;
+  ulink_stock: number;
+  uom?: string;
+  uom_multiplier?: number;
+  ulink_stock_uom?: number;
+  image_url?: string | null;
+  status: 'OUT_OF_STOCK' | 'LOW_STOCK' | 'HEALTHY';
+  is_mapped: boolean;
+};
+
+export type AmazonFbaInventorySummary = {
+  total_items: number;
+  total_fulfillable: number;
+  total_inbound: number;
+  total_reserved: number;
+  low_stock_count: number;
+  out_of_stock_count: number;
+  healthy_count: number;
+  items: AmazonFbaItemStock[];
+  last_updated: string;
+};
+
+export type AmazonRestockSuggestionItem = {
+  amazon_sku: string;
+  asin?: string | null;
+  ulink_product_id?: number | null;
+  ulink_sku?: string | null;
+  product_name: string;
+  image_url?: string | null;
+  current_fba_fulfillable: number;
+  current_fba_inbound: number;
+  ulink_available_stock: number;
+  ulink_available_dozens?: number;
+  uom?: string;
+  uom_multiplier?: number;
+  box_type_id?: number | null;
+  box_name?: string | null;
+  units_per_box: number;
+  suggested_boxes: number;
+  total_units_to_pick: number;
+  total_pieces_to_pick?: number;
+  ai_reasoning: string;
+  can_fulfill: boolean;
+};
+
+export type AmazonRestockSuggestionResponse = {
+  total_boxes: number;
+  total_units: number;
+  items: AmazonRestockSuggestionItem[];
+  warnings: string[];
+};
+
+export type AmazonRestockSuggestRequest = {
+  selected_skus?: string[] | null;
+  min_boxes?: number;
+  target_boxes_per_sku?: number;
+};
+
+export type AmazonShipmentProductTotal = {
+  amazon_sku: string;
+  ulink_sku?: string | null;
+  product_name: string;
+  total_shipped: number;
+  fba_shipped?: number;
+  fbm_shipped?: number;
+  image_url?: string | null;
+};
+
+export type AmazonShipmentBatchItem = {
+  amazon_sku: string;
+  ulink_sku?: string | null;
+  product_name: string;
+  quantity: number;
+};
+
+export type AmazonShipmentBatch = {
+  date: string;
+  display_date: string;
+  shipments_count: number;
+  total_units: number;
+  issue_number?: string | null;
+  issue_id?: number | null;
+  is_synced: boolean;
+  items: AmazonShipmentBatchItem[];
+};
+
+export type AmazonShipmentsHubResponse = {
+  total_units_all_time: number;
+  total_shipments_all_time: number;
+  total_batches_all_time: number;
+  fba_units_total?: number;
+  fbm_units_total?: number;
+  fbm_orders_total?: number;
+  combined_total_units?: number;
+  product_totals: AmazonShipmentProductTotal[];
+  batches: AmazonShipmentBatch[];
+};
+
+export type AmazonFbmItem = {
+  sku: string;
+  quantity: number;
+  title?: string | null;
+  price?: string | null;
+  dozens: number;
+  pieces: number;
+  ulink_sku?: string | null;
+  ulink_product_name?: string | null;
+  product_id?: number | null;
+};
+
+export type AmazonFbmOrder = {
+  order_id: string;
+  purchase_date: string;
+  order_status: string;
+  recipient_name?: string | null;
+  city?: string | null;
+  state?: string | null;
+  postal_code?: string | null;
+  order_total?: string | null;
+  currency: string;
+  items: AmazonFbmItem[];
+  issue_number?: string | null;
+  issue_id?: number | null;
+  is_synced: boolean;
+};
+
+export type AmazonFbmOrdersResponse = {
+  total_orders: number;
+  shipped_orders_count: number;
+  unshipped_orders_count: number;
+  total_packs: number;
+  total_dozens: number;
+  total_pieces: number;
+  orders: AmazonFbmOrder[];
 };

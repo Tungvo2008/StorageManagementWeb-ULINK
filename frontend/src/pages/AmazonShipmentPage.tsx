@@ -2,15 +2,22 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { apiJson, apiUpload, downloadJsonFile } from "../api/client";
 import AmazonBoxProfileManager from "../components/AmazonBoxProfileManager";
+import AmazonFbaInventoryView from "../components/AmazonFbaInventoryView";
+import AmazonShipmentsHubView from "../components/AmazonShipmentsHubView";
+import AmazonFbmOrdersView from "../components/AmazonFbmOrdersView";
 import AmazonManifestBuilder, { type AmazonManifestSelection } from "../components/AmazonManifestBuilder";
 import type {
   AmazonCsvImport,
+  AmazonFbaDispatchRequest,
+  AmazonFbaDispatchResponse,
   AmazonImportedItem,
   AmazonMapping,
   AmazonOptimizePlan,
   AmazonOptimizeResponse,
   AmazonShipmentConfig,
+  InventoryIssue,
 } from "../types";
+
 
 
 type MappingDraft = {
@@ -66,10 +73,79 @@ export default function AmazonShipmentPage() {
   const [plans, setPlans] = useState<AmazonOptimizePlan[]>([]);
   const [selectedPlanKey, setSelectedPlanKey] = useState("");
   const [boxAssignments, setBoxAssignments] = useState<BoxAssignment[]>([]);
+  const [dispatchModalOpen, setDispatchModalOpen] = useState(false);
+  const [dispatchShipmentId, setDispatchShipmentId] = useState("");
+  const [dispatchIssuedBy, setDispatchIssuedBy] = useState("");
+  const [dispatchNote, setDispatchNote] = useState("");
+  const [dispatchIgnoreStock, setDispatchIgnoreStock] = useState(false);
+  const [fbaHistoryOpen, setFbaHistoryOpen] = useState(false);
+  const [fbaHistory, setFbaHistory] = useState<InventoryIssue[]>([]);
+  const [fbaHistoryLoading, setFbaHistoryLoading] = useState(false);
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [activeTab, setActiveTab] = useState<"inventory" | "optimizer" | "history" | "fbm">("inventory");
+  const [manifestBuilderKey, setManifestBuilderKey] = useState(0);
+  const [directDispatchItems, setDirectDispatchItems] = useState<{
+    sku: string;
+    amazonSku: string;
+    productName: string;
+    quantity: number;
+    boxCount?: number;
+  }[] | null>(null);
   const initializedBoxSelection = useRef(false);
+
+  const handleOpenOptimizerWithSkus = useCallback((skus: { amazonSku: string; quantity: number }[]) => {
+    if (!config) return;
+    const productMap = new Map(config.products.map((p) => [p.amazon_sku, p.id]));
+    const selectedIds: number[] = [];
+    const quantitiesMap: Record<number, string> = {};
+
+    for (const item of skus) {
+      const pid = productMap.get(item.amazonSku);
+      if (pid != null) {
+        selectedIds.push(pid);
+        if (item.quantity > 0) {
+          quantitiesMap[pid] = String(item.quantity);
+        }
+      }
+    }
+
+    try {
+      localStorage.setItem("amazon_manifest_builder_selected_ids_v1", JSON.stringify(selectedIds));
+      localStorage.setItem("amazon_manifest_builder_quantities_v1", JSON.stringify(quantitiesMap));
+    } catch {
+      // ignore storage errors
+    }
+
+    setManifestBuilderKey((k) => k + 1);
+    setActiveTab("optimizer");
+  }, [config]);
+
+  const handleOpenDirectDispatch = useCallback((items: {
+    sku: string;
+    amazonSku: string;
+    productName: string;
+    quantity: number;
+    boxCount?: number;
+  }[]) => {
+    setDirectDispatchItems(items);
+    setDispatchModalOpen(true);
+  }, []);
+
+  async function openFbaHistory(): Promise<void> {
+    setFbaHistoryOpen(true);
+    setFbaHistoryLoading(true);
+    try {
+      const list = await apiJson<InventoryIssue[]>("/api/v1/amazon-shipments/fba-history");
+      setFbaHistory(list);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Không tải được lịch sử FBA.");
+    } finally {
+      setFbaHistoryLoading(false);
+    }
+  }
+
 
   async function loadConfig(): Promise<AmazonShipmentConfig> {
     const next = await apiJson<AmazonShipmentConfig>("/api/v1/amazon-shipments/config");
@@ -477,7 +553,52 @@ export default function AmazonShipmentPage() {
     }
   }
 
+  async function handleConfirmDispatch(): Promise<void> {
+    if (!selectedPlan && !directDispatchItems?.length) return;
+    setBusy("dispatch");
+    setError("");
+    try {
+      const lines = directDispatchItems?.length
+        ? directDispatchItems.map((item) => ({
+            amazon_sku: item.amazonSku,
+            quantity: item.quantity,
+            box_count: item.boxCount ?? null,
+          }))
+        : selectedPlan?.items.map((item) => ({
+            amazon_sku: item.amazon_sku,
+            quantity: item.adjusted_quantity,
+            box_count: selectedPlan.box_count,
+          })) ?? [];
+
+      const payload: AmazonFbaDispatchRequest = {
+        shipment_id: dispatchShipmentId.trim() || null,
+        issued_by: dispatchIssuedBy.trim() || null,
+        note: dispatchNote.trim() || null,
+        ignore_stock: dispatchIgnoreStock,
+        lines,
+      };
+      const res = await apiJson<AmazonFbaDispatchResponse>(
+        "/api/v1/amazon-shipments/fba-dispatch",
+        {
+          method: "POST",
+          body: JSON.stringify(payload),
+        },
+      );
+      await loadConfig();
+      setDispatchModalOpen(false);
+      setDirectDispatchItems(null);
+      setNotice(
+        `Đã xuất kho FBA thành công! Phiếu xuất kho #${res.issue_number} (${res.total_units} units). Tồn kho đã được cập nhật.`,
+      );
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Không thể xuất kho FBA.");
+    } finally {
+      setBusy("");
+    }
+  }
+
   return (
+
     <div className="amazonShipmentPage">
       <div className="card amazonHero">
         <div>
@@ -487,6 +608,14 @@ export default function AmazonShipmentPage() {
             Chọn SKU một lần, tạo workflow file, tối ưu tối thiểu 5 carton giống hệt nhau và cuối
             cùng điền Box Packing Information XLSX Amazon trả về.
           </p>
+          <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
+            <button className="btn" type="button" onClick={() => setBoxManagerOpen(true)}>
+              ⚙️ Quản lý thùng mẫu ({config?.box_types.length ?? 0})
+            </button>
+            <button className="btn" type="button" onClick={() => void openFbaHistory()}>
+              📋 Lịch sử xuất kho FBA
+            </button>
+          </div>
         </div>
         <div className="amazonRuleCard">
           <strong>Identical content</strong>
@@ -497,12 +626,116 @@ export default function AmazonShipmentPage() {
       {error ? <div className="card amazonMessage error">{error}</div> : null}
       {notice ? <div className="card amazonMessage amazonSuccess">{notice}</div> : null}
 
-      {config ? (
-        <AmazonManifestBuilder
-          products={config.products}
-          onSelectionChange={handleManifestSelectionChange}
+      {/* Navigation Tabs */}
+      <div
+        style={{
+          display: "flex",
+          gap: "8px",
+          borderBottom: "2px solid var(--border-color, #e2e8f0)",
+          marginBottom: "1.5rem",
+        }}
+      >
+        <button
+          type="button"
+          className="btn"
+          style={{
+            borderRadius: "8px 8px 0 0",
+            borderBottom: activeTab === "inventory" ? "3px solid #2563eb" : "none",
+            backgroundColor: activeTab === "inventory" ? "var(--bg-card, #ffffff)" : "transparent",
+            color: activeTab === "inventory" ? "#2563eb" : "var(--text-muted, #64748b)",
+            fontWeight: activeTab === "inventory" ? "700" : "500",
+            fontSize: "1rem",
+            padding: "0.6rem 1.25rem",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.5rem",
+          }}
+          onClick={() => setActiveTab("inventory")}
+        >
+          📦 Tồn kho FBA & Gợi ý lấy hàng
+        </button>
+        <button
+          type="button"
+          className="btn"
+          style={{
+            borderRadius: "8px 8px 0 0",
+            borderBottom: activeTab === "optimizer" ? "3px solid #2563eb" : "none",
+            backgroundColor: activeTab === "optimizer" ? "var(--bg-card, #ffffff)" : "transparent",
+            color: activeTab === "optimizer" ? "#2563eb" : "var(--text-muted, #64748b)",
+            fontWeight: activeTab === "optimizer" ? "700" : "500",
+            fontSize: "1rem",
+            padding: "0.6rem 1.25rem",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.5rem",
+          }}
+          onClick={() => setActiveTab("optimizer")}
+        >
+          🚚 Lập Kế Hoạch & Đóng Thùng (Optimizer)
+        </button>
+        <button
+          type="button"
+          className="btn"
+          style={{
+            borderRadius: "8px 8px 0 0",
+            borderBottom: activeTab === "history" ? "3px solid #2563eb" : "none",
+            backgroundColor: activeTab === "history" ? "var(--bg-card, #ffffff)" : "transparent",
+            color: activeTab === "history" ? "#2563eb" : "var(--text-muted, #64748b)",
+            fontWeight: activeTab === "history" ? "700" : "500",
+            fontSize: "1rem",
+            padding: "0.6rem 1.25rem",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.5rem",
+          }}
+          onClick={() => setActiveTab("history")}
+        >
+          📜 Lịch Sử &amp; Thống Kê Shipment FBA
+        </button>
+        <button
+          type="button"
+          className="btn"
+          style={{
+            borderRadius: "8px 8px 0 0",
+            borderBottom: activeTab === "fbm" ? "3px solid #2563eb" : "none",
+            backgroundColor: activeTab === "fbm" ? "var(--bg-card, #ffffff)" : "transparent",
+            color: activeTab === "fbm" ? "#2563eb" : "var(--text-muted, #64748b)",
+            fontWeight: activeTab === "fbm" ? "700" : "500",
+            fontSize: "1rem",
+            padding: "0.6rem 1.25rem",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.5rem",
+          }}
+          onClick={() => setActiveTab("fbm")}
+        >
+          📬 Đơn Hàng FBM (63)
+        </button>
+      </div>
+
+      {activeTab === "inventory" ? (
+        <AmazonFbaInventoryView
+          onOpenOptimizerWithSkus={handleOpenOptimizerWithSkus}
+          onOpenHistory={() => void openFbaHistory()}
+          onOpenDispatchModal={handleOpenDirectDispatch}
         />
-      ) : null}
+      ) : activeTab === "history" ? (
+        <AmazonShipmentsHubView onOpenHistory={() => void openFbaHistory()} />
+      ) : activeTab === "fbm" ? (
+        <AmazonFbmOrdersView onOpenHistory={() => void openFbaHistory()} />
+      ) : (
+        <>
+          {config ? (
+            <AmazonManifestBuilder
+              key={manifestBuilderKey}
+              products={config.products}
+              onSelectionChange={handleManifestSelectionChange}
+            />
+          ) : null}
 
       <details className="card amazonSection amazonOptionalImport">
         <summary>Optional: import legacy Pack individual units CSV</summary>
@@ -825,6 +1058,21 @@ export default function AmazonShipmentPage() {
                     </button>
                   </div>
 
+                  <div className="amazonExportBar amazonDispatchBar">
+                    <div>
+                      <strong>3. Xác nhận xuất kho FBA thực tế</strong>
+                      <span>Trừ số lượng tồn kho (on hand) ngay trên hệ thống ULINK Storage và tạo phiếu xuất kho FBA.</span>
+                    </div>
+                    <button
+                      className="btn primary"
+                      style={{ backgroundColor: "#16a34a", borderColor: "#16a34a", color: "#fff" }}
+                      type="button"
+                      onClick={() => setDispatchModalOpen(true)}
+                    >
+                      Xuất kho FBA
+                    </button>
+                  </div>
+
                   {workingSource === "csv" && sourceCsv ? (
                     <div className="amazonExportBar amazonLegacyExport">
                       <div>
@@ -842,6 +1090,138 @@ export default function AmazonShipmentPage() {
           ) : null}
         </>
       ) : null}
+        </>
+      )}
+      {dispatchModalOpen && (selectedPlan || directDispatchItems?.length) ? (
+        <div className="amazonBoxManagerBackdrop" role="presentation" onMouseDown={() => setDispatchModalOpen(false)}>
+          <section
+            className="card amazonBoxManagerModal"
+            role="dialog"
+            aria-label="Xác nhận xuất kho FBA"
+            onMouseDown={(event) => event.stopPropagation()}
+            style={{ maxWidth: "700px" }}
+          >
+            <div className="amazonModalHeader">
+              <div>
+                <h2>Xác nhận xuất kho FBA thực tế</h2>
+                <span className="muted">Hệ thống sẽ tạo phiếu xuất kho mục đích AMAZON_FBA và trừ tồn kho các SKU dưới đây:</span>
+              </div>
+              <button className="btn icon" type="button" onClick={() => setDispatchModalOpen(false)}>✕</button>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", margin: "1rem 0" }}>
+              <div>
+                <label className="label">Mã Lô Hàng / Shipment ID (Amazon)</label>
+                <input
+                  className="input"
+                  placeholder="vd: FBA18XYZ hoặc Lô Khăn Houston"
+                  value={dispatchShipmentId}
+                  onChange={(e) => setDispatchShipmentId(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="label">Người xuất / đóng hàng</label>
+                <input
+                  className="input"
+                  placeholder="vd: Tùng Võ"
+                  value={dispatchIssuedBy}
+                  onChange={(e) => setDispatchIssuedBy(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div style={{ marginBottom: "1rem" }}>
+              <label className="label">Ghi chú phiếu xuất</label>
+              <input
+                className="input"
+                placeholder="vd: Gửi Dallas FBA, FedEx tracking 123..."
+                value={dispatchNote}
+                onChange={(e) => setDispatchNote(e.target.value)}
+              />
+            </div>
+
+            <div style={{ marginBottom: "1rem" }}>
+              <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer" }}>
+                <input
+                  type="checkbox"
+                  checked={dispatchIgnoreStock}
+                  onChange={(e) => setDispatchIgnoreStock(e.target.checked)}
+                />
+                <span style={{ fontSize: "0.9rem" }}>Cho phép xuất âm nếu tồn kho hiện tại không đủ (Ignore stock check)</span>
+              </label>
+            </div>
+
+            <div className="amazonTableScroller" style={{ maxHeight: "250px", marginBottom: "1rem" }}>
+              <table className="amazonManifestTable">
+                <thead>
+                  <tr>
+                    <th>Amazon SKU</th>
+                    <th>Sản phẩm</th>
+                    <th className="right">Số lượng xuất</th>
+                    <th className="right">Tồn hiện tại</th>
+                    <th className="right">Tồn sau xuất</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {directDispatchItems?.length
+                    ? directDispatchItems.map((item) => {
+                        const product = config?.products.find((p) => p.amazon_sku === item.amazonSku);
+                        const currentOnHand = product?.quantity_on_hand ?? 0;
+                        const afterOnHand = currentOnHand - item.quantity;
+                        return (
+                          <tr key={item.amazonSku}>
+                            <td><strong>{item.amazonSku}</strong></td>
+                            <td>{product?.name ?? item.productName ?? "—"}</td>
+                            <td className="right" style={{ color: "#2563eb", fontWeight: "bold" }}>
+                              {item.quantity}
+                            </td>
+                            <td className="right">{currentOnHand}</td>
+                            <td className="right" style={{ color: afterOnHand < 0 ? "#dc2626" : "#16a34a", fontWeight: "bold" }}>
+                              {afterOnHand}
+                            </td>
+                          </tr>
+                        );
+                      })
+                    : selectedPlan?.items.map((item) => {
+                        const product = config?.products.find((p) => p.amazon_sku === item.amazon_sku);
+                        const currentOnHand = product?.quantity_on_hand ?? 0;
+                        const afterOnHand = currentOnHand - item.adjusted_quantity;
+                        return (
+                          <tr key={item.amazon_sku}>
+                            <td><strong>{item.amazon_sku}</strong></td>
+                            <td>{product?.name ?? item.title ?? "—"}</td>
+                            <td className="right" style={{ color: "#2563eb", fontWeight: "bold" }}>
+                              {item.adjusted_quantity}
+                            </td>
+                            <td className="right">{currentOnHand}</td>
+                            <td className="right" style={{ color: afterOnHand < 0 ? "#dc2626" : "#16a34a", fontWeight: "bold" }}>
+                              {afterOnHand}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                </tbody>
+              </table>
+            </div>
+
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.75rem" }}>
+              <button className="btn" type="button" onClick={() => setDispatchModalOpen(false)}>
+                Hủy
+              </button>
+              <button
+                className="btn primary"
+                type="button"
+                disabled={busy === "dispatch"}
+                onClick={() => void handleConfirmDispatch()}
+                style={{ backgroundColor: "#16a34a", borderColor: "#16a34a" }}
+              >
+                {busy === "dispatch" ? "Đang xuất kho..." : "Xác nhận & Trừ tồn kho"}
+              </button>
+            </div>
+          </section>
+        </div>
+      ) : null}
+
       {config ? (
         <AmazonBoxProfileManager
           open={boxManagerOpen}
@@ -852,6 +1232,93 @@ export default function AmazonShipmentPage() {
             current.includes(boxTypeId) ? current : [...current, boxTypeId]
           ))}
         />
+      ) : null}
+
+      {fbaHistoryOpen ? (
+        <div className="amazonBoxManagerBackdrop" role="presentation" onMouseDown={() => setFbaHistoryOpen(false)}>
+          <section
+            className="card amazonBoxManagerModal"
+            role="dialog"
+            aria-label="Lịch sử xuất kho FBA"
+            onMouseDown={(event) => event.stopPropagation()}
+            style={{ maxWidth: "850px", maxHeight: "85vh", overflowY: "auto" }}
+          >
+            <div className="amazonModalHeader">
+              <div>
+                <h2>Lịch sử xuất kho FBA</h2>
+                <span className="muted">Danh sách các phiếu xuất kho đã gửi vào Amazon FBA.</span>
+              </div>
+              <button className="btn icon" type="button" onClick={() => setFbaHistoryOpen(false)}>✕</button>
+            </div>
+
+            {fbaHistoryLoading ? (
+              <div style={{ padding: "2rem", textAlign: "center" }} className="muted">Đang tải dữ liệu...</div>
+            ) : !fbaHistory.length ? (
+              <div style={{ padding: "2rem", textAlign: "center" }} className="muted">Chưa có lịch sử xuất kho FBA nào.</div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginTop: "1rem" }}>
+                {fbaHistory.map((issue) => {
+                  const totalQty = issue.lines.reduce((sum, l) => sum + l.quantity, 0);
+                  const issueDate = new Date(issue.issued_at || issue.created_at).toLocaleString();
+                  return (
+                    <div key={issue.id} className="card" style={{ padding: "1rem", border: "1px solid var(--border-color, #e2e8f0)" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.5rem" }}>
+                        <div>
+                          <strong style={{ fontSize: "1.05rem" }}>#{issue.issue_number || `ISSUE-${issue.id}`}</strong>
+                          <span className="amazonStatus good" style={{ marginLeft: "0.5rem", fontSize: "0.8rem" }}>{issue.purpose}</span>
+                          <div className="muted" style={{ fontSize: "0.85rem", marginTop: "2px" }}>
+                            {issue.issued_to ? <span>Gửi đến: <strong>{issue.issued_to}</strong> · </span> : null}
+                            <span>Ngày: {issueDate}</span>
+                            {issue.issued_by ? <span> · Người xuất: {issue.issued_by}</span> : null}
+                          </div>
+                        </div>
+                        <div style={{ textAlign: "right" }}>
+                          <span style={{ fontWeight: "bold", color: "#2563eb", fontSize: "1.1rem" }}>{totalQty}</span>
+                          <span className="muted" style={{ fontSize: "0.85rem", marginLeft: "4px" }}>units</span>
+                        </div>
+                      </div>
+
+                      {issue.note ? (
+                        <div className="muted" style={{ fontSize: "0.85rem", marginBottom: "0.5rem", fontStyle: "italic" }}>
+                          Ghi chú: {issue.note}
+                        </div>
+                      ) : null}
+
+                      <div className="amazonTableScroller" style={{ maxHeight: "180px" }}>
+                        <table className="amazonManifestTable" style={{ fontSize: "0.85rem" }}>
+                          <thead>
+                            <tr>
+                              <th>SKU</th>
+                              <th>Tên sản phẩm</th>
+                              <th className="right">Số lượng</th>
+                              <th>Chi tiết</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {issue.lines.map((line) => (
+                              <tr key={line.id}>
+                                <td><strong>{line.sku}</strong></td>
+                                <td>{line.product_name}</td>
+                                <td className="right" style={{ fontWeight: "bold" }}>{line.quantity} {line.uom || "unit"}</td>
+                                <td className="muted">{line.note || "—"}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "1.5rem" }}>
+              <button className="btn" type="button" onClick={() => setFbaHistoryOpen(false)}>
+                Đóng
+              </button>
+            </div>
+          </section>
+        </div>
       ) : null}
     </div>
   );

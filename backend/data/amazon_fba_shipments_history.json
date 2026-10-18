@@ -1,0 +1,212 @@
+{
+  "02/04/2026": {
+    "total_units": 190,
+    "shipments_count": 5,
+    "skus": {
+      "TWH_1628_600GSM_6Pack_Black": 24,
+      "TWH_1628_600GSM_6Pack_Grey": 24,
+      "TWH_1628_600GSM_6Pack_Navy": 24,
+      "TWH_1628_600GSM_6Pack_Taupe": 24,
+      "TWH_1628_600GSM_6Pack_White": 24,
+      "TWH_1628_Burdundy_12Pack": 10,
+      "TWH_1628_Grey_12Pack": 15,
+      "TWH_1628_Navy_12Pack": 15,
+      "TWH_1628_White_12Pack": 15,
+      "TWH_1628_White_24Pack": 15
+    }
+  },
+  "02/12/2026": {
+    "total_units": 150,
+    "shipments_count": 5,
+    "skus": {
+      "TWH_1313_Black_12Pack": 35,
+      "TWH_1313_Grey_12Pack": 35,
+      "TWH_1313_Navy_12Pack": 35,
+      "TWH_1313_White_12Pack": 35,
+      "TWH_1628_White_12Pack": 10
+    }
+  },
+  "04/26/2026": {
+    "total_units": 284,
+    "shipments_count": 15,
+    "skus": {
+      "TWH_1313_Pink_12Pack": 16,
+      "TWH_1313_White_12Pack": 32,
+      "TWH_1313_Yellow_12Pack": 16,
+      "TWH_1628_Grey_12Pack": 16,
+      "TWH_1628_Navy_12Pack": 31,
+      "TWH_1628_Orange_12Pack": 16,
+      "TWH_1628_Teal_12Pack": 16,
+      "TWH_1628_White_24Pack": 31,
+      "TWH_1628_White_12Pack": 70,
+      "TWH_1628_Pink_12Pack": 10,
+      "TWH_1628_Turquoise_12Pack": 15,
+      "TWH_1628_Yellow_12Pack": 15,
+      "TWH_1313_Navy_12Pack": 0
+    }
+  },
+  "06/26/2025": {
+    "total_units": 260,
+    "shipments_count": 10,
+    "skus": {
+      "TWH_1628_Grey_12Pack": 15,
+      "TWH_1628_Navy_12Pack": 15,
+      "TWH_1628_Turquoise_12Pack": 15,
+      "TWH_1628_White_12Pack": 20,
+      "TWH_1628_White_24Pack": 15,
+      "TWH_1313_Black_12Pack": 35,
+      "TWH_1313_Grey_12Pack": 35,
+      "TWH_1313_Navy_12Pack": 35,
+      "TWH_1313_Turquoise_12Pack": 35,
+      "TWH_1313_White_12Pack": 40
+    }
+  },
+  "07/16/2025": {
+    "total_units": 508,
+    "shipments_count": 1,
+    "skus": {
+      "TWH_1313_Black_12Pack": 34,
+      "TWH_1313_Brown_12Pack": 34,
+      "TWH_1313_Green_12Pack": 34,
+      "TWH_1313_Grey_12Pack": 34,
+      "TWH_1313_Navy_12Pack": 34,
+      "TWH_1313_Orange_12Pack": 34,
+      "TWH_1313_Pink_12Pack": 34,
+      "TWH_1313_Teal_12Pack": 34,
+      "TWH_1313_Turquoise_12Pack": 0,
+      "TWH_1313_White_12Pack": 34,
+      "TWH_1313_Yellow_12Pack": 34,
+      "TWH_1628_Brown_12Pack": 14,
+      "TWH_1628_Green_12Pack": 14,
+      "TWH_1628_Grey_12Pack": 14,
+      "TWH_1628_Navy_12Pack": 14,
+      "TWH_1628_Orange_12Pack": 14,
+      "TWH_1628_Pink_12Pack": 14,
+      "TWH_1628_Teal_12Pack": 14,
+      "TWH_1628_Turquoise_12Pack": 14,
+      "TWH_1628_White_12Pack": 28,
+      "TWH_1628_White_24Pack": 14,
+      "TWH_1628_Yellow_12Pack": 14
+    }
+  },
+  "07/22/2025": {
+    "total_units": 280,
+    "shipments_count": 1,
+    "skus": {
+      "TWH_1628_Grey_12Pack": 70,
+      "TWH_1628_White_12Pack": 140,
+      "TWH_1628_White_24Pack": 70
+    }
+  },
+  "08/06/2025": {
+    "total_units": 288,
+    "shipments_count": 5,
+    "skus": {
+      "TWH_1313_Black_12Pack": 102,
+      "TWH_1313_White_12Pack": 102,
+      "TWH_1628_Navy_12Pack": 42,
+      "TWH_1628_White_12Pack": 42
+    }
+  },
+  "08/09/2026": {
+    "total_units": 153,
+    "shipments_count": 1,
+    "skus": {
+      "TWH_1313_Brown_12Pack": 5,
+      "TWH_1313_Green_12Pack": 6,
+      "TWH_1313_Pink_12Pack": 15,
+      "TWH_1313_White_12Pack": 9,
+      "TWH_1628_600GSM_6Pack_White": 20,
+      "TWH_1628_Brown_12Pack": 14,
+      "TWH_1628_Navy_12Pack": 14,
+      "TWH_1628_Orange_12Pack": 7,
+      "TWH_1628_Pink_12Pack": 7,
+      "TWH_1628_Turquoise_12Pack": 14,
+      "TWH_1628_White_12Pack": 14,
+      "TWH_1628_White_24Pack": 14,
+      "TWH_1628_Yellow_12Pack": 14
+    }
+  },
+  "08/14/2025": {
+    "total_units": 192,
+    "shipments_count": 5,
+    "skus": {
+      "TWH_1313_Black_12Pack": 30,
+      "TWH_1313_Grey_12Pack": 48,
+      "TWH_1313_Navy_12Pack": 48,
+      "TWH_1313_White_12Pack": 60,
+      "TWH_1628_White_12Pack": 6
+    }
+  },
+  "09/04/2025": {
+    "total_units": 112,
+    "shipments_count": 5,
+    "skus": {
+      "TWH_1628_Brown_12Pack": 16,
+      "TWH_1628_Navy_12Pack": 48,
+      "TWH_1628_Orange_12Pack": 16,
+      "TWH_1628_Teal_12Pack": 16,
+      "TWH_1628_Yellow_12Pack": 16
+    }
+  },
+  "09/24/2025": {
+    "total_units": 98,
+    "shipments_count": 5,
+    "skus": {
+      "TWH_1628_Green_12Pack": 14,
+      "TWH_1628_Grey_12Pack": 28,
+      "TWH_1628_Navy_12Pack": 14,
+      "TWH_1628_Pink_12Pack": 14,
+      "TWH_1628_White_12Pack": 28
+    }
+  },
+  "10/17/2025": {
+    "total_units": 182,
+    "shipments_count": 8,
+    "skus": {
+      "TWH_1628_Brown_12Pack": 7,
+      "TWH_1628_Grey_12Pack": 7,
+      "TWH_1628_Navy_12Pack": 49,
+      "TWH_1628_Teal_12Pack": 7,
+      "TWH_1628_Turquoise_12Pack": 7,
+      "TWH_1628_White_24Pack": 45,
+      "TWH_1628_White_12Pack": 60
+    }
+  },
+  "10/21/2025": {
+    "total_units": 70,
+    "shipments_count": 4,
+    "skus": {
+      "TWH_1628_Brown_12Pack": 10,
+      "TWH_1628_Grey_12Pack": 10,
+      "TWH_1628_Navy_12Pack": 10,
+      "TWH_1628_Orange_12Pack": 20,
+      "TWH_1628_Teal_12Pack": 10,
+      "TWH_1628_Turquoise_12Pack": 10,
+      "TWH_1313_Grey_12Pack": 0
+    }
+  },
+  "10/29/2025": {
+    "total_units": 129,
+    "shipments_count": 2,
+    "skus": {
+      "FLASH_F-01": 55,
+      "FLASH_F-01_14_10pcs": 6,
+      "FLASH_F-01_16_10pcs": 5,
+      "FLASH_F-02": 55,
+      "14-P5TE-04I8": 8
+    }
+  },
+  "12/18/2025": {
+    "total_units": 168,
+    "shipments_count": 5,
+    "skus": {
+      "TWH_1628_Grey_12Pack": 48,
+      "TWH_1628_Navy_12Pack": 48,
+      "TWH_1628_Orange_12Pack": 12,
+      "TWH_1628_Pink_12Pack": 12,
+      "TWH_1628_White_24Pack": 36,
+      "TWH_1628_Yellow_12Pack": 12
+    }
+  }
+}

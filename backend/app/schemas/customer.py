@@ -33,3 +33,26 @@ class CustomerRead(CustomerBase):
     id: int
     created_at: datetime
     updated_at: datetime
+
+from decimal import Decimal
+
+class CustomerPriceItem(BaseModel):
+    product_id: int
+    sku: str
+    product_name: str
+    product_image_url: str | None = None
+    category_name: str | None = None
+    default_price: Decimal
+    custom_price: Decimal | None = None
+    effective_price: Decimal
+    last_sold_at: datetime | None = None
+    last_invoice_number: str | None = None
+    notes: str | None = None
+
+class CustomerPriceUpdate(BaseModel):
+    product_id: int
+    price: Decimal
+    notes: str | None = None
+
+class CustomerPriceBulkUpdate(BaseModel):
+    prices: list[CustomerPriceUpdate]

@@ -1,0 +1,128 @@
+[
+  {
+    "source": "/Users/thanhtungvo/Downloads/ChatGPT Image Oct 12, 2026, 10_21_52 PM-10.png",
+    "filename": "approved-snack-strawberry-milk.webp",
+    "code": "SC-MD-STRAWBERRY-MILK",
+    "vi": "Kẹo dâu sữa",
+    "en": "Strawberry Milk Candy",
+    "weight": 150,
+    "pack": "Hũ"
+  },
+  {
+    "source": "/Users/thanhtungvo/Downloads/ChatGPT Image Oct 12, 2026, 10_21_51 PM-9.png",
+    "filename": "approved-snack-strawberry.webp",
+    "code": "SC-MD-PT00081-20",
+    "vi": "Kẹo dâu tây",
+    "en": "Strawberry Candy",
+    "weight": 150,
+    "pack": "Hũ"
+  },
+  {
+    "source": "/Users/thanhtungvo/Downloads/ChatGPT Image Oct 12, 2026, 10_21_51 PM-8.png",
+    "filename": "approved-snack-vegetables.webp",
+    "code": "SC-MD-PT00081-18",
+    "vi": "Rau củ sấy",
+    "en": "Mixed Vegetable Chips",
+    "weight": 200,
+    "pack": "Túi"
+  },
+  {
+    "source": "/Users/thanhtungvo/Downloads/ChatGPT Image Oct 12, 2026, 10_21_50 PM-7.png",
+    "filename": "approved-snack-jackfruit.webp",
+    "code": "SC-MD-PT00081-17",
+    "vi": "Mít sấy",
+    "en": "Dried Jackfruit",
+    "weight": 200,
+    "pack": "Túi"
+  },
+  {
+    "source": "/Users/thanhtungvo/Downloads/ChatGPT Image Oct 12, 2026, 10_21_49 PM-6.png",
+    "filename": "approved-snack-banana.webp",
+    "code": "CHUOI_CAU_SAY",
+    "vi": "Chuối cau sấy",
+    "en": "Banana Chips",
+    "weight": 200,
+    "pack": "Túi"
+  },
+  {
+    "source": "/Users/thanhtungvo/Downloads/ChatGPT Image Oct 12, 2026, 10_21_48 PM-5.png",
+    "filename": "approved-snack-purple-honey.webp",
+    "code": "KHOAI_LANG_TIM_SAY",
+    "vi": "Khoai lang tím sấy mật ong",
+    "en": "Honey Purple Sweet Potato Chips",
+    "weight": 200,
+    "pack": "Túi"
+  },
+  {
+    "source": "/Users/thanhtungvo/Downloads/ChatGPT Image Oct 12, 2026, 10_21_48 PM-4.png",
+    "filename": "approved-snack-taro-crab.webp",
+    "code": "SC-MD-PT00081-03",
+    "vi": "Khoai môn sợi vị cua",
+    "en": "Crab-Flavored Taro Sticks",
+    "weight": 200,
+    "pack": "Túi"
+  },
+  {
+    "source": "/Users/thanhtungvo/Downloads/ChatGPT Image Oct 12, 2026, 10_21_47 PM-3.png",
+    "filename": "approved-snack-taro-onion.webp",
+    "code": "SC-MD-PT00081-01",
+    "vi": "Khoai môn sấy vị hành",
+    "en": "Green Onion Taro Chips",
+    "weight": 200,
+    "pack": "Túi"
+  },
+  {
+    "source": "/Users/thanhtungvo/Downloads/ChatGPT Image Oct 12, 2026, 10_21_47 PM-2.png",
+    "filename": "approved-snack-potato-seaweed.webp",
+    "code": "SC-MD-PT00081-07",
+    "vi": "Khoai tây rong biển",
+    "en": "Seaweed Potato Chips",
+    "weight": 200,
+    "pack": "Túi"
+  },
+  {
+    "source": "/Users/thanhtungvo/Downloads/ChatGPT Image Oct 12, 2026, 10_21_46 PM-1.png",
+    "filename": "approved-snack-potato-chili.webp",
+    "code": "KHOAI_TAY_MAM_OT",
+    "vi": "Khoai tây mắm ớt",
+    "en": "Chili Fish Sauce Potato Chips",
+    "weight": 200,
+    "pack": "Túi"
+  },
+  {
+    "source": "/Users/thanhtungvo/Downloads/ChatGPT Image Oct 12, 2026, 10_21_42 PM-4.png",
+    "filename": "approved-snack-potato-fish-onion.webp",
+    "code": "SC-MD-POTATO-FISH-ONION",
+    "vi": "Khoai tây mắm hành",
+    "en": "Fish Sauce and Green Onion Potato Chips",
+    "weight": 200,
+    "pack": "Túi"
+  },
+  {
+    "source": "/Users/thanhtungvo/Downloads/ChatGPT Image Oct 12, 2026, 10_21_41 PM-3.png",
+    "filename": "approved-snack-taro-spicy.webp",
+    "code": "SC-MD-PT00081-13",
+    "vi": "Khoai môn sợi hành cay",
+    "en": "Spicy Green Onion Taro Sticks",
+    "weight": 200,
+    "pack": "Túi"
+  },
+  {
+    "source": "/Users/thanhtungvo/Downloads/ChatGPT Image Oct 12, 2026, 10_21_40 PM-2.png",
+    "filename": "approved-snack-taro-onion-sticks.webp",
+    "code": "SC-MD-TARO-ONION-STICKS",
+    "vi": "Khoai môn sợi hành",
+    "en": "Green Onion Taro Sticks",
+    "weight": 200,
+    "pack": "Túi"
+  },
+  {
+    "source": "/Users/thanhtungvo/Downloads/ChatGPT Image Oct 12, 2026, 10_21_39 PM-1.png",
+    "filename": "approved-snack-taro-salted.webp",
+    "code": "SC-MD-TARO-SALTED",
+    "vi": "Khoai môn muối lạt",
+    "en": "Lightly Salted Taro Chips",
+    "weight": 200,
+    "pack": "Túi"
+  }
+]

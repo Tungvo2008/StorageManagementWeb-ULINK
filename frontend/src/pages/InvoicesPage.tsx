@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import type { DragEvent } from "react";
 import { apiJson, apiUpload, downloadFile, previewFile } from "../api/client";
-import type { Customer, Invoice } from "../types";
+import type { Category, Customer, CustomerPriceItem, Invoice, Product } from "../types";
+import ProductPickerModal from "../components/ProductPickerModal";
 import type { SortState } from "../utils/table";
 import { matchesQuery, sortBy, toggleSort } from "../utils/table";
 
@@ -228,6 +229,9 @@ function canMergeInvoice(invoice: Invoice): boolean {
 export default function InvoicesPage() {
   const [items, setItems] = useState<Invoice[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [productPickerOpen, setProductPickerOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [query, setQuery] = useState("");
@@ -252,24 +256,91 @@ export default function InvoicesPage() {
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [selectedCustomerId, setSelectedCustomerId] = useState<number | "">("");
+  const [customerPrices, setCustomerPrices] = useState<Record<number, CustomerPriceItem>>({});
   const [mergeForm, setMergeForm] = useState<MergeForm>({ invoice_number: "", issued_at: "", due_at: "" });
 
   const sortedCustomers = useMemo(() => [...customers].sort((a, b) => a.name.localeCompare(b.name)), [customers]);
 
-  function applyCustomerToForm(customerId: number | "") {
+  async function loadCustomerPrices(customerId: number | ""): Promise<Record<number, CustomerPriceItem>> {
+    if (!customerId) {
+      setCustomerPrices({});
+      return {};
+    }
+    try {
+      const list = await apiJson<CustomerPriceItem[]>(`/api/v1/customers/${customerId}/prices`);
+      const map: Record<number, CustomerPriceItem> = {};
+      for (const item of list) {
+        map[item.product_id] = item;
+      }
+      setCustomerPrices(map);
+      return map;
+    } catch {
+      setCustomerPrices({});
+      return {};
+    }
+  }
+
+  async function applyCustomerToForm(customerId: number | "") {
     setSelectedCustomerId(customerId);
-    if (!customerId) return;
+    if (!customerId) {
+      setCustomerPrices({});
+      return;
+    }
     const customer = customers.find((item) => item.id === customerId);
     if (!customer) return;
+
+    const priceMap = await loadCustomerPrices(customerId);
+
+    setEditForm((curr) => {
+      if (!curr) return curr;
+      // Auto-update lines with custom customer prices if present
+      const updatedLines = curr.lines.map((line) => {
+        if (line.line_type === "PRODUCT" && line.product_id && priceMap[line.product_id]?.custom_price != null) {
+          return {
+            ...line,
+            unit_price: toMoneyString(priceMap[line.product_id].custom_price),
+          };
+        }
+        return line;
+      });
+
+      return {
+        ...curr,
+        client_name_snapshot: customer.name || "",
+        tele_snapshot: customer.phone || "",
+        address_snapshot: customer.address || "",
+        city_snapshot: customer.city || "",
+        zip_code_snapshot: customer.zip_code || "",
+        lines: updatedLines,
+      };
+    });
+  }
+
+  function addProductLine(p: Product) {
+    const custPrice = customerPrices[p.id]?.custom_price;
+    const initialPrice =
+      custPrice != null && Number(custPrice) > 0
+        ? toMoneyString(custPrice)
+        : toMoneyString(p.unit_price);
+
     setEditForm((curr) =>
       curr
         ? {
             ...curr,
-            client_name_snapshot: customer.name || "",
-            tele_snapshot: customer.phone || "",
-            address_snapshot: customer.address || "",
-            city_snapshot: customer.city || "",
-            zip_code_snapshot: customer.zip_code || "",
+            lines: [
+              ...curr.lines,
+              {
+                id: null,
+                line_type: "PRODUCT",
+                product_id: p.id,
+                sku: p.sku,
+                product_name: p.name,
+                uom: p.uom || "Pc",
+                quantity: "1",
+                unit_price: initialPrice,
+                discount_amount: "0.00",
+              },
+            ],
           }
         : curr,
     );
@@ -378,12 +449,16 @@ export default function InvoicesPage() {
     setLoading(true);
     setError(null);
     try {
-      const [invoiceData, customerData] = await Promise.all([
+      const [invoiceData, customerData, productData, categoryData] = await Promise.all([
         apiJson<Invoice[]>("/api/v1/invoices"),
         apiJson<Customer[]>("/api/v1/customers"),
+        apiJson<Product[]>("/api/v1/products"),
+        apiJson<Category[]>("/api/v1/categories"),
       ]);
       setItems(invoiceData);
       setCustomers(customerData);
+      setProducts(productData);
+      setCategories(categoryData);
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -496,13 +571,17 @@ export default function InvoicesPage() {
       const detailed = await loadInvoiceDetail(invoice.id);
       setSelectedInvoice(detailed);
       setEditForm(buildEditForm(detailed));
-      setSelectedCustomerId(
-        findMatchingCustomerId(customers, {
-          name: detailed.client_name_snapshot ?? detailed.customer_name,
-          phone: detailed.tele_snapshot,
-          address: detailed.address_snapshot,
-        }),
-      );
+      const matchedCustId = findMatchingCustomerId(customers, {
+        name: detailed.client_name_snapshot ?? detailed.customer_name,
+        phone: detailed.tele_snapshot,
+        address: detailed.address_snapshot,
+      });
+      setSelectedCustomerId(matchedCustId);
+      if (matchedCustId) {
+        void loadCustomerPrices(matchedCustId);
+      } else {
+        setCustomerPrices({});
+      }
       setEditMode("edit");
       setEditOpen(true);
     } catch (e) {
@@ -518,6 +597,7 @@ export default function InvoicesPage() {
     setEditMode("create");
     setEditForm(buildCreateForm());
     setSelectedCustomerId("");
+    setCustomerPrices({});
     setEditOpen(true);
   }
 
@@ -737,7 +817,7 @@ export default function InvoicesPage() {
             Gộp invoice
           </button>
           <button className="btn primary" onClick={openCreateInvoice}>
-            + Free invoice
+            + Tạo invoice
           </button>
           <button className="btn" onClick={() => void load()} disabled={loading}>
             Refresh
@@ -1122,6 +1202,9 @@ export default function InvoicesPage() {
                     }}
                   />
                 </label>
+                <button className="btn primary" type="button" onClick={() => setProductPickerOpen(true)}>
+                  + Thêm hàng kho
+                </button>
                 <button className="btn" type="button" onClick={addFreeLine}>
                   + Dòng tự do
                 </button>
@@ -1168,7 +1251,45 @@ export default function InvoicesPage() {
                         }}
                       >
                         <td>{index + 1}</td>
-                        <td>{line.line_type}</td>
+                        <td>
+                          {line.line_type === "PRODUCT" ? (
+                            <span
+                              style={{
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: 4,
+                                padding: "2px 8px",
+                                borderRadius: 4,
+                                background: "#e0f2fe",
+                                color: "#0369a1",
+                                fontWeight: 600,
+                                fontSize: "0.82rem",
+                                whiteSpace: "nowrap",
+                              }}
+                              title={`Product ID: ${line.product_id ?? "N/A"} - Trừ tồn kho`}
+                            >
+                              📦 Kho
+                            </span>
+                          ) : (
+                            <span
+                              style={{
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: 4,
+                                padding: "2px 8px",
+                                borderRadius: 4,
+                                background: "#fef3c7",
+                                color: "#b45309",
+                                fontWeight: 600,
+                                fontSize: "0.82rem",
+                                whiteSpace: "nowrap",
+                              }}
+                              title="Hàng sang tay / Dịch vụ - Không trừ kho"
+                            >
+                              🚚 Tự do
+                            </span>
+                          )}
+                        </td>
                         <td>
                           <input
                             className="input"
@@ -1276,6 +1397,11 @@ export default function InvoicesPage() {
                               )
                             }
                           />
+                          {line.product_id && customerPrices[line.product_id]?.custom_price != null && (
+                            <div style={{ fontSize: "0.72rem", color: "#059669", marginTop: 2, fontWeight: 600, whiteSpace: "nowrap" }}>
+                              🏪 Giá chợ: ${toMoneyString(customerPrices[line.product_id].custom_price)}
+                            </div>
+                          )}
                         </td>
                         <td>
                           <input
@@ -1492,6 +1618,18 @@ export default function InvoicesPage() {
           </div>
         </div>
       )}
+
+      <ProductPickerModal
+        open={productPickerOpen}
+        products={products}
+        categories={categories}
+        customerPrices={customerPrices}
+        customerName={customers.find((c) => c.id === selectedCustomerId)?.name}
+        onAdd={(product) => {
+          addProductLine(product);
+        }}
+        onClose={() => setProductPickerOpen(false)}
+      />
     </div>
   );
 }

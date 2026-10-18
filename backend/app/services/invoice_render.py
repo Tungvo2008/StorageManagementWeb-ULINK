@@ -156,12 +156,17 @@ def render_invoice_pdf(invoice: Invoice, customer: Customer | None) -> bytes:
         default_regular = "Helvetica"
         default_bold = "Helvetica-Bold"
 
+        assets_font_dir = Path(__file__).resolve().parents[2] / "assets" / "fonts"
+
         regular_candidates: list[Path] = []
         user_regular = (getattr(settings, "INVOICE_PDF_FONT_PATH", "") or "").strip()
         if user_regular:
             regular_candidates.append(Path(user_regular).expanduser())
         regular_candidates.extend(
             [
+                assets_font_dir / "DejaVuSans.ttf",
+                Path("/app/assets/fonts/DejaVuSans.ttf"),
+                Path("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"),
                 Path("/System/Library/Fonts/Supplemental/Arial Unicode.ttf"),
                 Path("/System/Library/Fonts/Supplemental/Arial Unicode MS.ttf"),
                 Path("/System/Library/Fonts/Supplemental/Arial.ttf"),
@@ -174,6 +179,13 @@ def render_invoice_pdf(invoice: Invoice, customer: Customer | None) -> bytes:
         user_bold = (getattr(settings, "INVOICE_PDF_FONT_BOLD_PATH", "") or "").strip()
         if user_bold:
             bold_candidates.append(Path(user_bold).expanduser())
+        bold_candidates.extend(
+            [
+                assets_font_dir / "DejaVuSans-Bold.ttf",
+                Path("/app/assets/fonts/DejaVuSans-Bold.ttf",),
+                Path("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"),
+            ]
+        )
 
         for font_path in regular_candidates:
             if not font_path.is_file():
@@ -193,10 +205,19 @@ def render_invoice_pdf(invoice: Invoice, customer: Customer | None) -> bytes:
                         Path("/Library/Fonts/Arial Bold.ttf"),
                     ]
                 )
+            if "DejaVuSans" in base_name:
+                inferred_bold.extend(
+                    [
+                        font_path.with_name("DejaVuSans-Bold.ttf"),
+                        font_path.with_name("DejaVuSans-Bold.otf"),
+                    ]
+                )
             if base_name.lower().endswith(".ttf"):
                 inferred_bold.append(font_path.with_name(base_name[:-4] + " Bold.ttf"))
+                inferred_bold.append(font_path.with_name(base_name[:-4] + "-Bold.ttf"))
             if base_name.lower().endswith(".otf"):
                 inferred_bold.append(font_path.with_name(base_name[:-4] + " Bold.otf"))
+                inferred_bold.append(font_path.with_name(base_name[:-4] + "-Bold.otf"))
 
             all_bold_candidates = [*bold_candidates, *inferred_bold]
             for bold_path in all_bold_candidates:

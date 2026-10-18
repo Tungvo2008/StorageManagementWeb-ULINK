@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, date
 from decimal import Decimal
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -33,6 +33,8 @@ class StockMovementRead(BaseModel):
     receipt_id: int | None = None
     issue_id: int | None = None
     sale_order_id: int | None = None
+    invoice_id: int | None = None
+    invoice_line_id: int | None = None
     movement_type: StockMovementType
     quantity_delta: int
     note: str | None
@@ -45,6 +47,11 @@ class InventoryReceiptLineCreate(BaseModel):
     unit: str | None = Field(default=None, description="BASE (stock unit) or SALE (product UOM)")
     unit_cost: Decimal = Decimal("0")
     note: str | None = None
+    lot_number: str | None = None
+    expiry_date: date | None = None
+    carton_count: int | None = None
+    pieces_per_carton: int | None = None
+    allocated_cost: Decimal = Decimal("0")
 
 
 class InventoryReceiptCreate(BaseModel):
@@ -52,6 +59,10 @@ class InventoryReceiptCreate(BaseModel):
     received_at: datetime | None = None
     received_by: str | None = None
     note: str | None = None
+    receipt_type: str = "STANDARD"
+    supplier_name: str | None = None
+    container_number: str | None = None
+    container_cost: Decimal = Decimal("0")
     lines: list[InventoryReceiptLineCreate] = Field(min_length=1)
 
 
@@ -69,6 +80,11 @@ class InventoryReceiptLineRead(BaseModel):
     currency: str
     line_total: Decimal
     note: str | None
+    lot_number: str | None = None
+    expiry_date: date | None = None
+    carton_count: int | None = None
+    pieces_per_carton: int | None = None
+    allocated_cost: Decimal = Decimal("0")
 
 
 class InventoryReceiptRead(BaseModel):
@@ -79,6 +95,10 @@ class InventoryReceiptRead(BaseModel):
     received_at: datetime
     received_by: str | None
     note: str | None
+    receipt_type: str = "STANDARD"
+    supplier_name: str | None = None
+    container_number: str | None = None
+    container_cost: Decimal = Decimal("0")
     created_at: datetime
     updated_at: datetime
     lines: list[InventoryReceiptLineRead]
@@ -119,6 +139,7 @@ class InventoryIssueCreate(BaseModel):
     note: str | None = None
     ignore_stock: bool = False
     sale_order_id: int | None = None
+    invoice_id: int | None = None
     lines: list[InventoryIssueLineCreate] = Field(min_length=1)
 
 
@@ -154,7 +175,8 @@ class InventoryIssueRead(BaseModel):
     issued_to: str | None
     purpose: str
     note: str | None
-    sale_order_id: int | None
+    sale_order_id: int | None = None
+    invoice_id: int | None = None
     created_at: datetime
     updated_at: datetime
     lines: list[InventoryIssueLineRead]
@@ -180,3 +202,77 @@ class InventoryIssueParseNoteResponse(BaseModel):
     title: str | None = None
     lines: list[InventoryIssueParsedLine]
     warnings: list[str] = Field(default_factory=list)
+
+
+# ==================== BATCH & EXPIRY SCHEMAS ====================
+
+class InventoryBatchRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    batch_code: str
+    product_id: int
+    product_sku: str | None = None
+    product_name: str | None = None
+    product_uom: str | None = None
+    expiration_date: date
+    manufacture_date: date | None = None
+    initial_quantity: int
+    quantity_on_hand: int
+    inbound_reference: str | None = None
+    storage_location: str | None = None
+    status: str = "ACTIVE"
+    notes: str | None = None
+    parent_batch_id: int | None = None
+    parent_batch_code: str | None = None
+    days_remaining: int | None = None
+    expiry_status: str | None = None  # EXPIRED, CRITICAL, WARNING, SAFE
+    created_at: datetime
+    updated_at: datetime
+
+
+class InventoryBatchCreate(BaseModel):
+    batch_code: str | None = None
+    product_id: int
+    expiration_date: date
+    manufacture_date: date | None = None
+    quantity: int = Field(gt=0)
+    inbound_reference: str | None = None
+    storage_location: str | None = None
+    notes: str | None = None
+
+
+class InventoryBatchUpdate(BaseModel):
+    expiration_date: date | None = None
+    manufacture_date: date | None = None
+    quantity_on_hand: int | None = None
+    storage_location: str | None = None
+    status: str | None = None
+    notes: str | None = None
+
+
+class RepackBatchRequest(BaseModel):
+    source_batch_id: int
+    source_quantity_deducted: int = Field(gt=0)
+    target_product_id: int
+    target_quantity_produced: int = Field(gt=0)
+    target_batch_code: str | None = None
+    storage_location: str | None = None
+    notes: str | None = None
+
+
+class AllocateFefoItem(BaseModel):
+    batch_id: int
+    batch_code: str
+    expiration_date: date
+    storage_location: str | None = None
+    allocated_quantity: int
+    quantity_available: int
+
+
+class AllocateFefoResponse(BaseModel):
+    product_id: int
+    requested_quantity: int
+    allocated_quantity: int
+    unallocated_quantity: int
+    allocations: list[AllocateFefoItem]

@@ -6,13 +6,18 @@ import re
 from urllib.parse import quote
 
 from fastapi import APIRouter, Depends, File, HTTPException, Response, UploadFile, status
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, selectinload
 
 from app.api.deps import get_current_user, get_db
 from app.core.config import settings
-from app.db.models import Customer, Invoice, InvoiceLine, InvoiceLineType, InvoicePayment, InvoiceStatus, Product, SaleOrder, SaleStatus, User
+from app.db.models import (
+    Customer, CustomerProductPrice, Invoice, InvoiceLine, InvoiceLineType, InvoicePayment, InvoiceStatus,
+    Product, SaleOrder, SaleStatus, User, InventoryIssue, InventoryIssueLine,
+    StockMovement, StockMovementType
+)
+from app.api.v1.inventory import _generate_issue_number
 from app.schemas.invoice import InvoiceCreateFromSale, InvoiceLineInput, InvoiceManualCreate, InvoiceMergeCreate, InvoicePaymentCreate, InvoicePaymentRead, InvoiceRead, InvoiceUpdate
 from app.services.excel_invoice import ExcelImportError, XLSX_MIME, build_manual_invoice_template_xlsx, parse_manual_invoice_import_xlsx
 from app.services.money import quantize_money
@@ -174,6 +179,181 @@ def _sync_invoice_status(invoice: Invoice, *, requested_status: InvoiceStatus | 
         return
     invoice.status = InvoiceStatus.PAID if invoice.balance_due <= Decimal("0") else InvoiceStatus.ISSUED
 
+def _sync_invoice_stock(
+    db: Session,
+    invoice: Invoice,
+    *,
+    actor_username: str | None = None,
+) -> None:
+    """
+    Synchronizes invoice lines with inventory stock movements and inventory issues.
+    Rules:
+    1. Only lines with line_type == InvoiceLineType.PRODUCT and product_id is not None
+       are tracked in inventory. Lines with line_type == InvoiceLineType.FREE are dropship/service
+       and NEVER deduct inventory.
+    2. If invoice has a sale_order_id, the sale order already holds the stock deduction.
+       However, if the invoice is set to VOID, we cancel the sale order and restock.
+    3. For manual invoices (sale_order_id is None):
+       - If status in [ISSUED, PAID]:
+         - Deduct inventory for active PRODUCT lines.
+         - Update/create an InventoryIssue with purpose="SALE" and link it to this invoice.
+         - Record/update StockMovement(movement_type=OUT, invoice_id=invoice.id, invoice_line_id=line.id).
+         - Calculate delta if lines changed, returning stock for decreased lines or deleted lines,
+           and deducting stock for increased or added lines.
+       - If status in [DRAFT, VOID]:
+         - Restore any stock previously deducted by this invoice.
+         - Remove or reverse StockMovement records.
+         - Remove linked InventoryIssue.
+    """
+    if invoice.id is None:
+        db.flush()
+
+    # Case 1: Invoice linked to SaleOrder
+    if invoice.sale_order_id is not None:
+        if invoice.status == InvoiceStatus.VOID:
+            sale = db.get(SaleOrder, invoice.sale_order_id)
+            if sale and sale.status == SaleStatus.CONFIRMED:
+                sale.status = SaleStatus.CANCELLED
+                for s_line in sale.lines:
+                    prod = db.get(Product, s_line.product_id)
+                    if prod is not None:
+                        multiplier = int(prod.uom_multiplier or 1)
+                        base_qty = s_line.quantity * multiplier
+                        prod.quantity_on_hand += base_qty
+                        db.add(
+                            StockMovement(
+                                product_id=prod.id,
+                                sale_order_id=sale.id,
+                                invoice_id=invoice.id,
+                                movement_type=StockMovementType.IN,
+                                quantity_delta=base_qty,
+                                note=f"Restock from voided invoice {invoice.invoice_number} (sale #{sale.id})",
+                                created_at=_utcnow(),
+                            )
+                        )
+        return
+
+    # Case 2: Manual Invoice (sale_order_id is None)
+    existing_movements = db.scalars(
+        select(StockMovement).where(StockMovement.invoice_id == invoice.id)
+    ).all()
+    movements_by_line = {
+        m.invoice_line_id: m for m in existing_movements if m.invoice_line_id is not None
+    }
+
+    linked_issue = db.scalar(
+        select(InventoryIssue).where(InventoryIssue.invoice_id == invoice.id)
+    )
+
+    if invoice.status in (InvoiceStatus.ISSUED, InvoiceStatus.PAID):
+        customer_display = (invoice.customer_name or invoice.client_name_snapshot or "").strip() or "Khách mua hàng"
+        if linked_issue is None:
+            issue_number = _generate_issue_number(db)
+            linked_issue = InventoryIssue(
+                issue_number=issue_number,
+                issued_at=invoice.issued_at,
+                issued_by=actor_username,
+                issued_to=customer_display,
+                purpose="SALE",
+                note=f"Hóa đơn {invoice.invoice_number}",
+                invoice_id=invoice.id,
+            )
+            db.add(linked_issue)
+            db.flush()
+        else:
+            linked_issue.issued_to = customer_display
+            linked_issue.issued_at = invoice.issued_at
+            linked_issue.note = f"Hóa đơn {invoice.invoice_number}"
+
+        active_line_ids: set[int] = set()
+        active_product_ids: set[int] = set()
+
+        for line in invoice.lines:
+            if line.line_type == InvoiceLineType.PRODUCT and line.product_id is not None:
+                if line.id is None:
+                    db.flush()
+                active_line_ids.add(line.id)
+                active_product_ids.add(line.product_id)
+                prod = db.get(Product, line.product_id)
+                if prod is None:
+                    continue
+                multiplier = int(prod.uom_multiplier or 1)
+                needed_base_qty = int(line.quantity) * multiplier
+
+                existing_mov = movements_by_line.get(line.id)
+                if existing_mov is not None:
+                    old_base_qty = -int(existing_mov.quantity_delta)
+                    delta = needed_base_qty - old_base_qty
+                    if delta != 0:
+                        prod.quantity_on_hand -= delta
+                        existing_mov.quantity_delta = -needed_base_qty
+                        existing_mov.note = f"Invoice #{invoice.invoice_number} line #{line.id}"
+                else:
+                    prod.quantity_on_hand -= needed_base_qty
+                    new_mov = StockMovement(
+                        product_id=prod.id,
+                        invoice_id=invoice.id,
+                        invoice_line_id=line.id,
+                        issue_id=linked_issue.id,
+                        movement_type=StockMovementType.OUT,
+                        quantity_delta=-needed_base_qty,
+                        note=f"Invoice #{invoice.invoice_number}",
+                        created_at=invoice.issued_at,
+                    )
+                    db.add(new_mov)
+
+                # Sync to InventoryIssueLine
+                iss_line = db.scalar(
+                    select(InventoryIssueLine).where(
+                        InventoryIssueLine.issue_id == linked_issue.id,
+                        InventoryIssueLine.product_id == prod.id,
+                    )
+                )
+                if iss_line is not None:
+                    iss_line.quantity = line.quantity
+                    iss_line.uom = line.uom
+                    iss_line.uom_multiplier = multiplier
+                else:
+                    db.add(
+                        InventoryIssueLine(
+                            issue_id=linked_issue.id,
+                            product_id=prod.id,
+                            sku=line.sku or prod.sku,
+                            product_name=line.product_name or prod.name,
+                            uom=line.uom or prod.uom,
+                            uom_multiplier=multiplier,
+                            quantity=line.quantity,
+                            note=f"Line #{line.id}",
+                        )
+                    )
+
+        # Refund any lines that were removed
+        for m in existing_movements:
+            if m.invoice_line_id is not None and m.invoice_line_id not in active_line_ids:
+                prod = db.get(Product, m.product_id)
+                if prod is not None:
+                    prod.quantity_on_hand -= int(m.quantity_delta)
+                db.delete(m)
+
+        # Clean up removed issue lines
+        if linked_issue:
+            for iss_line in db.scalars(
+                select(InventoryIssueLine).where(InventoryIssueLine.issue_id == linked_issue.id)
+            ).all():
+                if iss_line.product_id not in active_product_ids:
+                    db.delete(iss_line)
+
+    else:
+        # DRAFT or VOID: restore stock and delete movements / issue
+        for m in existing_movements:
+            prod = db.get(Product, m.product_id)
+            if prod is not None:
+                prod.quantity_on_hand -= int(m.quantity_delta)
+            db.delete(m)
+
+        if linked_issue is not None:
+            db.delete(linked_issue)
+
 
 def _resolved_customer_name(invoice: Invoice) -> str:
     return (invoice.customer_name or "").strip()
@@ -257,6 +437,43 @@ async def import_manual_invoice_xlsx(
         raise HTTPException(status_code=503, detail=str(e)) from e
 
 
+def _auto_record_customer_prices(db: Session, invoice: Invoice):
+    try:
+        if not invoice.client_name_snapshot:
+            return
+        customer = db.scalar(
+            select(Customer).where(Customer.name.ilike(invoice.client_name_snapshot.strip()))
+        )
+        if not customer:
+            return
+        for line in invoice.lines:
+            if line.product_id and line.unit_price and line.unit_price > 0:
+                cp = db.scalar(
+                    select(CustomerProductPrice).where(
+                        CustomerProductPrice.customer_id == customer.id,
+                        CustomerProductPrice.product_id == line.product_id,
+                    )
+                )
+                if not cp:
+                    cp = CustomerProductPrice(
+                        customer_id=customer.id,
+                        product_id=line.product_id,
+                        price=line.unit_price,
+                        last_sold_at=invoice.issued_at,
+                        last_invoice_number=invoice.invoice_number,
+                        notes=f"Tự động học từ HĐ {invoice.invoice_number}",
+                    )
+                    db.add(cp)
+                else:
+                    cp.price = line.unit_price
+                    cp.last_sold_at = invoice.issued_at
+                    cp.last_invoice_number = invoice.invoice_number
+                    cp.updated_at = _utcnow()
+        db.flush()
+    except Exception as e:
+        print(f"Warning: failed to auto record customer prices: {e}")
+
+
 @router.post("/manual", response_model=InvoiceRead, status_code=status.HTTP_201_CREATED)
 def create_manual_invoice(
     body: InvoiceManualCreate,
@@ -296,6 +513,9 @@ def create_manual_invoice(
     _sync_invoice_totals(invoice)
     _sync_invoice_status(invoice, requested_status=body.status)
     db.add(invoice)
+    db.flush()
+    _sync_invoice_stock(db, invoice, actor_username=current_user.username)
+    _auto_record_customer_prices(db, invoice)
     try:
         db.commit()
     except IntegrityError as e:
@@ -375,6 +595,8 @@ def patch_invoice(
     requested_status = data["status"] if "status" in data and data["status"] is not None else invoice.status
     _sync_invoice_totals(invoice)
     _sync_invoice_status(invoice, requested_status=requested_status)
+    db.flush()
+    _sync_invoice_stock(db, invoice, actor_username=current_user.username)
 
     try:
         db.commit()
@@ -577,6 +799,17 @@ def merge_invoices(
         invoice.status = InvoiceStatus.VOID
         invoice.merged_into_invoice_id = merged_invoice.id
 
+    db.execute(
+        update(StockMovement)
+        .where(StockMovement.invoice_id.in_(invoice_ids))
+        .values(invoice_id=merged_invoice.id)
+    )
+    db.execute(
+        update(InventoryIssue)
+        .where(InventoryIssue.invoice_id.in_(invoice_ids))
+        .values(invoice_id=merged_invoice.id)
+    )
+
     try:
         db.commit()
     except IntegrityError as e:
@@ -621,8 +854,10 @@ def download_invoice_pdf(invoice_id: int, db: Session = Depends(get_db)) -> Resp
 
 @router.delete("/{invoice_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_invoice(invoice_id: int, db: Session = Depends(get_db)) -> None:
-    invoice = db.get(Invoice, invoice_id)
+    invoice = _load_invoice(db, invoice_id)
     if invoice is None:
         raise HTTPException(status_code=404, detail="Invoice not found")
+    invoice.status = InvoiceStatus.VOID
+    _sync_invoice_stock(db, invoice)
     db.delete(invoice)
     db.commit()

@@ -1,0 +1,3606 @@
+[
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-013.webp",
+    "filename": "catalog-2026-np-013.webp",
+    "rows": [
+      {
+        "code": "NP-013",
+        "name": "Sườn non chay An Nhiên",
+        "group_id": "03",
+        "listing_id": 233
+      }
+    ],
+    "protected": false,
+    "size": [
+      1053,
+      1600
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "e7fc00da3d5134366c9bc7ad7e17b3cab8978df623ed064ff7d6779bc55a5bc0",
+    "audit_id": 2,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-catalog-2026-np-013-v1.png",
+    "crop": {
+      "left": 65,
+      "top": 171,
+      "width": 904,
+      "height": 1353
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.65306801994302,
+    "new_url": "/api/v1/public/product-images/transparent-catalog-2026-np-013-v1.png",
+    "output_sha256": "4cbf3c34b01aac1672cd67b8253e8de1c14ffa964fc858a112093cdc06890784"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-014.webp",
+    "filename": "catalog-2026-np-014.webp",
+    "rows": [
+      {
+        "code": "NP-014",
+        "name": "Heo lát chay An Nhiên",
+        "group_id": "03",
+        "listing_id": 234
+      }
+    ],
+    "protected": false,
+    "size": [
+      1053,
+      1600
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "3f7858931ff37e3e6550e3344403e501fa1f5d5fc8e82f274e02e8ebaedd8734",
+    "audit_id": 3,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-catalog-2026-np-014-v1.png",
+    "crop": {
+      "left": 65,
+      "top": 171,
+      "width": 904,
+      "height": 1345
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.6504582146248813,
+    "new_url": "/api/v1/public/product-images/transparent-catalog-2026-np-014-v1.png",
+    "output_sha256": "e47691019277bca174aa08d2bc531dbdd6277a4ce0a02055981279762c3c0582"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-015.webp",
+    "filename": "catalog-2026-np-015.webp",
+    "rows": [
+      {
+        "code": "NP-015",
+        "name": "Bò lát chay An Nhiên",
+        "group_id": "03",
+        "listing_id": 235
+      }
+    ],
+    "protected": false,
+    "size": [
+      1053,
+      1600
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "a91cff1d9fbd188154f0744e27e091978ab4bca38974fd5704ab2bef378acd52",
+    "audit_id": 4,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-catalog-2026-np-015-v1.png",
+    "crop": {
+      "left": 66,
+      "top": 170,
+      "width": 904,
+      "height": 1348
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.6509834995251662,
+    "new_url": "/api/v1/public/product-images/transparent-catalog-2026-np-015-v1.png",
+    "output_sha256": "d1c8fea6c46856ca4cdcb58d38ef3ce71cc7a9360815f612cfd335728e5ab943"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-016.webp",
+    "filename": "catalog-2026-np-016.webp",
+    "rows": [
+      {
+        "code": "NP-016",
+        "name": "Gà lát chay An Nhiên",
+        "group_id": "03",
+        "listing_id": 236
+      }
+    ],
+    "protected": false,
+    "size": [
+      1053,
+      1600
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "1a23e3774c71343c5f750c57338cb7073020797fa7fb91913a38ec9662286281",
+    "audit_id": 5,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-catalog-2026-np-016-v1.png",
+    "crop": {
+      "left": 65,
+      "top": 171,
+      "width": 904,
+      "height": 1346
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.6508968423551756,
+    "new_url": "/api/v1/public/product-images/transparent-catalog-2026-np-016-v1.png",
+    "output_sha256": "af999dad938b39e96671216a626bb686b4aec3860559a2a72f521803bfdea316"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-017.webp",
+    "filename": "catalog-2026-np-017.webp",
+    "rows": [
+      {
+        "code": "NP-017",
+        "name": "Cốt lết chay An Nhiên",
+        "group_id": "03",
+        "listing_id": 237
+      }
+    ],
+    "protected": false,
+    "size": [
+      1053,
+      1600
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "92abe29d6fed19e9b8ee49108a4743d9a2078dcbddbd4583d407f51f190af76a",
+    "audit_id": 6,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-catalog-2026-np-017-v1.png",
+    "crop": {
+      "left": 65,
+      "top": 171,
+      "width": 904,
+      "height": 1351
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.6525902184235518,
+    "new_url": "/api/v1/public/product-images/transparent-catalog-2026-np-017-v1.png",
+    "output_sha256": "0b57af79ab4bb04a2ae5f6f04957543f7b3dcb716b2d6d126df7c38b30f09c32"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-018.webp",
+    "filename": "catalog-2026-np-018.webp",
+    "rows": [
+      {
+        "code": "NP-018",
+        "name": "Gà viên chay An Nhiên",
+        "group_id": "03",
+        "listing_id": 238
+      }
+    ],
+    "protected": false,
+    "size": [
+      1053,
+      1600
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "75fdd73a0c55774b32cc72b5a07e7b04a656a3d46903bfb9337ac9865dd2eec5",
+    "audit_id": 7,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-catalog-2026-np-018-v1.png",
+    "crop": {
+      "left": 65,
+      "top": 171,
+      "width": 904,
+      "height": 1351
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.6528828347578347,
+    "new_url": "/api/v1/public/product-images/transparent-catalog-2026-np-018-v1.png",
+    "output_sha256": "243069a913cfe40fe78fe37f7ebdda975d0523952b64d75c118c2d5f3a722fe4"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-019.webp",
+    "filename": "catalog-2026-np-019.webp",
+    "rows": [
+      {
+        "code": "NP-019",
+        "name": "Bóng cá chay An Nhiên",
+        "group_id": "03",
+        "listing_id": 239
+      }
+    ],
+    "protected": false,
+    "size": [
+      1053,
+      1600
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "8510e0fa068f3a90890d6e918f4a878391dc8877e1f3f4a6a4a56f351f555a49",
+    "audit_id": 8,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-catalog-2026-np-019-v1.png",
+    "crop": {
+      "left": 65,
+      "top": 171,
+      "width": 904,
+      "height": 1347
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.6503929249762583,
+    "new_url": "/api/v1/public/product-images/transparent-catalog-2026-np-019-v1.png",
+    "output_sha256": "808f0166498ff32e3a4cc35d83f4cb681a72aec550520dff9c4e1697e2d0ca75"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-020.webp",
+    "filename": "catalog-2026-np-020.webp",
+    "rows": [
+      {
+        "code": "NP-020",
+        "name": "Sườn non chay lúa mạch An Nhiên",
+        "group_id": "03",
+        "listing_id": 240
+      }
+    ],
+    "protected": false,
+    "size": [
+      1053,
+      1600
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "57175c6096094947cf332d5011b214309aabf74ddd4bfa8761bb31b297f61c9c",
+    "audit_id": 9,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-catalog-2026-np-020-v1.png",
+    "crop": {
+      "left": 64,
+      "top": 171,
+      "width": 905,
+      "height": 1353
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.6533161206077873,
+    "new_url": "/api/v1/public/product-images/transparent-catalog-2026-np-020-v1.png",
+    "output_sha256": "185a61de34d1e71d4d8312520538e2f161f5693cd7e96cd30869f74d655d05d5"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-021.webp",
+    "filename": "catalog-2026-np-021.webp",
+    "rows": [
+      {
+        "code": "NP-021",
+        "name": "Sườn ống chay lúa mạch An Nhiên",
+        "group_id": "03",
+        "listing_id": 241
+      }
+    ],
+    "protected": false,
+    "size": [
+      1053,
+      1600
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "d9f0aa3b47a7df6a73ae0692cce4fa6767203a9b9856106340f53b166c3e88f4",
+    "audit_id": 10,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-catalog-2026-np-021-v1.png",
+    "crop": {
+      "left": 65,
+      "top": 171,
+      "width": 903,
+      "height": 1349
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.6529772079772079,
+    "new_url": "/api/v1/public/product-images/transparent-catalog-2026-np-021-v1.png",
+    "output_sha256": "465d0be55a26d09f98fe656d5b0aa5566ae946dfe14134217306956e9625b9d3"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-022.webp",
+    "filename": "catalog-2026-np-022.webp",
+    "rows": [
+      {
+        "code": "NP-022",
+        "name": "Bò nướng chay An Nhiên",
+        "group_id": "03",
+        "listing_id": 242
+      }
+    ],
+    "protected": false,
+    "size": [
+      1053,
+      1600
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "f0cb9ccb68288026c6b725a8b56b7df3119e3185590e0568589086dd80eec9f3",
+    "audit_id": 11,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-catalog-2026-np-022-v1.png",
+    "crop": {
+      "left": 64,
+      "top": 171,
+      "width": 905,
+      "height": 1349
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.6506119420702754,
+    "new_url": "/api/v1/public/product-images/transparent-catalog-2026-np-022-v1.png",
+    "output_sha256": "3a554fee0a7eea12638625c4dfd7ebee45cf7c66c4d8097b812dc4cef2dd5770"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/worldmarket-213.webp",
+    "filename": "worldmarket-213.webp",
+    "rows": [
+      {
+        "code": "NP-024",
+        "name": "Canh chua chay iSoup — 50 g × 20",
+        "group_id": "04",
+        "listing_id": 176
+      }
+    ],
+    "protected": false,
+    "size": [
+      1200,
+      1200
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "7952b29d67e54fd29e9b228a95c24b5ff72be895bc41d6cdb12f6ee65bedd403",
+    "audit_id": 12,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-worldmarket-213-v1.png",
+    "crop": {
+      "left": 66,
+      "top": 235,
+      "width": 1089,
+      "height": 722
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.4083263888888889,
+    "new_url": "/api/v1/public/product-images/transparent-worldmarket-213-v1.png",
+    "output_sha256": "d5b70f6bec1083261a34aa6009dcfe9cdf8bb24189bded4c2eab6bffd2a93655"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/knp-dau-hao-chai-350g.webp",
+    "filename": "knp-dau-hao-chai-350g.webp",
+    "rows": [
+      {
+        "code": "NP-035",
+        "name": "Dầu hào Cholimex",
+        "group_id": "05",
+        "listing_id": 180
+      },
+      {
+        "code": "NP-036",
+        "name": "Dầu hào Cholimex",
+        "group_id": "05",
+        "listing_id": 180
+      }
+    ],
+    "protected": false,
+    "size": [
+      500,
+      500
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "30ab0fd79f937d1d2a4b23be3996095a49c939b6c5e8246fee9b6582a664cc3e",
+    "audit_id": 13,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-knp-dau-hao-chai-350g-v1.png",
+    "crop": {
+      "left": 164,
+      "top": 3,
+      "width": 155,
+      "height": 490
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.232356,
+    "new_url": "/api/v1/public/product-images/transparent-knp-dau-hao-chai-350g-v1.png",
+    "output_sha256": "3af4ddcee3e8cae6c6e9fa40eaf4c5c482f0b1d12c9df90a55c85c80e09ffbe7"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/knp-gia-vi-kho-ca-goi-50g.webp",
+    "filename": "knp-gia-vi-kho-ca-goi-50g.webp",
+    "rows": [
+      {
+        "code": "NP-037",
+        "name": "Gia vị kho cá Cholimex",
+        "group_id": "05",
+        "listing_id": 181
+      }
+    ],
+    "protected": false,
+    "size": [
+      500,
+      500
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "eac6705cbcdd546c08257ce70070482eeb1bd0ad9750a928bf1551533cd1e740",
+    "audit_id": 14,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-knp-gia-vi-kho-ca-goi-50g-v1.png",
+    "crop": {
+      "left": 77,
+      "top": 12,
+      "width": 329,
+      "height": 480
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.59038,
+    "new_url": "/api/v1/public/product-images/transparent-knp-gia-vi-kho-ca-goi-50g-v1.png",
+    "output_sha256": "70156c2b07388bf92c5a4861e011cbe707d0dfb0d6cc0ed47addb54f55702d81"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/knp-lau-thai-chai-pet-280g.webp",
+    "filename": "knp-lau-thai-chai-pet-280g.webp",
+    "rows": [
+      {
+        "code": "NP-038",
+        "name": "Gia vị lẩu Thái Cholimex",
+        "group_id": "05",
+        "listing_id": 182
+      }
+    ],
+    "protected": false,
+    "size": [
+      500,
+      500
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "3cb93b1d320f0acfe51052ab167ff0996ea22ba71bcb118f0d2a53f771827d0c",
+    "audit_id": 15,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-knp-lau-thai-chai-pet-280g-v1.png",
+    "crop": {
+      "left": 148,
+      "top": 4,
+      "width": 200,
+      "height": 487
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.27196,
+    "new_url": "/api/v1/public/product-images/transparent-knp-lau-thai-chai-pet-280g-v1.png",
+    "output_sha256": "02786fe19f3e0cee94c02854993a658467b2590bbefbd66c83e7cc3bc1b503f9"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/knp-sa-te-chay-90g.webp",
+    "filename": "knp-sa-te-chay-90g.webp",
+    "rows": [
+      {
+        "code": "NP-039",
+        "name": "Sa tế chay Cholimex",
+        "group_id": "05",
+        "listing_id": 183
+      }
+    ],
+    "protected": false,
+    "size": [
+      500,
+      500
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "c4b8011062f6ca4deea2ba4320d9316a8482204901f0044ea3bf5314eff47e0f",
+    "audit_id": 16,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-knp-sa-te-chay-90g-v1.png",
+    "crop": {
+      "left": 144,
+      "top": 20,
+      "width": 219,
+      "height": 464
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.343204,
+    "new_url": "/api/v1/public/product-images/transparent-knp-sa-te-chay-90g-v1.png",
+    "output_sha256": "3f09f275dfb458f7b30fc1c0ba4c25c2ce9ceadda7aa88af0c83187396d3e5b3"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/knp-sa-te-tom-90g.webp",
+    "filename": "knp-sa-te-tom-90g.webp",
+    "rows": [
+      {
+        "code": "NP-040",
+        "name": "Sa tế tôm Cholimex",
+        "group_id": "05",
+        "listing_id": 184
+      }
+    ],
+    "protected": false,
+    "size": [
+      500,
+      500
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "97c98cad96916e4eacf9a6b24e592643589b740cfb82019bb8a0e928f4bd73e8",
+    "audit_id": 17,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-knp-sa-te-tom-90g-v1.png",
+    "crop": {
+      "left": 138,
+      "top": 19,
+      "width": 226,
+      "height": 469
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.360656,
+    "new_url": "/api/v1/public/product-images/transparent-knp-sa-te-tom-90g-v1.png",
+    "output_sha256": "767f7ad584b2e8ea738ff268033e26c38987d633c522dd849cba96fa016f3cf0"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/knp-tuong-ot-chua-ngot-chai-thuy-tinh.webp",
+    "filename": "knp-tuong-ot-chua-ngot-chai-thuy-tinh.webp",
+    "rows": [
+      {
+        "code": "NP-041",
+        "name": "Tương ớt chua ngọt Cholimex",
+        "group_id": "05",
+        "listing_id": 185
+      },
+      {
+        "code": "NP-042",
+        "name": "Tương ớt chua ngọt Cholimex",
+        "group_id": "05",
+        "listing_id": 185
+      }
+    ],
+    "protected": false,
+    "size": [
+      500,
+      500
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "a7db9eed3264bc37a1fe68b6ea4ef769f18a246ca681c265726a2e14885ffa47",
+    "audit_id": 18,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-knp-tuong-ot-chua-ngot-chai-thuy-tinh-v1.png",
+    "crop": {
+      "left": 186,
+      "top": 4,
+      "width": 134,
+      "height": 488
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.195084,
+    "new_url": "/api/v1/public/product-images/transparent-knp-tuong-ot-chua-ngot-chai-thuy-tinh-v1.png",
+    "output_sha256": "c0bed56b6837e3789a57c0d819256965c1403bfdb26c56a4f12134a3e67a58d7"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/knp-tuong-ot-xi-muoi.webp",
+    "filename": "knp-tuong-ot-xi-muoi.webp",
+    "rows": [
+      {
+        "code": "NP-043",
+        "name": "Tương ớt xí muội Cholimex",
+        "group_id": "05",
+        "listing_id": 186
+      }
+    ],
+    "protected": false,
+    "size": [
+      500,
+      500
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "b78d2629dba4b21067acbf3e4182e6af1312b98b70219055ef91fb95ad94d99e",
+    "audit_id": 19,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-knp-tuong-ot-xi-muoi-v1.png",
+    "crop": {
+      "left": 180,
+      "top": 11,
+      "width": 136,
+      "height": 484
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.194992,
+    "new_url": "/api/v1/public/product-images/transparent-knp-tuong-ot-xi-muoi-v1.png",
+    "output_sha256": "440d43a2d40e27dc684d93a5b07effc52add9b74c4d0c19db2311bdfaa5f2899"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/knp-tuong-den-pho-230g.webp",
+    "filename": "knp-tuong-den-pho-230g.webp",
+    "rows": [
+      {
+        "code": "NP-044",
+        "name": "Tương đen phở Cholimex",
+        "group_id": "05",
+        "listing_id": 187
+      },
+      {
+        "code": "NP-045",
+        "name": "Tương đen phở Cholimex",
+        "group_id": "05",
+        "listing_id": 187
+      }
+    ],
+    "protected": false,
+    "size": [
+      500,
+      500
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "4d73f9c96a5c71202e05eee8faa2a2232647291a36e24254026aaa8e55e269e3",
+    "audit_id": 20,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-knp-tuong-den-pho-230g-v1.png",
+    "crop": {
+      "left": 156,
+      "top": 12,
+      "width": 184,
+      "height": 476
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.227856,
+    "new_url": "/api/v1/public/product-images/transparent-knp-tuong-den-pho-230g-v1.png",
+    "output_sha256": "7ea3a3ab05256e3f1fc5226cb454074695300e6cd450cf357ef79d89d367033c"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/worldmarket-191.webp",
+    "filename": "worldmarket-191.webp",
+    "rows": [
+      {
+        "code": "NP-046",
+        "name": "Tương ớt Cholimex",
+        "group_id": "05",
+        "listing_id": 155
+      },
+      {
+        "code": "NP-047",
+        "name": "Tương ớt Cholimex",
+        "group_id": "05",
+        "listing_id": 155
+      }
+    ],
+    "protected": false,
+    "size": [
+      1400,
+      1400
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "a55acb7c0ee5e3a1fb6cb07b2faa2b89ae108794760a51801713365279176525",
+    "audit_id": 21,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-worldmarket-191-v1.png",
+    "crop": {
+      "left": 518,
+      "top": 32,
+      "width": 358,
+      "height": 1322
+    },
+    "removed_nonwhite_ratio": 0.0023889035253238013,
+    "core_coverage": 0.15163979591836735,
+    "seconds": 3.801,
+    "method": "local-segmentation-alpha-original-rgb",
+    "new_url": "/api/v1/public/product-images/transparent-worldmarket-191-v1.png",
+    "output_sha256": "2d50e42cd42529c46b6b1f74b7613ba7bb67b56d916d99a18cc812ff600c4d9d"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/knp-xot-uop-thit-nuong-thuy-tinh-200g.webp",
+    "filename": "knp-xot-uop-thit-nuong-thuy-tinh-200g.webp",
+    "rows": [
+      {
+        "code": "NP-048",
+        "name": "Xốt ướp thịt nướng Cholimex",
+        "group_id": "05",
+        "listing_id": 188
+      }
+    ],
+    "protected": false,
+    "size": [
+      500,
+      500
+    ],
+    "mode": "RGB",
+    "white_edges": 7,
+    "sha256": "81d4526c2714eafaf6a23c101b6fd12ba437e7383072ed71a630f98a5fd8abbf",
+    "audit_id": 22,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-knp-xot-uop-thit-nuong-thuy-tinh-200g-v1.png",
+    "crop": {
+      "left": 94,
+      "top": 12,
+      "width": 318,
+      "height": 488
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.566712,
+    "new_url": "/api/v1/public/product-images/transparent-knp-xot-uop-thit-nuong-thuy-tinh-200g-v1.png",
+    "output_sha256": "68919fc3760a622c50f4797f6672fe81923ac7cbdf81220323e7efc4042788eb"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/knp-xot-uop-xa-xiu-thuy-tinh-200g.webp",
+    "filename": "knp-xot-uop-xa-xiu-thuy-tinh-200g.webp",
+    "rows": [
+      {
+        "code": "NP-049",
+        "name": "Xốt ướp xá xíu Cholimex",
+        "group_id": "05",
+        "listing_id": 189
+      }
+    ],
+    "protected": false,
+    "size": [
+      500,
+      500
+    ],
+    "mode": "RGB",
+    "white_edges": 7,
+    "sha256": "f6a7de3d44d4080f04a0c457e1bf74c09d0937a131807876c15c6b84f3e009df",
+    "audit_id": 23,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-knp-xot-uop-xa-xiu-thuy-tinh-200g-v1.png",
+    "crop": {
+      "left": 96,
+      "top": 18,
+      "width": 310,
+      "height": 482
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.54296,
+    "new_url": "/api/v1/public/product-images/transparent-knp-xot-uop-xa-xiu-thuy-tinh-200g-v1.png",
+    "output_sha256": "dcd211e3427f76bd199692bb5712850fec898dba0f45b3747b795655d34d3bf9"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/knp-ot-kho-sa-te-100g.webp",
+    "filename": "knp-ot-kho-sa-te-100g.webp",
+    "rows": [
+      {
+        "code": "NP-050",
+        "name": "Ớt khô sa tế Cholimex",
+        "group_id": "05",
+        "listing_id": 190
+      }
+    ],
+    "protected": false,
+    "size": [
+      500,
+      500
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "082c58f13443e111bdb776ed89f8c88c94d73b0964126b67f47efbf165b46316",
+    "audit_id": 24,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-knp-ot-kho-sa-te-100g-v1.png",
+    "crop": {
+      "left": 104,
+      "top": 34,
+      "width": 299,
+      "height": 450
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.494792,
+    "new_url": "/api/v1/public/product-images/transparent-knp-ot-kho-sa-te-100g-v1.png",
+    "output_sha256": "406c64535223054d62d0f4b5383798228e4b25453da5826217194557d278db44"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/knp-ot-sa-te-150g.webp",
+    "filename": "knp-ot-sa-te-150g.webp",
+    "rows": [
+      {
+        "code": "NP-051",
+        "name": "Ớt sa tế Cholimex",
+        "group_id": "05",
+        "listing_id": 191
+      }
+    ],
+    "protected": false,
+    "size": [
+      500,
+      500
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "fc8a78ffb6eaef5551a5e4722a096cdc6fdf61099daf10ac04b563126f9e5f40",
+    "audit_id": 25,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-knp-ot-sa-te-150g-v1.png",
+    "crop": {
+      "left": 104,
+      "top": 35,
+      "width": 299,
+      "height": 449
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.49432,
+    "new_url": "/api/v1/public/product-images/transparent-knp-ot-sa-te-150g-v1.png",
+    "output_sha256": "734122e390576a32a7da395856b966bd7e17f2f52d032bb4f9bda9692a991f8e"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/knp-xot-rang-me-chai-pet-280g.webp",
+    "filename": "knp-xot-rang-me-chai-pet-280g.webp",
+    "rows": [
+      {
+        "code": "NP-052",
+        "name": "Xốt rang me Cholimex",
+        "group_id": "05",
+        "listing_id": 192
+      }
+    ],
+    "protected": false,
+    "size": [
+      500,
+      500
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "68c8ce7439d962473dffce4ebfcc6343a90a7778c39a830fe12c7d7a18368a57",
+    "audit_id": 26,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-knp-xot-rang-me-chai-pet-280g-v1.png",
+    "crop": {
+      "left": 150,
+      "top": 12,
+      "width": 192,
+      "height": 480
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.273476,
+    "new_url": "/api/v1/public/product-images/transparent-knp-xot-rang-me-chai-pet-280g-v1.png",
+    "output_sha256": "e7f8268530b1b33f3e853b8bb1a79bc19bd8e120d6eea6ff00147a16d84c1060"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/knp-xot-tieu-den-cholimex.webp",
+    "filename": "knp-xot-tieu-den-cholimex.webp",
+    "rows": [
+      {
+        "code": "NP-053",
+        "name": "Xốt tiêu đen Cholimex",
+        "group_id": "05",
+        "listing_id": 193
+      }
+    ],
+    "protected": false,
+    "size": [
+      1000,
+      1000
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "9dcc689a76edaf4622beb45aee8179280bb9a1ffc436250ecd81ebc861c7dbc3",
+    "audit_id": 27,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-knp-xot-tieu-den-cholimex-v1.png",
+    "crop": {
+      "left": 213,
+      "top": 91,
+      "width": 574,
+      "height": 819
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.432874,
+    "new_url": "/api/v1/public/product-images/transparent-knp-xot-tieu-den-cholimex-v1.png",
+    "output_sha256": "111059786cd8da9623d5ab36245fbfd9178cab6c9f731fc85672063f6db2ae5d"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/knp-hat-nem-chinsu.webp",
+    "filename": "knp-hat-nem-chinsu.webp",
+    "rows": [
+      {
+        "code": "NP-054",
+        "name": "Hạt nêm CHIN-SU tôm thịt",
+        "group_id": "06",
+        "listing_id": 194
+      }
+    ],
+    "protected": false,
+    "size": [
+      600,
+      600
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "a7d374f02899165ea0ed3b8653f6b3aa695fed2a8c77a0f6a51fb83daa48da8a",
+    "audit_id": 28,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-knp-hat-nem-chinsu-v1.png",
+    "crop": {
+      "left": 11,
+      "top": 41,
+      "width": 583,
+      "height": 518
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.6504527777777778,
+    "new_url": "/api/v1/public/product-images/transparent-knp-hat-nem-chinsu-v1.png",
+    "output_sha256": "8f4a1e7ceb97e2374ff6eb60cdf759b534656b44138641b5312139495998be87"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/worldmarket-192.webp",
+    "filename": "worldmarket-192.webp",
+    "rows": [
+      {
+        "code": "NP-055",
+        "name": "Tương ớt CHIN-SU",
+        "group_id": "06",
+        "listing_id": 156
+      }
+    ],
+    "protected": false,
+    "size": [
+      1200,
+      1200
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "d8524f234b5493ceb7ec595df4ed40582499afda38fee04b3242725728cf2455",
+    "audit_id": 29,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-worldmarket-192-v1.png",
+    "crop": {
+      "left": 368,
+      "top": 98,
+      "width": 478,
+      "height": 1037
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.25234305555555553,
+    "new_url": "/api/v1/public/product-images/transparent-worldmarket-192-v1.png",
+    "output_sha256": "b00ec1f20b335e505129966d8c47549ec695a0638e4dfb88dc59f487272abb57"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/worldmarket-198.webp",
+    "filename": "worldmarket-198.webp",
+    "rows": [
+      {
+        "code": "NP-056",
+        "name": "Nước mắm cá cơm nhĩ Hưng Thịnh 40N — 750 ml",
+        "group_id": "06",
+        "listing_id": 162
+      }
+    ],
+    "protected": false,
+    "size": [
+      800,
+      800
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "a679b32a0f47d05545ab790358e8d15a125e4a9e9de0d91f70083d51302161da",
+    "audit_id": 30,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-worldmarket-198-v1.png",
+    "crop": {
+      "left": 292,
+      "top": 36,
+      "width": 204,
+      "height": 733
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.16630625,
+    "new_url": "/api/v1/public/product-images/transparent-worldmarket-198-v1.png",
+    "output_sha256": "5ab59d9de5a6b761ef7ee21f67eae7e401d1e8bb6877b3e74be3e8a3dcd883b7"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/worldmarket-197.webp",
+    "filename": "worldmarket-197.webp",
+    "rows": [
+      {
+        "code": "NP-057",
+        "name": "Nước mắm Thuận Phát 40N — 610 ml",
+        "group_id": "06",
+        "listing_id": 161
+      }
+    ],
+    "protected": false,
+    "size": [
+      600,
+      600
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "989ad010f538b341546a28092a75f68b996bc6739c94b2723a9406aa9f5bc5a4",
+    "audit_id": 31,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-worldmarket-197-v1.png",
+    "crop": {
+      "left": 102,
+      "top": 1,
+      "width": 492,
+      "height": 595
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.3645638888888889,
+    "new_url": "/api/v1/public/product-images/transparent-worldmarket-197-v1.png",
+    "output_sha256": "593cf2f2a53d3723a6061d39f1a6ae8972a1ae43c23bbff6a199aa0985b17d6c"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-067.webp",
+    "filename": "catalog-2026-np-067.webp",
+    "rows": [
+      {
+        "code": "NP-067",
+        "name": "Hạt điều màu Ông Chà Và",
+        "group_id": "07",
+        "listing_id": 258
+      },
+      {
+        "code": "NP-068",
+        "name": "Hạt điều màu Ông Chà Và",
+        "group_id": "07",
+        "listing_id": 258
+      }
+    ],
+    "protected": false,
+    "size": [
+      800,
+      800
+    ],
+    "mode": "RGB",
+    "white_edges": 7,
+    "sha256": "5dc7427e7fba3ae6ab3f2df603d4255f8300e634b632af01fe27d8f2650624ea",
+    "audit_id": 32,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-catalog-2026-np-067-v1.png",
+    "crop": {
+      "left": 239,
+      "top": 0,
+      "width": 323,
+      "height": 800
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.354484375,
+    "new_url": "/api/v1/public/product-images/transparent-catalog-2026-np-067-v1.png",
+    "output_sha256": "df274072e7abf3f96956906e080429226d31349122a30a54a3dfe5924e17047c"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/worldmarket-168.webp",
+    "filename": "worldmarket-168.webp",
+    "rows": [
+      {
+        "code": "NP-155",
+        "name": "Sting Dâu lon cao",
+        "group_id": "13",
+        "listing_id": 132
+      }
+    ],
+    "protected": false,
+    "size": [
+      1000,
+      1000
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "0eab13337eb0b46e278c16457675783a3f20782b1850f6af01700f9bbf0b8de7",
+    "audit_id": 33,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-worldmarket-168-v1.png",
+    "crop": {
+      "left": 330,
+      "top": 59,
+      "width": 341,
+      "height": 883
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.280713,
+    "new_url": "/api/v1/public/product-images/transparent-worldmarket-168-v1.png",
+    "output_sha256": "f6ec8c5a639669f4f9d48c7854cc0a4bb15ec4feacb3129ccdd4026d99d2fb08"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-159.webp",
+    "filename": "catalog-2026-np-159.webp",
+    "rows": [
+      {
+        "code": "NP-159",
+        "name": "Number One vàng",
+        "group_id": "13",
+        "listing_id": 284
+      }
+    ],
+    "protected": false,
+    "size": [
+      608,
+      608
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "55283c865c8ece759b5f50f8eaca2ff4b039f5f8e6342ee58276f8ba24d83d6f",
+    "audit_id": 34,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-catalog-2026-np-159-v1.png",
+    "crop": {
+      "left": 25,
+      "top": 13,
+      "width": 355,
+      "height": 524
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.15420219442520774,
+    "new_url": "/api/v1/public/product-images/transparent-catalog-2026-np-159-v1.png",
+    "output_sha256": "4f020ca3af23b1756a6161413e9b0207932fc066cc0a3e8b67921e0cce53551b"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-160.webp",
+    "filename": "catalog-2026-np-160.webp",
+    "rows": [
+      {
+        "code": "NP-160",
+        "name": "Wake-Up 247 cà phê Masan",
+        "group_id": "13",
+        "listing_id": 285
+      }
+    ],
+    "protected": false,
+    "size": [
+      608,
+      608
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "1c2f44f95c1bf22803aee9cac4f5d66660b1251f8ff9cee0934283a22bbb33d4",
+    "audit_id": 35,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-catalog-2026-np-160-v1.png",
+    "crop": {
+      "left": 25,
+      "top": 13,
+      "width": 310,
+      "height": 406
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.04591737361495845,
+    "new_url": "/api/v1/public/product-images/transparent-catalog-2026-np-160-v1.png",
+    "output_sha256": "83682a34e32eae5de5aa6d364e410c8c1e48bb9c34dfc2c8add2d15a6ee4481b"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-162.webp",
+    "filename": "catalog-2026-np-162.webp",
+    "rows": [
+      {
+        "code": "NP-162",
+        "name": "Revive chanh muối Suntory PepsiCo",
+        "group_id": "13",
+        "listing_id": 287
+      }
+    ],
+    "protected": false,
+    "size": [
+      600,
+      600
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "b28426e080d9e8fa974e8a6faeca8b77dc395a104b80c9a84d14035fc85aebc1",
+    "audit_id": 37,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-catalog-2026-np-162-v1.png",
+    "crop": {
+      "left": 39,
+      "top": 62,
+      "width": 520,
+      "height": 489
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.5037166666666667,
+    "new_url": "/api/v1/public/product-images/transparent-catalog-2026-np-162-v1.png",
+    "output_sha256": "77f8dfa0ee0212e5381b9204eb44cd9947c445db61e58f24f03d3dd474436525"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-163.webp",
+    "filename": "catalog-2026-np-163.webp",
+    "rows": [
+      {
+        "code": "NP-163",
+        "name": "Revive thường Suntory PepsiCo",
+        "group_id": "13",
+        "listing_id": 288
+      }
+    ],
+    "protected": false,
+    "size": [
+      608,
+      608
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "f06e7ce3c20d984199984d6dd1c1f89fbe20d1ff87f41f564248f2070aeac666",
+    "audit_id": 38,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-catalog-2026-np-163-v1.png",
+    "crop": {
+      "left": 25,
+      "top": 13,
+      "width": 347,
+      "height": 534
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.12622002683518005,
+    "new_url": "/api/v1/public/product-images/transparent-catalog-2026-np-163-v1.png",
+    "output_sha256": "652fa790d244e2c69e16edfb9c27f9c2fe76f4875f2a67923039e43bc7cbd92c"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-165.webp",
+    "filename": "catalog-2026-np-165.webp",
+    "rows": [
+      {
+        "code": "NP-165",
+        "name": "Tea+ Ô long xanh Suntory PepsiCo",
+        "group_id": "13",
+        "listing_id": 289
+      }
+    ],
+    "protected": false,
+    "size": [
+      608,
+      608
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "c605ed06ef278da722983e3b12ddf8a119ef3cc8684ddbf01f580d7ecdf41720",
+    "audit_id": 39,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-catalog-2026-np-165-v1.png",
+    "crop": {
+      "left": 25,
+      "top": 13,
+      "width": 476,
+      "height": 462
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.09806743421052631,
+    "new_url": "/api/v1/public/product-images/transparent-catalog-2026-np-165-v1.png",
+    "output_sha256": "cd8df203dc0cb7afb95890c3e917a2ba516f3ecde3c9cc95a058de016b9cf7d2"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-166.webp",
+    "filename": "catalog-2026-np-166.webp",
+    "rows": [
+      {
+        "code": "NP-166",
+        "name": "Tea+ Ô long đào nhiệt đới Suntory PepsiCo",
+        "group_id": "13",
+        "listing_id": 290
+      }
+    ],
+    "protected": false,
+    "size": [
+      608,
+      608
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "f6b45d6a1a70be41617042962c769c7e818b4cd78a2c972fd241b90a2136dc06",
+    "audit_id": 40,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-catalog-2026-np-166-v1.png",
+    "crop": {
+      "left": 25,
+      "top": 13,
+      "width": 538,
+      "height": 534
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.16014001904432132,
+    "new_url": "/api/v1/public/product-images/transparent-catalog-2026-np-166-v1.png",
+    "output_sha256": "5ed4c9d0120be11b024338bde3693997abca2294f0a2140489e3b66e84085323"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-167.webp",
+    "filename": "catalog-2026-np-167.webp",
+    "rows": [
+      {
+        "code": "NP-167",
+        "name": "C2 chanh nguyên bản",
+        "group_id": "13",
+        "listing_id": 291
+      }
+    ],
+    "protected": false,
+    "size": [
+      608,
+      608
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "2c014f1f97439962ce8744ec5a2b8a21372063628ef38037e3ac5d4def29483c",
+    "audit_id": 41,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-catalog-2026-np-167-v1.png",
+    "crop": {
+      "left": 25,
+      "top": 13,
+      "width": 351,
+      "height": 464
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.09392313019390582,
+    "new_url": "/api/v1/public/product-images/transparent-catalog-2026-np-167-v1.png",
+    "output_sha256": "ba5448c4b407695da012d5a89f3950c2a248d266e18b6a8b19650b1de221263d"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-168.webp",
+    "filename": "catalog-2026-np-168.webp",
+    "rows": [
+      {
+        "code": "NP-168",
+        "name": "C2 đào",
+        "group_id": "13",
+        "listing_id": 292
+      }
+    ],
+    "protected": false,
+    "size": [
+      608,
+      608
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "a0183f30e63f0a433c6cbe81f6b511de2a0d7e164993ac3750735dc4e1ca6512",
+    "audit_id": 42,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-catalog-2026-np-168-v1.png",
+    "crop": {
+      "left": 25,
+      "top": 13,
+      "width": 328,
+      "height": 425
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.07326382877423823,
+    "new_url": "/api/v1/public/product-images/transparent-catalog-2026-np-168-v1.png",
+    "output_sha256": "4d0cf48ff90991e81e5a97b33fe15bcf04ccb3f312613dc7c6f0f2a9fe304e7c"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-169.webp",
+    "filename": "catalog-2026-np-169.webp",
+    "rows": [
+      {
+        "code": "NP-169",
+        "name": "C2 Free chanh tuyết bạc hà",
+        "group_id": "13",
+        "listing_id": 293
+      }
+    ],
+    "protected": false,
+    "size": [
+      608,
+      608
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "418759925cc5bd9a262504fa1414b773a598d102f9f60e5d0b1e87dfefb70ecc",
+    "audit_id": 43,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-catalog-2026-np-169-v1.png",
+    "crop": {
+      "left": 25,
+      "top": 13,
+      "width": 335,
+      "height": 480
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.09822974376731301,
+    "new_url": "/api/v1/public/product-images/transparent-catalog-2026-np-169-v1.png",
+    "output_sha256": "26da82a542280b19c965ef09709c8496f2691faadbd6e84dd38f442edc0fd6d1"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-170.webp",
+    "filename": "catalog-2026-np-170.webp",
+    "rows": [
+      {
+        "code": "NP-170",
+        "name": "C2 Free anh đào dâu",
+        "group_id": "13",
+        "listing_id": 294
+      }
+    ],
+    "protected": false,
+    "size": [
+      608,
+      608
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "ade063bed2543c6d25a6814a984be534a65f0b2c61d1273b2877e46fd0963476",
+    "audit_id": 44,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-catalog-2026-np-170-v1.png",
+    "crop": {
+      "left": 25,
+      "top": 13,
+      "width": 341,
+      "height": 482
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.10072931094182826,
+    "new_url": "/api/v1/public/product-images/transparent-catalog-2026-np-170-v1.png",
+    "output_sha256": "791cbbf7acc5ee8ceec1a4bc903ffbd7f386bdb4f716713d42f7ca526d1f2ab8"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/worldmarket-176.webp",
+    "filename": "worldmarket-176.webp",
+    "rows": [
+      {
+        "code": "NP-171",
+        "name": "Trà xanh 0 độ",
+        "group_id": "13",
+        "listing_id": 140
+      }
+    ],
+    "protected": false,
+    "size": [
+      479,
+      1400
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "599dfd8bde43a09bcc369e5da3be5a385edc6525278b3cc5916d60d54b6ab48a",
+    "audit_id": 45,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-worldmarket-176-v1.png",
+    "crop": {
+      "left": 34,
+      "top": 52,
+      "width": 411,
+      "height": 1314
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.6496555323590815,
+    "new_url": "/api/v1/public/product-images/transparent-worldmarket-176-v1.png",
+    "output_sha256": "6e91a90e361d9981dc1583cdd51ce2a6e0a6640b562195448edfcff1d28d38bb"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-172.webp",
+    "filename": "catalog-2026-np-172.webp",
+    "rows": [
+      {
+        "code": "NP-172",
+        "name": "Tea+ Trà chanh Yuzu Suntory PepsiCo",
+        "group_id": "13",
+        "listing_id": 295
+      }
+    ],
+    "protected": false,
+    "size": [
+      608,
+      608
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "376370052310bba673a90135a9f78935dec80f62a6330a3cd3a52b82ed10b61f",
+    "audit_id": 46,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-catalog-2026-np-172-v1.png",
+    "crop": {
+      "left": 25,
+      "top": 13,
+      "width": 350,
+      "height": 490
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.12420197801246538,
+    "new_url": "/api/v1/public/product-images/transparent-catalog-2026-np-172-v1.png",
+    "output_sha256": "26b9e5343a7e545651dfe164a1e034af84058f586948abaab21f93930932d4e6"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-173.webp",
+    "filename": "catalog-2026-np-173.webp",
+    "rows": [
+      {
+        "code": "NP-173",
+        "name": "C2 ổi hồng chanh dây",
+        "group_id": "13",
+        "listing_id": 296
+      }
+    ],
+    "protected": false,
+    "size": [
+      608,
+      608
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "12f62adb062845838a16076fe5bc63af166e23ceea251476fcaca7fc28517aa3",
+    "audit_id": 47,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-catalog-2026-np-173-v1.png",
+    "crop": {
+      "left": 25,
+      "top": 13,
+      "width": 330,
+      "height": 470
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.0915723467797784,
+    "new_url": "/api/v1/public/product-images/transparent-catalog-2026-np-173-v1.png",
+    "output_sha256": "a06faf6f24317cf8f3170ff15f4ecbe668a23312fe13d5cc50a66183aad64dd6"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-174.webp",
+    "filename": "catalog-2026-np-174.webp",
+    "rows": [
+      {
+        "code": "NP-174",
+        "name": "Trà thảo mộc Dr Thanh nguyên bản",
+        "group_id": "13",
+        "listing_id": 297
+      }
+    ],
+    "protected": false,
+    "size": [
+      600,
+      600
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "5e858926ef063caaf68109a0d2cbe955ca0ff5757b4497f1502632b17f2d24ae",
+    "audit_id": 48,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-catalog-2026-np-174-v1.png",
+    "crop": {
+      "left": 236,
+      "top": 111,
+      "width": 125,
+      "height": 377
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.09219722222222222,
+    "new_url": "/api/v1/public/product-images/transparent-catalog-2026-np-174-v1.png",
+    "output_sha256": "f03ed4e7268ba4cb280ab81627eaff93ce19f43ed456c29895e4446794dbbc24"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-177.webp",
+    "filename": "catalog-2026-np-177.webp",
+    "rows": [
+      {
+        "code": "NP-177",
+        "name": "Nước tương Tam Thái Tử",
+        "group_id": "14",
+        "listing_id": 300
+      }
+    ],
+    "protected": false,
+    "size": [
+      502,
+      502
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "e6d9fba1de56b0bd385be1059e442bdbd03c56f16a7b0ee3230e502ea0bce0ef",
+    "audit_id": 49,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-catalog-2026-np-177-v1.png",
+    "crop": {
+      "left": 188,
+      "top": 28,
+      "width": 124,
+      "height": 449
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.1484143108839542,
+    "new_url": "/api/v1/public/product-images/transparent-catalog-2026-np-177-v1.png",
+    "output_sha256": "259e9c23f7017ee9cc897f2b4fcbb756863aa2b2973d7eedf31222ef2729eccb"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-178.webp",
+    "filename": "catalog-2026-np-178.webp",
+    "rows": [
+      {
+        "code": "NP-178",
+        "name": "Nước tương Đậm Đà Maggi",
+        "group_id": "14",
+        "listing_id": 301
+      }
+    ],
+    "protected": false,
+    "size": [
+      500,
+      500
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "19af9fcc0e8d3e7a2fae24ff3ed4b4ed9aa33da0627a8ddaa4c26552b91c7d11",
+    "audit_id": 50,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-catalog-2026-np-178-v1.png",
+    "crop": {
+      "left": 195,
+      "top": 68,
+      "width": 125,
+      "height": 412
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.130368,
+    "new_url": "/api/v1/public/product-images/transparent-catalog-2026-np-178-v1.png",
+    "output_sha256": "0b6158671bf89d0f1d53afa8e2cc2eff5249aa2f3bd7c41c109850d88ea39cd3"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-179.webp",
+    "filename": "catalog-2026-np-179.webp",
+    "rows": [
+      {
+        "code": "NP-179",
+        "name": "Nước tương Thanh Dịu Maggi",
+        "group_id": "14",
+        "listing_id": 302
+      }
+    ],
+    "protected": false,
+    "size": [
+      500,
+      500
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "059410f2f9604e575d29e698ecaff9f1cdcf6c57b6295946bba1c476c61fc984",
+    "audit_id": 51,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-catalog-2026-np-179-v1.png",
+    "crop": {
+      "left": 189,
+      "top": 71,
+      "width": 125,
+      "height": 409
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.128848,
+    "new_url": "/api/v1/public/product-images/transparent-catalog-2026-np-179-v1.png",
+    "output_sha256": "6bcf51550e8ad59742a9c1e228ce5180269c69da070b81f077b1d702b29b8e31"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-180.webp",
+    "filename": "catalog-2026-np-180.webp",
+    "rows": [
+      {
+        "code": "NP-180",
+        "name": "Dầu hào Maggi thêm đậm đà",
+        "group_id": "14",
+        "listing_id": 303
+      }
+    ],
+    "protected": false,
+    "size": [
+      608,
+      608
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "ccb8a4f76cde981a8ae1d7fb6db64f1a4c2c789fc54ad8200926199398731528",
+    "audit_id": 52,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-catalog-2026-np-180-v1.png",
+    "crop": {
+      "left": 25,
+      "top": 13,
+      "width": 337,
+      "height": 500
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.08482297437673131,
+    "new_url": "/api/v1/public/product-images/transparent-catalog-2026-np-180-v1.png",
+    "output_sha256": "5ff1e56273dfa655801f01779a6190a58006ae6ab69fa3d1510905afdc255326"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-181.webp",
+    "filename": "catalog-2026-np-181.webp",
+    "rows": [
+      {
+        "code": "NP-181",
+        "name": "Dầu hào Maggi Bào ngư cao cấp",
+        "group_id": "14",
+        "listing_id": 304
+      }
+    ],
+    "protected": false,
+    "size": [
+      608,
+      608
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "1d6b043f76cdee90edf6c487ec2689518305ce13dc0cfb49eda3c6e9f9a78a64",
+    "audit_id": 53,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-catalog-2026-np-181-v1.png",
+    "crop": {
+      "left": 25,
+      "top": 13,
+      "width": 348,
+      "height": 528
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.12476465114265928,
+    "new_url": "/api/v1/public/product-images/transparent-catalog-2026-np-181-v1.png",
+    "output_sha256": "76f29aa2e498927e0c1f34bd63f577e4026a54e45c2c5888e2517749198e591e"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-182.webp",
+    "filename": "catalog-2026-np-182.webp",
+    "rows": [
+      {
+        "code": "NP-182",
+        "name": "Nước tương đậu nành Maggi tự nhiên",
+        "group_id": "14",
+        "listing_id": 305
+      }
+    ],
+    "protected": false,
+    "size": [
+      608,
+      608
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "407214ea81510d88236cd3986e8b1d076904f223814277c0247dbd95884f2d05",
+    "audit_id": 54,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-catalog-2026-np-182-v1.png",
+    "crop": {
+      "left": 25,
+      "top": 13,
+      "width": 333,
+      "height": 482
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.08386534799168975,
+    "new_url": "/api/v1/public/product-images/transparent-catalog-2026-np-182-v1.png",
+    "output_sha256": "2f008487a71ab615cabebe13e48dfa34c526c4d174987dc7bc106227ff0f7bcc"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-192.webp",
+    "filename": "catalog-2026-np-192.webp",
+    "rows": [
+      {
+        "code": "NP-192",
+        "name": "Gia vị vịt tiềm Ông Chà Và",
+        "group_id": "14",
+        "listing_id": 308
+      }
+    ],
+    "protected": false,
+    "size": [
+      1024,
+      1024
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "4540710ef2a02eaa50f14ff916dcb55671bf354cac47c9674e1a201ef336ef7f",
+    "audit_id": 55,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-catalog-2026-np-192-v1.png",
+    "crop": {
+      "left": 0,
+      "top": 162,
+      "width": 1013,
+      "height": 819
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.6219987869262695,
+    "new_url": "/api/v1/public/product-images/transparent-catalog-2026-np-192-v1.png",
+    "output_sha256": "2a4e98fb078ff2bfd07381166f023a1742467088d940adaf0a1bb44c8b335b22"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/worldmarket-178.webp",
+    "filename": "worldmarket-178.webp",
+    "rows": [
+      {
+        "code": "NP-151",
+        "name": "Cà phê hòa tan G7 3 trong 1 — bịch 1,6 kg",
+        "group_id": "15",
+        "listing_id": 142
+      }
+    ],
+    "protected": false,
+    "size": [
+      1400,
+      1400
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "9f56e69fe96eda592026a15faed1c14f72bea734c898f769bbffe5462d810083",
+    "audit_id": 56,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-worldmarket-178-v1.png",
+    "crop": {
+      "left": 301,
+      "top": 78,
+      "width": 824,
+      "height": 1310
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.4321,
+    "new_url": "/api/v1/public/product-images/transparent-worldmarket-178-v1.png",
+    "output_sha256": "8e07446e74c3866ad1cbffd22edf5fe55531b0f298b73a522e92f3689c671a70"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/nghia-d01.webp",
+    "filename": "nghia-d01.webp",
+    "rows": [
+      {
+        "code": "NP-147",
+        "name": "Nghia Cuticle Nipper D-01",
+        "group_id": "17",
+        "listing_id": 45
+      },
+      {
+        "code": "NP-148",
+        "name": "Nghia Cuticle Nipper D-01",
+        "group_id": "17",
+        "listing_id": 45
+      }
+    ],
+    "protected": false,
+    "size": [
+      850,
+      850
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "a2ba46cb18c8d675f2f04ce14b6e4c1a04d394ebb890a04f5ef17d62ba1b33ba",
+    "audit_id": 57,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-nghia-d01-v1.png",
+    "crop": {
+      "left": 117,
+      "top": 90,
+      "width": 626,
+      "height": 682
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.3026698961937716,
+    "new_url": "/api/v1/public/product-images/transparent-nghia-d01-v1.png",
+    "output_sha256": "c9162781158848f6396d1c20e984b41b354a2a1cc097a68a77352040e799557f"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-149.webp",
+    "filename": "catalog-2026-np-149.webp",
+    "rows": [
+      {
+        "code": "NP-149",
+        "name": "Kềm cắt da Nghĩa D.04",
+        "group_id": "17",
+        "listing_id": 312
+      },
+      {
+        "code": "NP-150",
+        "name": "Kềm cắt da Nghĩa D.04",
+        "group_id": "17",
+        "listing_id": 312
+      }
+    ],
+    "protected": false,
+    "size": [
+      1600,
+      1600
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "6f6f1b15bbc73702bf4e476e37aa3fda28a47188b51ae55e4e7dcc74a2e9b31d",
+    "audit_id": 58,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-catalog-2026-np-149-v1.png",
+    "crop": {
+      "left": 130,
+      "top": 282,
+      "width": 1312,
+      "height": 962
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.096315234375,
+    "new_url": "/api/v1/public/product-images/transparent-catalog-2026-np-149-v1.png",
+    "output_sha256": "5437fea76454be38086909df05388f9bbd2b551f9cdff86f356e26392f0ccf36"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/atiso-ngocduy-cam.webp",
+    "filename": "atiso-ngocduy-cam.webp",
+    "rows": [
+      {
+        "code": "TRA_ATISO_NGOC_DUY_GOI_CAM",
+        "name": "Trà Atiso Ngọc Duy gói cam",
+        "group_id": "18",
+        "listing_id": 103
+      }
+    ],
+    "protected": false,
+    "size": [
+      600,
+      600
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "92b11557024d41aefa9d7cc55c10e34d6030643b3b1bee2f5e93ef6e7562a96d",
+    "audit_id": 60,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-atiso-ngocduy-cam-v1.png",
+    "crop": {
+      "left": 24,
+      "top": 19,
+      "width": 548,
+      "height": 581
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.6287083333333333,
+    "new_url": "/api/v1/public/product-images/transparent-atiso-ngocduy-cam-v1.png",
+    "output_sha256": "4a2ae3224ac06a013fd1d3110f785f1199f2a54fbc4d5227bc811ae79ea1d4bf"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/atiso-ngocduy-xanh.webp",
+    "filename": "atiso-ngocduy-xanh.webp",
+    "rows": [
+      {
+        "code": "TRA_ATISO_NGOC_DUY_GOI_XANH",
+        "name": "Trà Atiso Ngọc Duy gói xanh",
+        "group_id": "18",
+        "listing_id": 104
+      }
+    ],
+    "protected": false,
+    "size": [
+      1200,
+      1200
+    ],
+    "mode": "RGB",
+    "white_edges": 8,
+    "sha256": "d6040e4c661b46192680d6aa0d600131f347402bb7f77ebcf3abeb6ba4732e6e",
+    "audit_id": 61,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-atiso-ngocduy-xanh-v1.png",
+    "crop": {
+      "left": 268,
+      "top": 96,
+      "width": 664,
+      "height": 1008
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.42036805555555556,
+    "new_url": "/api/v1/public/product-images/transparent-atiso-ngocduy-xanh-v1.png",
+    "output_sha256": "34f5d809a3eb3cd3236e72e74805026dddb353d7243095b7c40fb5884f63f321"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/UL1628T001.png",
+    "filename": "UL1628T001.png",
+    "rows": [
+      {
+        "code": "UL1628T001",
+        "name": "16x28 - White Hand Towel Premium",
+        "group_id": "towels",
+        "listing_id": 1
+      }
+    ],
+    "protected": false,
+    "size": [
+      700,
+      630
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 100,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-UL1628T001-v1.png",
+    "crop": {
+      "left": 1,
+      "top": 9,
+      "width": 699,
+      "height": 621
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.8645850340136054,
+    "new_url": "/api/v1/public/product-images/transparent-UL1628T001-v1.png",
+    "output_sha256": "29f80efd3645047417435e7fbe4d81220a5b8404281e7925ec90628f9b822cb1"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/UL1628T002.png",
+    "filename": "UL1628T002.png",
+    "rows": [
+      {
+        "code": "UL1628T002",
+        "name": "16x28 - Black Hand Towel Premium",
+        "group_id": "towels",
+        "listing_id": 3
+      }
+    ],
+    "protected": false,
+    "size": [
+      700,
+      630
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 101,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-UL1628T002-v1.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 700,
+      "height": 630
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.8877573696145125,
+    "new_url": "/api/v1/public/product-images/transparent-UL1628T002-v1.png",
+    "output_sha256": "d4c9dde48812065924db9c3bfc9ff98940195c4968096d3ad8fc9f00bf80255f"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/UL1628T003.png",
+    "filename": "UL1628T003.png",
+    "rows": [
+      {
+        "code": "UL1628T003",
+        "name": "16x28 - Gray Hand Towel Premium",
+        "group_id": "towels",
+        "listing_id": 5
+      }
+    ],
+    "protected": false,
+    "size": [
+      700,
+      630
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 102,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-UL1628T003-v1.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 700,
+      "height": 630
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.8875895691609977,
+    "new_url": "/api/v1/public/product-images/transparent-UL1628T003-v1.png",
+    "output_sha256": "1ec76f6d4d8e4e1efd469b28959b86cf28dee01db36df023d83bb8e233d91eca"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/UL1628T004.png",
+    "filename": "UL1628T004.png",
+    "rows": [
+      {
+        "code": "UL1628T004",
+        "name": "16x28 - Yellow Hand Towel Premium",
+        "group_id": "towels",
+        "listing_id": 7
+      }
+    ],
+    "protected": false,
+    "size": [
+      700,
+      630
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 103,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-UL1628T004-v1.png",
+    "crop": {
+      "left": 2,
+      "top": 0,
+      "width": 697,
+      "height": 626
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.8801269841269841,
+    "new_url": "/api/v1/public/product-images/transparent-UL1628T004-v1.png",
+    "output_sha256": "1de64d92f312dbef1405c264b3d0bfd857473efa829a2ca7c5407d3a77d95e4a"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/UL1628T005.png",
+    "filename": "UL1628T005.png",
+    "rows": [
+      {
+        "code": "UL1628T005",
+        "name": "16x28 - Turquoise Hand Towel Premium",
+        "group_id": "towels",
+        "listing_id": 9
+      }
+    ],
+    "protected": false,
+    "size": [
+      700,
+      630
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 104,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-UL1628T005-v1.png",
+    "crop": {
+      "left": 2,
+      "top": 0,
+      "width": 697,
+      "height": 626
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.8733242630385487,
+    "new_url": "/api/v1/public/product-images/transparent-UL1628T005-v1.png",
+    "output_sha256": "67fdd4f528463f01f6d4b44a139972de38ccad5b9056e9a79256e1d340dc56a3"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/UL1628T006.png",
+    "filename": "UL1628T006.png",
+    "rows": [
+      {
+        "code": "UL1628T006",
+        "name": "16x28 - Orange Hand Towel Premium",
+        "group_id": "towels",
+        "listing_id": 11
+      }
+    ],
+    "protected": false,
+    "size": [
+      700,
+      630
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 105,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-UL1628T006-v1.png",
+    "crop": {
+      "left": 1,
+      "top": 0,
+      "width": 699,
+      "height": 630
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.8894353741496599,
+    "new_url": "/api/v1/public/product-images/transparent-UL1628T006-v1.png",
+    "output_sha256": "c71b763ee2b7d27cdb542f78fb0fd19f61a432fc963e1302661f117024a1cd56"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/UL1628T007.png",
+    "filename": "UL1628T007.png",
+    "rows": [
+      {
+        "code": "UL1628T007",
+        "name": "16x28 - Pink Hand Towel Premium",
+        "group_id": "towels",
+        "listing_id": 13
+      }
+    ],
+    "protected": false,
+    "size": [
+      700,
+      630
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 106,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-UL1628T007-v1.png",
+    "crop": {
+      "left": 2,
+      "top": 0,
+      "width": 697,
+      "height": 626
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.87240589569161,
+    "new_url": "/api/v1/public/product-images/transparent-UL1628T007-v1.png",
+    "output_sha256": "cd5aae610c68db0e24b580948b98fe72867ff89aaf8dbb67fe736063ccb96806"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/UL1628T008.png",
+    "filename": "UL1628T008.png",
+    "rows": [
+      {
+        "code": "UL1628T008",
+        "name": "16x28 - Teal Hand Towel Premium",
+        "group_id": "towels",
+        "listing_id": 15
+      }
+    ],
+    "protected": false,
+    "size": [
+      700,
+      630
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 107,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-UL1628T008-v1.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 700,
+      "height": 630
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.8876281179138322,
+    "new_url": "/api/v1/public/product-images/transparent-UL1628T008-v1.png",
+    "output_sha256": "af8e5df7e007f7439bee522c704f54e24ae8c49958572e70dcfff877c6771741"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/UL1628T009.png",
+    "filename": "UL1628T009.png",
+    "rows": [
+      {
+        "code": "UL1628T009",
+        "name": "16x28 - Green Hand Towel Premium",
+        "group_id": "towels",
+        "listing_id": 17
+      }
+    ],
+    "protected": false,
+    "size": [
+      700,
+      630
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 108,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-UL1628T009-v1.png",
+    "crop": {
+      "left": 2,
+      "top": 0,
+      "width": 696,
+      "height": 626
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.8794739229024944,
+    "new_url": "/api/v1/public/product-images/transparent-UL1628T009-v1.png",
+    "output_sha256": "90bb89112222eacafe690ecba904f90f4eee16ebc8a91e8402bf4d3f1b1ab2ef"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/UL1628T010.png",
+    "filename": "UL1628T010.png",
+    "rows": [
+      {
+        "code": "UL1628T010",
+        "name": "16x28 - Navy Hand Towel Premium",
+        "group_id": "towels",
+        "listing_id": 19
+      }
+    ],
+    "protected": false,
+    "size": [
+      700,
+      630
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 109,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-UL1628T010-v1.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 700,
+      "height": 630
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.888,
+    "new_url": "/api/v1/public/product-images/transparent-UL1628T010-v1.png",
+    "output_sha256": "cbbaefcf9ef2499f63a82ff1a51f9c529c18c30f08f1a6a0f3e37d068081344d"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/UL1628T011.png",
+    "filename": "UL1628T011.png",
+    "rows": [
+      {
+        "code": "UL1628T011",
+        "name": "16x28 - Brown Hand Towel Premium",
+        "group_id": "towels",
+        "listing_id": 21
+      }
+    ],
+    "protected": false,
+    "size": [
+      700,
+      630
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 110,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-UL1628T011-v1.png",
+    "crop": {
+      "left": 2,
+      "top": 0,
+      "width": 698,
+      "height": 627
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.8740453514739229,
+    "new_url": "/api/v1/public/product-images/transparent-UL1628T011-v1.png",
+    "output_sha256": "2866ee981b724c8fba8be5969b9fb4bd6c7c98f1addec7763dd58b4b7a891f2a"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/UL1313WC001.png",
+    "filename": "UL1313WC001.png",
+    "rows": [
+      {
+        "code": "UL1313WC001",
+        "name": "13x13 - White Washcloth Premium",
+        "group_id": "towels",
+        "listing_id": 23
+      }
+    ],
+    "protected": false,
+    "size": [
+      700,
+      700
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 111,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-UL1313WC001-v1.png",
+    "crop": {
+      "left": 2,
+      "top": 0,
+      "width": 695,
+      "height": 698
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.645626530612245,
+    "new_url": "/api/v1/public/product-images/transparent-UL1313WC001-v1.png",
+    "output_sha256": "51760deac5898794887a93712db061fdc918273c0d0e2b69a812915c25d960f8"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/UL1313WC002.png",
+    "filename": "UL1313WC002.png",
+    "rows": [
+      {
+        "code": "UL1313WC002",
+        "name": "13x13 - Black Washcloth Premium",
+        "group_id": "towels",
+        "listing_id": 25
+      }
+    ],
+    "protected": false,
+    "size": [
+      700,
+      700
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 112,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-UL1313WC002-v1.png",
+    "crop": {
+      "left": 6,
+      "top": 21,
+      "width": 694,
+      "height": 672
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.7565163265306123,
+    "new_url": "/api/v1/public/product-images/transparent-UL1313WC002-v1.png",
+    "output_sha256": "c943030bc139935d85ae6839983b546bd9631a894052c6f546defa3a4b3c95de"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/UL1313WC003.png",
+    "filename": "UL1313WC003.png",
+    "rows": [
+      {
+        "code": "UL1313WC003",
+        "name": "13x13 - Gray Washcloth Premium",
+        "group_id": "towels",
+        "listing_id": 27
+      }
+    ],
+    "protected": false,
+    "size": [
+      700,
+      700
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 113,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-UL1313WC003-v1.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 700,
+      "height": 700
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.7715469387755102,
+    "new_url": "/api/v1/public/product-images/transparent-UL1313WC003-v1.png",
+    "output_sha256": "3eaaa4e911606d81d29ebe911021e8118b877b5482defc5948044deabf5069be"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/UL1313WC004.png",
+    "filename": "UL1313WC004.png",
+    "rows": [
+      {
+        "code": "UL1313WC004",
+        "name": "13x13 - Yellow Washcloth Premium",
+        "group_id": "towels",
+        "listing_id": 29
+      }
+    ],
+    "protected": false,
+    "size": [
+      700,
+      700
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 114,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-UL1313WC004-v1.png",
+    "crop": {
+      "left": 1,
+      "top": 9,
+      "width": 699,
+      "height": 676
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.7326163265306123,
+    "new_url": "/api/v1/public/product-images/transparent-UL1313WC004-v1.png",
+    "output_sha256": "aabc2daf0a421c9b36eeef51de058e8000f65d48f2fefef2d9163b33c0f3f5c1"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/UL1313WC005.png",
+    "filename": "UL1313WC005.png",
+    "rows": [
+      {
+        "code": "UL1313WC005",
+        "name": "13x13 - Turquoise Washcloth Premium",
+        "group_id": "towels",
+        "listing_id": 31
+      }
+    ],
+    "protected": false,
+    "size": [
+      700,
+      700
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 115,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-UL1313WC005-v1.png",
+    "crop": {
+      "left": 1,
+      "top": 9,
+      "width": 699,
+      "height": 676
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.7326265306122449,
+    "new_url": "/api/v1/public/product-images/transparent-UL1313WC005-v1.png",
+    "output_sha256": "6d18f4543ca3e42ee34f2a1bd1e2f935f564279d316e0ace563fb099e2d579df"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/UL1313WC006.png",
+    "filename": "UL1313WC006.png",
+    "rows": [
+      {
+        "code": "UL1313WC006",
+        "name": "13x13 - Orange Washcloth Premium",
+        "group_id": "towels",
+        "listing_id": 33
+      }
+    ],
+    "protected": false,
+    "size": [
+      700,
+      700
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 116,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-UL1313WC006-v1.png",
+    "crop": {
+      "left": 4,
+      "top": 8,
+      "width": 696,
+      "height": 692
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.7543897959183673,
+    "new_url": "/api/v1/public/product-images/transparent-UL1313WC006-v1.png",
+    "output_sha256": "4de126260478923eb76c4725ed8ca15f3840572c4e0abd6e9615d0ad21ce2a80"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/UL1313WC007.png",
+    "filename": "UL1313WC007.png",
+    "rows": [
+      {
+        "code": "UL1313WC007",
+        "name": "13x13 - Pink Washcloth Premium",
+        "group_id": "towels",
+        "listing_id": 35
+      }
+    ],
+    "protected": false,
+    "size": [
+      700,
+      700
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 117,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-UL1313WC007-v1.png",
+    "crop": {
+      "left": 8,
+      "top": 10,
+      "width": 690,
+      "height": 690
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.7618142857142857,
+    "new_url": "/api/v1/public/product-images/transparent-UL1313WC007-v1.png",
+    "output_sha256": "e1ffa47cb54b0942174da566fbb36e3d7555fe23d262d5974f38e4f030c8692b"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/UL1313WC008.png",
+    "filename": "UL1313WC008.png",
+    "rows": [
+      {
+        "code": "UL1313WC008",
+        "name": "13x13 - Teal Washcloth Premium",
+        "group_id": "towels",
+        "listing_id": 37
+      }
+    ],
+    "protected": false,
+    "size": [
+      700,
+      700
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 118,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-UL1313WC008-v1.png",
+    "crop": {
+      "left": 3,
+      "top": 2,
+      "width": 697,
+      "height": 695
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.7863224489795918,
+    "new_url": "/api/v1/public/product-images/transparent-UL1313WC008-v1.png",
+    "output_sha256": "9a15540f86be1bf9f1244215acb094fa9a690f8b6157aa0730367d9d084a64ab"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/UL1313WC009.png",
+    "filename": "UL1313WC009.png",
+    "rows": [
+      {
+        "code": "UL1313WC009",
+        "name": "13x13 - Green Washcloth Premium",
+        "group_id": "towels",
+        "listing_id": 39
+      }
+    ],
+    "protected": false,
+    "size": [
+      700,
+      700
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 119,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-UL1313WC009-v1.png",
+    "crop": {
+      "left": 0,
+      "top": 7,
+      "width": 700,
+      "height": 685
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.7674122448979592,
+    "new_url": "/api/v1/public/product-images/transparent-UL1313WC009-v1.png",
+    "output_sha256": "24e3576c5f807f0e0b4dd21e21939527f6063cbc202bf3262336e8783d5f1991"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/UL1313WC010.png",
+    "filename": "UL1313WC010.png",
+    "rows": [
+      {
+        "code": "UL1313WC010",
+        "name": "13x13 - Navy Washcloth Premium",
+        "group_id": "towels",
+        "listing_id": 41
+      }
+    ],
+    "protected": false,
+    "size": [
+      700,
+      700
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 120,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-UL1313WC010-v1.png",
+    "crop": {
+      "left": 5,
+      "top": 11,
+      "width": 693,
+      "height": 676
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.741765306122449,
+    "new_url": "/api/v1/public/product-images/transparent-UL1313WC010-v1.png",
+    "output_sha256": "d7f01f7a3b23bea6bcddd78357134ac2c325fa8e3466a0900b612603f7c49866"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/UL1313WC011.png",
+    "filename": "UL1313WC011.png",
+    "rows": [
+      {
+        "code": "UL1313WC011",
+        "name": "13x13 - Brown Washcloth Premium",
+        "group_id": "towels",
+        "listing_id": 43
+      }
+    ],
+    "protected": false,
+    "size": [
+      700,
+      700
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 121,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-UL1313WC011-v1.png",
+    "crop": {
+      "left": 7,
+      "top": 10,
+      "width": 687,
+      "height": 677
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.7380122448979591,
+    "new_url": "/api/v1/public/product-images/transparent-UL1313WC011-v1.png",
+    "output_sha256": "97116aea32cdcd3be304a9f378b565268fa5d7eae48dd0f8dc5fdb76df5e3b40"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/flash-cuticle-base.webp",
+    "filename": "flash-cuticle-base.webp",
+    "rows": [
+      {
+        "code": "ULF01J14",
+        "name": "Flash Professional Cuticle Nipper F-01 Jaw 14",
+        "group_id": "nail-supplies",
+        "listing_id": 46
+      },
+      {
+        "code": "ULF01J16",
+        "name": "Flash Professional Cuticle Nipper F-01 Jaw 16",
+        "group_id": "nail-supplies",
+        "listing_id": 60
+      },
+      {
+        "code": "ULF03J14",
+        "name": "Flash Professional Cuticle Nipper F-03 Jaw 14",
+        "group_id": "nail-supplies",
+        "listing_id": 61
+      },
+      {
+        "code": "ULF03J16",
+        "name": "Flash Professional Cuticle Nipper F-03 Jaw 16",
+        "group_id": "nail-supplies",
+        "listing_id": 62
+      }
+    ],
+    "protected": false,
+    "size": [
+      1500,
+      1500
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 122,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-flash-cuticle-base-v1.png",
+    "crop": {
+      "left": 395,
+      "top": 5,
+      "width": 709,
+      "height": 1495
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.08878266666666666,
+    "new_url": "/api/v1/public/product-images/transparent-flash-cuticle-base-v1.png",
+    "output_sha256": "1d30575ee495fed1045efcc66dc213ec473496e84fcdd2fc2fa897ba7df734a3"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/nail-paraffin.webp",
+    "filename": "nail-paraffin.webp",
+    "rows": [
+      {
+        "code": "ULPL01",
+        "name": "LDPE PARAFFIN LINER 12X17",
+        "group_id": "nail-supplies",
+        "listing_id": 48
+      },
+      {
+        "code": "ULPL02",
+        "name": "HDPE PARAFFIN LINER 12X17",
+        "group_id": "nail-supplies",
+        "listing_id": 49
+      }
+    ],
+    "protected": false,
+    "size": [
+      1280,
+      676
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 124,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-nail-paraffin-v1.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 1280,
+      "height": 676
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.5208360299556213,
+    "new_url": "/api/v1/public/product-images/transparent-nail-paraffin-v1.png",
+    "output_sha256": "b7ba2fe8a24a44b92f8f3ad91c0fa1344e6bfc753ebc75548b77dab399f9d7d3"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/nail-header-bag.webp",
+    "filename": "nail-header-bag.webp",
+    "rows": [
+      {
+        "code": "ULPL03",
+        "name": "HDPE PARAFFIN LINER HEADER BAG 13X17\"",
+        "group_id": "nail-supplies",
+        "listing_id": 50
+      }
+    ],
+    "protected": false,
+    "size": [
+      480,
+      480
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 125,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-nail-header-bag-v1.png",
+    "crop": {
+      "left": 46,
+      "top": 0,
+      "width": 412,
+      "height": 480
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.5362847222222222,
+    "new_url": "/api/v1/public/product-images/transparent-nail-header-bag-v1.png",
+    "output_sha256": "ef4da652653c5b1548661b4a9560522c94297aa1b6b17052b964f378e50f2211"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/nail-pumice.webp",
+    "filename": "nail-pumice.webp",
+    "rows": [
+      {
+        "code": "ULPUMICE",
+        "name": "PUMICE 80x35x12MM",
+        "group_id": "nail-supplies",
+        "listing_id": 51
+      }
+    ],
+    "protected": false,
+    "size": [
+      800,
+      800
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 126,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-nail-pumice-v1.png",
+    "crop": {
+      "left": 11,
+      "top": 139,
+      "width": 777,
+      "height": 517
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.37594375,
+    "new_url": "/api/v1/public/product-images/transparent-nail-pumice-v1.png",
+    "output_sha256": "476ffc6c1a550f93018223aad5095c7b17387703675499251ed5690e60fab0b5"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/nail-slippers.webp",
+    "filename": "nail-slippers.webp",
+    "rows": [
+      {
+        "code": "ULSLIPPER",
+        "name": "SLIPPERS 2.5MM",
+        "group_id": "nail-supplies",
+        "listing_id": 52
+      }
+    ],
+    "protected": false,
+    "size": [
+      600,
+      600
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 127,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-nail-slippers-v1.png",
+    "crop": {
+      "left": 39,
+      "top": 36,
+      "width": 538,
+      "height": 508
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.3826888888888889,
+    "new_url": "/api/v1/public/product-images/transparent-nail-slippers-v1.png",
+    "output_sha256": "bb722e2e0a90d7ed7132c95c74af9ea00a12c00e3800376785b641842c1327da"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/nail-eva-separator.webp",
+    "filename": "nail-eva-separator.webp",
+    "rows": [
+      {
+        "code": "ULTS01",
+        "name": "EVA TOE SEPARATORS",
+        "group_id": "nail-supplies",
+        "listing_id": 53
+      },
+      {
+        "code": "ULTS02",
+        "name": "PE TOE SEPARATORS",
+        "group_id": "nail-supplies",
+        "listing_id": 54
+      }
+    ],
+    "protected": false,
+    "size": [
+      900,
+      900
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 128,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-nail-eva-separator-v1.png",
+    "crop": {
+      "left": 57,
+      "top": 21,
+      "width": 781,
+      "height": 859
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.39015925925925926,
+    "new_url": "/api/v1/public/product-images/transparent-nail-eva-separator-v1.png",
+    "output_sha256": "5812703c61de9c33e63c2efcddfeb5664bde0cc566ece86073fd6a9b4b801896"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/nail-buffer.webp",
+    "filename": "nail-buffer.webp",
+    "rows": [
+      {
+        "code": "ULMBUFFER",
+        "name": "MINI BUFFER 60x30x10MM",
+        "group_id": "nail-supplies",
+        "listing_id": 55
+      }
+    ],
+    "protected": false,
+    "size": [
+      1000,
+      1000
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 129,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-nail-buffer-v1.png",
+    "crop": {
+      "left": 66,
+      "top": 229,
+      "width": 864,
+      "height": 694
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.240031,
+    "new_url": "/api/v1/public/product-images/transparent-nail-buffer-v1.png",
+    "output_sha256": "a7f65ed09aece37cb2bb80a476c64975b38ab93abfd479aa46207b27f34b3af4"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/nail-produce-bag.webp",
+    "filename": "nail-produce-bag.webp",
+    "rows": [
+      {
+        "code": "ULPL04",
+        "name": "12X17\" PE PRODUCE BAG",
+        "group_id": "nail-supplies",
+        "listing_id": 64
+      }
+    ],
+    "protected": false,
+    "size": [
+      1214,
+      1103
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 130,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-nail-produce-bag-v1.png",
+    "crop": {
+      "left": 22,
+      "top": 46,
+      "width": 1177,
+      "height": 1034
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.6394765810183698,
+    "new_url": "/api/v1/public/product-images/transparent-nail-produce-bag-v1.png",
+    "output_sha256": "13b09a3425d98f9c77d2d9c345bf7234ee73b4e1bc40dcc2bb10f70c51d31995"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/UL1628T600GSM_WHITE.png",
+    "filename": "UL1628T600GSM_WHITE.png",
+    "rows": [
+      {
+        "code": "UL1628T600GSM_WHITE",
+        "name": "16x28 - White Hand Towel Premium - 600GSM",
+        "group_id": "towels",
+        "listing_id": 66
+      }
+    ],
+    "protected": false,
+    "size": [
+      466,
+      700
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 131,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-UL1628T600GSM_WHITE-v1.png",
+    "crop": {
+      "left": 10,
+      "top": 22,
+      "width": 451,
+      "height": 674
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.8256039239730227,
+    "new_url": "/api/v1/public/product-images/transparent-UL1628T600GSM_WHITE-v1.png",
+    "output_sha256": "11284adc1bc355c800bb0f5fa63507329f42389692e2c9fa07de17d2cc80a744"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/UL1628T600GSM_GRAY.png",
+    "filename": "UL1628T600GSM_GRAY.png",
+    "rows": [
+      {
+        "code": "UL1628T600GSM_GRAY",
+        "name": "16x28 - Gray Hand Towel Premium - 600GSM",
+        "group_id": "towels",
+        "listing_id": 68
+      }
+    ],
+    "protected": false,
+    "size": [
+      466,
+      700
+    ],
+    "already_transparent": false,
+    "white_edges": 5,
+    "audit_id": 132,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-UL1628T600GSM_GRAY-v1.png",
+    "crop": {
+      "left": 0,
+      "top": 28,
+      "width": 466,
+      "height": 672
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.865122624156959,
+    "new_url": "/api/v1/public/product-images/transparent-UL1628T600GSM_GRAY-v1.png",
+    "output_sha256": "c77ef76976bf7f5402c808868e7e43241610dc82f1a3d09972b2a9bf9cd53dad"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/UL1628T600GSM_NAVY.png",
+    "filename": "UL1628T600GSM_NAVY.png",
+    "rows": [
+      {
+        "code": "UL1628T600GSM_NAVY",
+        "name": "16x28 - Navy Hand Towel Premium - 600GSM",
+        "group_id": "towels",
+        "listing_id": 70
+      }
+    ],
+    "protected": false,
+    "size": [
+      467,
+      700
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 133,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-UL1628T600GSM_NAVY-v1.png",
+    "crop": {
+      "left": 6,
+      "top": 35,
+      "width": 453,
+      "height": 662
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.8174732334047109,
+    "new_url": "/api/v1/public/product-images/transparent-UL1628T600GSM_NAVY-v1.png",
+    "output_sha256": "b64549687002687fbab24791eb99a209e9c51e8138d72a92eff9331394e49c8d"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/UL1628T600GSM_BLACK.png",
+    "filename": "UL1628T600GSM_BLACK.png",
+    "rows": [
+      {
+        "code": "UL1628T600GSM_BLACK",
+        "name": "16x28 - Black Hand Towel Premium - 600GSM",
+        "group_id": "towels",
+        "listing_id": 72
+      }
+    ],
+    "protected": false,
+    "size": [
+      466,
+      700
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 134,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-UL1628T600GSM_BLACK-v1.png",
+    "crop": {
+      "left": 10,
+      "top": 27,
+      "width": 450,
+      "height": 670
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.8251318209687308,
+    "new_url": "/api/v1/public/product-images/transparent-UL1628T600GSM_BLACK-v1.png",
+    "output_sha256": "d2c09fa4a84aab6a7ede537991a0adae0bfa164a4da5c0996ea918b36279ba59"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/UL1628T600GSM_LIGHTGRAY.png",
+    "filename": "UL1628T600GSM_LIGHTGRAY.png",
+    "rows": [
+      {
+        "code": "UL1628T600GSM_LIGHTGRAY",
+        "name": "16x28 - Light Gray Hand Towel Premium - 600GSM",
+        "group_id": "towels",
+        "listing_id": 74
+      }
+    ],
+    "protected": false,
+    "size": [
+      466,
+      700
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 135,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-UL1628T600GSM_LIGHTGRAY-v1.png",
+    "crop": {
+      "left": 11,
+      "top": 28,
+      "width": 447,
+      "height": 666
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.8116339668914776,
+    "new_url": "/api/v1/public/product-images/transparent-UL1628T600GSM_LIGHTGRAY-v1.png",
+    "output_sha256": "ede102dae83f08443a7f83555fc2cf94e6a53ad077be15ab7e43ff6f8e0ac70c"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/UL1628T012.png",
+    "filename": "UL1628T012.png",
+    "rows": [
+      {
+        "code": "UL1628T012",
+        "name": "16x28 - Light Blue Hand Towel Premium",
+        "group_id": "towels",
+        "listing_id": 76
+      }
+    ],
+    "protected": false,
+    "size": [
+      700,
+      630
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 136,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-UL1628T012-v1.png",
+    "crop": {
+      "left": 6,
+      "top": 15,
+      "width": 686,
+      "height": 606
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.8148095238095238,
+    "new_url": "/api/v1/public/product-images/transparent-UL1628T012-v1.png",
+    "output_sha256": "8e1c82c2cccbc602d4fbdce3171a7cddbb245b5e53328cc13fc44f55238dae02"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/foenix-oven.webp",
+    "filename": "foenix-oven.webp",
+    "rows": [
+      {
+        "code": "EQ-OVEN-008",
+        "name": "Lò nướng bánh mì điện 8 khay FOENIX",
+        "group_id": "bakery-equipment",
+        "listing_id": 118
+      }
+    ],
+    "protected": false,
+    "size": [
+      857,
+      1003
+    ],
+    "already_transparent": false,
+    "white_edges": 7,
+    "audit_id": 137,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-foenix-oven-v1.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 857,
+      "height": 1003
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.9330584675378765,
+    "new_url": "/api/v1/public/product-images/transparent-foenix-oven-v1.png",
+    "output_sha256": "ae87579e7d46ac897d57bedd6f779aea2d6554900b324f13c79c3e815dc99f7b"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/foenix-divider.webp",
+    "filename": "foenix-divider.webp",
+    "rows": [
+      {
+        "code": "EQ-DOUGH-DIV",
+        "name": "Máy chia bột vo tròn tự động SM-936A — 30 viên",
+        "group_id": "bakery-equipment",
+        "listing_id": 119
+      }
+    ],
+    "protected": false,
+    "size": [
+      265,
+      180
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 138,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-foenix-divider-v1.png",
+    "crop": {
+      "left": 91,
+      "top": 16,
+      "width": 84,
+      "height": 148
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.1540880503144654,
+    "new_url": "/api/v1/public/product-images/transparent-foenix-divider-v1.png",
+    "output_sha256": "009248a64c1d777575464b33a5692607963759b7809db3a10a27afb6ae9d5fc3"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/foenix-mixer.webp",
+    "filename": "foenix-mixer.webp",
+    "rows": [
+      {
+        "code": "SC-UL0044-156",
+        "name": "Máy trộn bột 8kg FOENIX",
+        "group_id": "bakery-equipment",
+        "listing_id": 123
+      }
+    ],
+    "protected": false,
+    "size": [
+      341,
+      625
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 139,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-foenix-mixer-v1.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 341,
+      "height": 625
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.6773020527859237,
+    "new_url": "/api/v1/public/product-images/transparent-foenix-mixer-v1.png",
+    "output_sha256": "a2fb70ab5ea2df51acef56bc3a640c914f5525dbe085a8b2037eb30bb1d49e4f"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/foenix-moulder.webp",
+    "filename": "foenix-moulder.webp",
+    "rows": [
+      {
+        "code": "SC-UL0044-158",
+        "name": "Máy se bột 6 lô 2 băng FOENIX",
+        "group_id": "bakery-equipment",
+        "listing_id": 124
+      }
+    ],
+    "protected": false,
+    "size": [
+      1600,
+      1312
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 140,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-foenix-moulder-v1.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 1600,
+      "height": 1312
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.6028153582317073,
+    "new_url": "/api/v1/public/product-images/transparent-foenix-moulder-v1.png",
+    "output_sha256": "1b763a852b3b174082c93395b38bf6bed5d597a5dc4ee9397fad5f427c841ecd"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/foenix-proofer.webp",
+    "filename": "foenix-proofer.webp",
+    "rows": [
+      {
+        "code": "SC-UL0044-159",
+        "name": "Tủ ủ bột 30 khay FOENIX",
+        "group_id": "bakery-equipment",
+        "listing_id": 125
+      }
+    ],
+    "protected": false,
+    "size": [
+      848,
+      1600
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 141,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-foenix-proofer-v1.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 848,
+      "height": 1600
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.9207775648584906,
+    "new_url": "/api/v1/public/product-images/transparent-foenix-proofer-v1.png",
+    "output_sha256": "cd2e5d0911dd70f3d2940591c694f12811b77474d364d116e49bd3e5ea8c6ea8"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/foenix-tray.webp",
+    "filename": "foenix-tray.webp",
+    "rows": [
+      {
+        "code": "SC-UL0044-162",
+        "name": "Khay bánh mì nhôm 5 sóng 46 × 72 cm",
+        "group_id": "bakery-equipment",
+        "listing_id": 127
+      }
+    ],
+    "protected": false,
+    "size": [
+      899,
+      1600
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 142,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-foenix-tray-v1.png",
+    "crop": {
+      "left": 0,
+      "top": 173,
+      "width": 881,
+      "height": 1111
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.4358850111234705,
+    "new_url": "/api/v1/public/product-images/transparent-foenix-tray-v1.png",
+    "output_sha256": "49f6c02d91acf9f6b8f38eddb0c37ea2d321c6b2355edd69851c73383459df91"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/foenix-steamer.webp",
+    "filename": "foenix-steamer.webp",
+    "rows": [
+      {
+        "code": "SC-UL0044-165",
+        "name": "Tủ hấp 12 khay FOENIX",
+        "group_id": "food-processing-equipment",
+        "listing_id": 129
+      }
+    ],
+    "protected": false,
+    "size": [
+      739,
+      1600
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 143,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-foenix-steamer-v1.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 739,
+      "height": 1600
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.8925828822733424,
+    "new_url": "/api/v1/public/product-images/transparent-foenix-steamer-v1.png",
+    "output_sha256": "f6162bc5cb1dcbb36506cad28772ef91be3ec6ef20feaf2e8d33800293c8bf8b"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/worldmarket-167.webp",
+    "filename": "worldmarket-167.webp",
+    "rows": [
+      {
+        "code": "SC-UL0045-167",
+        "name": "Sting Vàng lon cao",
+        "group_id": "beverages",
+        "listing_id": 131
+      }
+    ],
+    "protected": false,
+    "size": [
+      800,
+      800
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 144,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-worldmarket-167-v1.png",
+    "crop": {
+      "left": 266,
+      "top": 122,
+      "width": 234,
+      "height": 598
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.199715625,
+    "new_url": "/api/v1/public/product-images/transparent-worldmarket-167-v1.png",
+    "output_sha256": "1fd9bad7daaa9775060def2ba07ab66642595f8f13488fcac90fbf7b04b43e6e"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/worldmarket-169.webp",
+    "filename": "worldmarket-169.webp",
+    "rows": [
+      {
+        "code": "SC-UL0045-169",
+        "name": "Sting vị việt quất",
+        "group_id": "beverages",
+        "listing_id": 133
+      }
+    ],
+    "protected": false,
+    "size": [
+      1000,
+      1000
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 145,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-worldmarket-169-v1.png",
+    "crop": {
+      "left": 349,
+      "top": 118,
+      "width": 288,
+      "height": 754
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.202395,
+    "new_url": "/api/v1/public/product-images/transparent-worldmarket-169-v1.png",
+    "output_sha256": "363e5850b9ebb9e64ccca54796ad86846a231134c85823bb90221f2c29ccba3f"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/worldmarket-174-chanh.webp",
+    "filename": "worldmarket-174-chanh.webp",
+    "rows": [
+      {
+        "code": "SC-UL0045-174",
+        "name": "Trà C2 ( Chanh, Đào)",
+        "group_id": "beverages",
+        "listing_id": 138
+      }
+    ],
+    "protected": false,
+    "size": [
+      1000,
+      1000
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 146,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-worldmarket-174-chanh-v1.png",
+    "crop": {
+      "left": 372,
+      "top": 66,
+      "width": 256,
+      "height": 859
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.181153,
+    "new_url": "/api/v1/public/product-images/transparent-worldmarket-174-chanh-v1.png",
+    "output_sha256": "d67b195df1c5fc8068fc9b003657719cf11be0036ac2c4d2c9fcde9162deddb6"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/worldmarket-175.webp",
+    "filename": "worldmarket-175.webp",
+    "rows": [
+      {
+        "code": "SC-UL0045-175",
+        "name": "Trà bí đao Wonderfarm",
+        "group_id": "beverages",
+        "listing_id": 139
+      }
+    ],
+    "protected": false,
+    "size": [
+      1280,
+      800
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 147,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-worldmarket-175-v1.png",
+    "crop": {
+      "left": 443,
+      "top": 88,
+      "width": 374,
+      "height": 667
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.2342080078125,
+    "new_url": "/api/v1/public/product-images/transparent-worldmarket-175-v1.png",
+    "output_sha256": "3c73c5f3123fccc772dd39ed20d01d8e1608ec1981def42c8bc905c63294a374"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/worldmarket-179.webp",
+    "filename": "worldmarket-179.webp",
+    "rows": [
+      {
+        "code": "SC-UL0045-179",
+        "name": "Mì chay thượng hạng Safaco",
+        "group_id": "noodles",
+        "listing_id": 143
+      }
+    ],
+    "protected": false,
+    "size": [
+      372,
+      536
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 148,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-worldmarket-179-v1.png",
+    "crop": {
+      "left": 76,
+      "top": 4,
+      "width": 224,
+      "height": 528
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.5236418712887178,
+    "new_url": "/api/v1/public/product-images/transparent-worldmarket-179-v1.png",
+    "output_sha256": "46d31f2029bef9639e9bbf735bf128474581eb136808c43c4ff9d5611b0eb6d0"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/worldmarket-180.webp",
+    "filename": "worldmarket-180.webp",
+    "rows": [
+      {
+        "code": "SC-UL0045-180",
+        "name": "Bún tươi Safaco",
+        "group_id": "noodles",
+        "listing_id": 144
+      }
+    ],
+    "protected": false,
+    "size": [
+      841,
+      1400
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 149,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-worldmarket-180-v1.png",
+    "crop": {
+      "left": 204,
+      "top": 89,
+      "width": 420,
+      "height": 1242
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.42098776966196705,
+    "new_url": "/api/v1/public/product-images/transparent-worldmarket-180-v1.png",
+    "output_sha256": "117319e647d3d092993a9b6342b110ca5b4138e4897c0ae63efbf3ff82c2eca2"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/worldmarket-182.webp",
+    "filename": "worldmarket-182.webp",
+    "rows": [
+      {
+        "code": "SC-UL0045-182",
+        "name": "Nui lớn Safaco",
+        "group_id": "noodles",
+        "listing_id": 146
+      }
+    ],
+    "protected": false,
+    "size": [
+      372,
+      536
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 150,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-worldmarket-182-v1.png",
+    "crop": {
+      "left": 13,
+      "top": 13,
+      "width": 348,
+      "height": 515
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.7807284143797143,
+    "new_url": "/api/v1/public/product-images/transparent-worldmarket-182-v1.png",
+    "output_sha256": "09960c56758168796c80c8f9ce20dc63284523c5804331e01ee2dc43d9747ded"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/worldmarket-183.webp",
+    "filename": "worldmarket-183.webp",
+    "rows": [
+      {
+        "code": "SC-UL0045-183",
+        "name": "Bánh đa cua khô (Vifon)",
+        "group_id": "noodles",
+        "listing_id": 147
+      }
+    ],
+    "protected": false,
+    "size": [
+      1024,
+      1024
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 151,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-worldmarket-183-v1.png",
+    "crop": {
+      "left": 131,
+      "top": 20,
+      "width": 665,
+      "height": 999
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.5255413055419922,
+    "new_url": "/api/v1/public/product-images/transparent-worldmarket-183-v1.png",
+    "output_sha256": "77461d2ec6d4078498ace4ffe451081711bee9f62ee02dd2162c28199e5a47f0"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/worldmarket-185.webp",
+    "filename": "worldmarket-185.webp",
+    "rows": [
+      {
+        "code": "SC-UL0045-185",
+        "name": "Bún gạo Safaco",
+        "group_id": "noodles",
+        "listing_id": 149
+      }
+    ],
+    "protected": false,
+    "size": [
+      887,
+      1400
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 152,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-worldmarket-185-v1.png",
+    "crop": {
+      "left": 178,
+      "top": 92,
+      "width": 529,
+      "height": 1242
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.4934715735223063,
+    "new_url": "/api/v1/public/product-images/transparent-worldmarket-185-v1.png",
+    "output_sha256": "2a6bc33ef384a7e9fda45a51d3e057319afdbc708e5f8f702115fcc58ae1646c"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/worldmarket-187.webp",
+    "filename": "worldmarket-187.webp",
+    "rows": [
+      {
+        "code": "SC-UL0045-187",
+        "name": "Đậu xanh cà vỏ",
+        "group_id": "pantry",
+        "listing_id": 151
+      }
+    ],
+    "protected": false,
+    "size": [
+      550,
+      550
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 153,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-worldmarket-187-v1.png",
+    "crop": {
+      "left": 55,
+      "top": 63,
+      "width": 464,
+      "height": 457
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.4670082644628099,
+    "new_url": "/api/v1/public/product-images/transparent-worldmarket-187-v1.png",
+    "output_sha256": "f1eaaa62f8fe11728b5b8f7b2cbe6a3c7d20f0057bd6e8cd6349baad76a1e7f1"
+  },
+  {
+    "source_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/worldmarket-196.webp",
+    "filename": "worldmarket-196.webp",
+    "rows": [
+      {
+        "code": "SC-UL0045-196",
+        "name": "Nước mắm Chinsu",
+        "group_id": "condiments",
+        "listing_id": 160
+      }
+    ],
+    "protected": false,
+    "size": [
+      600,
+      600
+    ],
+    "already_transparent": false,
+    "white_edges": 8,
+    "audit_id": 155,
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/catalog-cutouts/final/transparent-worldmarket-196-v1.png",
+    "crop": {
+      "left": 212,
+      "top": 15,
+      "width": 176,
+      "height": 569
+    },
+    "method": "connected-white-exterior",
+    "foreground_ratio": 0.19015277777777778,
+    "new_url": "/api/v1/public/product-images/transparent-worldmarket-196-v1.png",
+    "output_sha256": "82774b8147267f1d7fd31b29db17ffb06d75d35be7fa70c5a1ad1fc702acfb7b"
+  }
+]

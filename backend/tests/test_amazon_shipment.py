@@ -217,5 +217,115 @@ class AmazonShipmentOptimizerTests(unittest.TestCase):
         self.assertTrue(all(item["per_box_quantity"] >= 1 for item in recommended["items"]))
 
 
+class AmazonFbaDispatchTests(unittest.TestCase):
+    def setUp(self) -> None:
+        from sqlalchemy import create_engine
+        from sqlalchemy.orm import sessionmaker
+        from app.db.models import Base, Product
+
+        self.engine = create_engine("sqlite:///:memory:")
+        Base.metadata.create_all(self.engine)
+        self.SessionLocal = sessionmaker(bind=self.engine)
+        self.db = self.SessionLocal()
+
+        self.towel = Product(
+            sku="TOWEL-GREY-16X28",
+            name="Salon Towel Dark Grey 16x28 500GSM",
+            business_unit="TOWEL",
+            is_sold_on_amazon=True,
+            amazon_sku="AMZ-TOWEL-GREY",
+            quantity_on_hand=100,
+            base_uom="PIECE",
+            uom="DOZEN",
+            uom_multiplier=12,
+            is_active=True,
+        )
+        self.db.add(self.towel)
+        self.db.commit()
+        self.db.refresh(self.towel)
+
+    def tearDown(self) -> None:
+        self.db.close()
+
+    def test_dispatch_fba_by_amazon_sku_decrements_stock_and_creates_issue(self) -> None:
+        from app.api.v1.amazon_shipments import dispatch_amazon_fba, get_fba_history
+        from app.db.models import StockMovement
+        from app.schemas.amazon_shipment import AmazonFbaDispatchLine, AmazonFbaDispatchRequest
+
+        req = AmazonFbaDispatchRequest(
+            shipment_id="FBA18TEST01",
+            issued_by="tung",
+            note="Test dispatch to Dallas FBA",
+            lines=[
+                AmazonFbaDispatchLine(
+                    amazon_sku="AMZ-TOWEL-GREY",
+                    quantity=24,
+                    box_count=2,
+                )
+            ],
+        )
+        res = dispatch_amazon_fba(req, self.db)
+
+        self.assertEqual(res.total_units, 24)
+        self.assertEqual(res.purpose, "AMAZON_FBA")
+        self.assertIn("FBA18TEST01", res.issued_to)
+        self.assertEqual(len(res.lines), 1)
+        self.assertEqual(res.lines[0]["quantity_before"], 100)
+        self.assertEqual(res.lines[0]["quantity_after"], 76)
+
+        # Verify DB product stock
+        self.db.refresh(self.towel)
+        self.assertEqual(self.towel.quantity_on_hand, 76)
+
+        # Verify StockMovement OUT
+        movements = self.db.query(StockMovement).filter(StockMovement.product_id == self.towel.id).all()
+        self.assertEqual(len(movements), 1)
+        self.assertEqual(movements[0].quantity_delta, -24)
+
+        # Verify fba-history
+        history = get_fba_history(skip=0, limit=10, db=self.db)
+        self.assertEqual(len(history), 1)
+        self.assertEqual(history[0].id, res.issue_id)
+        self.assertEqual(len(history[0].lines), 1)
+        self.assertEqual(history[0].lines[0].quantity, 24)
+
+    def test_dispatch_fba_insufficient_stock_error(self) -> None:
+        from fastapi import HTTPException
+        from app.api.v1.amazon_shipments import dispatch_amazon_fba
+        from app.schemas.amazon_shipment import AmazonFbaDispatchLine, AmazonFbaDispatchRequest
+
+        req = AmazonFbaDispatchRequest(
+            lines=[
+                AmazonFbaDispatchLine(
+                    amazon_sku="AMZ-TOWEL-GREY",
+                    quantity=200,
+                )
+            ],
+        )
+        with self.assertRaises(HTTPException) as ctx:
+            dispatch_amazon_fba(req, self.db)
+        self.assertEqual(ctx.exception.status_code, 400)
+        self.assertIn("Not enough stock", ctx.exception.detail)
+
+    def test_dispatch_fba_with_ignore_stock(self) -> None:
+        from app.api.v1.amazon_shipments import dispatch_amazon_fba
+        from app.schemas.amazon_shipment import AmazonFbaDispatchLine, AmazonFbaDispatchRequest
+
+        req = AmazonFbaDispatchRequest(
+            ignore_stock=True,
+            lines=[
+                AmazonFbaDispatchLine(
+                    amazon_sku="AMZ-TOWEL-GREY",
+                    quantity=150,
+                )
+            ],
+        )
+        res = dispatch_amazon_fba(req, self.db)
+        self.assertEqual(res.total_units, 150)
+        self.db.refresh(self.towel)
+        self.assertEqual(self.towel.quantity_on_hand, -50)
+
+
 if __name__ == "__main__":
     unittest.main()
+

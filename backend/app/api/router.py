@@ -1,3 +1,6 @@
+from app.api.v1.storefront import router as storefront_router
+from app.api.v1.storefront_inquiries import public_router as storefront_inquiry_router, internal_router as storefront_inquiry_internal_router
+from app.api.v1.system import router as system_router
 from fastapi import APIRouter, Depends
 
 from app.api.deps import get_current_user
@@ -12,11 +15,21 @@ from app.api.v1.invoices import router as invoices_router
 from app.api.v1.products import router as products_router
 from app.api.v1.sales import router as sales_router
 from app.api.v1.users import router as users_router
+from app.api.v1.trust_cargo import router as trust_cargo_router
+from app.api.v1.bot_logs import router as bot_logs_router
+from app.api.v1.grocery import router as grocery_router
+from app.api.v1.website_content import router as website_content_router
+from app.api.v1.quotes import router as quotes_router
+from app.api.v1.showcase_admin import router as showcase_admin_router
 
 
 api_router = APIRouter()
 api_router.include_router(health_router, tags=["health"])
 api_router.include_router(auth_router, tags=["auth"])
+
+# Trust Cargo & Bot Logs have built-in flexible auth for both JWT and Bot API Key
+api_router.include_router(trust_cargo_router, tags=["trust-cargo"])
+api_router.include_router(bot_logs_router, tags=["bot-logs"])
 
 auth_deps = [Depends(get_current_user)]
 api_router.include_router(categories_router, tags=["categories"], dependencies=auth_deps)
@@ -28,3 +41,20 @@ api_router.include_router(inventory_router, tags=["inventory"], dependencies=aut
 api_router.include_router(sales_router, tags=["sales"], dependencies=auth_deps)
 api_router.include_router(invoices_router, tags=["invoices"], dependencies=auth_deps)
 api_router.include_router(users_router, tags=["users"], dependencies=auth_deps)
+api_router.include_router(grocery_router, tags=["grocery"], dependencies=auth_deps)
+api_router.include_router(website_content_router, dependencies=auth_deps)
+api_router.include_router(quotes_router, dependencies=auth_deps)
+api_router.include_router(showcase_admin_router, dependencies=auth_deps)
+
+api_router.include_router(system_router, tags=["system"])
+
+# Public Storefront API for ulink-llc.com (no auth required)
+api_router.include_router(storefront_router)
+api_router.include_router(storefront_inquiry_router)
+api_router.include_router(storefront_inquiry_internal_router, dependencies=auth_deps)
+
+from app.api.v1.leads import router as leads_router
+api_router.include_router(leads_router, dependencies=auth_deps)
+
+from app.api.v1.catalog_admin import router as catalog_admin_router
+api_router.include_router(catalog_admin_router, dependencies=auth_deps)

@@ -1,0 +1,1427 @@
+{
+  "version": 1,
+  "groups": [
+    {
+      "id": "01",
+      "name": "Muối & sốt chấm"
+    },
+    {
+      "id": "02",
+      "name": "Bánh tráng & bánh sợi"
+    },
+    {
+      "id": "03",
+      "name": "Thực phẩm chay"
+    },
+    {
+      "id": "04",
+      "name": "Canh ăn liền"
+    },
+    {
+      "id": "05",
+      "name": "Gia vị Cholimex"
+    },
+    {
+      "id": "06",
+      "name": "Gia vị & nước mắm"
+    },
+    {
+      "id": "07",
+      "name": "Gia vị khô & muối"
+    },
+    {
+      "id": "08",
+      "name": "Trái cây chế biến"
+    },
+    {
+      "id": "09",
+      "name": "Trái cây & đặc sản ULINK"
+    },
+    {
+      "id": "10",
+      "name": "Snack rau củ ULINK"
+    },
+    {
+      "id": "11",
+      "name": "Khô & món tẩm vị ULINK"
+    },
+    {
+      "id": "12",
+      "name": "Kẹo & sữa chua sấy ULINK"
+    },
+    {
+      "id": "13",
+      "name": "Nước giải khát"
+    },
+    {
+      "id": "14",
+      "name": "Gia vị bổ sung"
+    },
+    {
+      "id": "15",
+      "name": "Cà phê & lương thực"
+    },
+    {
+      "id": "16",
+      "name": "Đồ ăn vặt bổ sung"
+    },
+    {
+      "id": "17",
+      "name": "Kềm & dụng cụ làm móng"
+    },
+    {
+      "id": "18",
+      "name": "Trà Atiso & trà thảo mộc"
+    },
+    {
+      "id": "19",
+      "name": "Lịch & quà tặng"
+    }
+  ],
+  "rows": [
+    {
+      "catalog_code": "NP-001",
+      "listing_id": 222,
+      "sku": "SC-CAT-NP-001",
+      "group_id": "01",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-002",
+      "listing_id": 223,
+      "sku": "SC-CAT-NP-002",
+      "group_id": "01",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-003",
+      "listing_id": 224,
+      "sku": "SC-CAT-NP-003",
+      "group_id": "01",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-004",
+      "listing_id": 225,
+      "sku": "SC-CAT-NP-004",
+      "group_id": "01",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-005",
+      "listing_id": 226,
+      "sku": "SC-CAT-NP-005",
+      "group_id": "01",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-006",
+      "listing_id": 227,
+      "sku": "SC-CAT-NP-006",
+      "group_id": "01",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-007",
+      "listing_id": 228,
+      "sku": "SC-CAT-NP-007",
+      "group_id": "02",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-008",
+      "listing_id": 164,
+      "sku": "SC-UL0045-200",
+      "group_id": "02",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-009",
+      "listing_id": 229,
+      "sku": "SC-CAT-NP-009",
+      "group_id": "02",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-010",
+      "listing_id": 230,
+      "sku": "SC-CAT-NP-010",
+      "group_id": "02",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-011",
+      "listing_id": 231,
+      "sku": "SC-CAT-NP-011",
+      "group_id": "02",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-012",
+      "listing_id": 232,
+      "sku": "SC-CAT-NP-012",
+      "group_id": "02",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-013",
+      "listing_id": 233,
+      "sku": "SC-CAT-NP-013",
+      "group_id": "03",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-014",
+      "listing_id": 234,
+      "sku": "SC-CAT-NP-014",
+      "group_id": "03",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-015",
+      "listing_id": 235,
+      "sku": "SC-CAT-NP-015",
+      "group_id": "03",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-016",
+      "listing_id": 236,
+      "sku": "SC-CAT-NP-016",
+      "group_id": "03",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-017",
+      "listing_id": 237,
+      "sku": "SC-CAT-NP-017",
+      "group_id": "03",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-018",
+      "listing_id": 238,
+      "sku": "SC-CAT-NP-018",
+      "group_id": "03",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-019",
+      "listing_id": 239,
+      "sku": "SC-CAT-NP-019",
+      "group_id": "03",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-020",
+      "listing_id": 240,
+      "sku": "SC-CAT-NP-020",
+      "group_id": "03",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-021",
+      "listing_id": 241,
+      "sku": "SC-CAT-NP-021",
+      "group_id": "03",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-022",
+      "listing_id": 242,
+      "sku": "SC-CAT-NP-022",
+      "group_id": "03",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-023",
+      "listing_id": 243,
+      "sku": "SC-CAT-NP-023",
+      "group_id": "04",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-024",
+      "listing_id": 176,
+      "sku": "SC-UL0045-213",
+      "group_id": "04",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-025",
+      "listing_id": 244,
+      "sku": "SC-CAT-NP-025",
+      "group_id": "04",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-026",
+      "listing_id": 245,
+      "sku": "SC-CAT-NP-026",
+      "group_id": "04",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-027",
+      "listing_id": 246,
+      "sku": "SC-CAT-NP-027",
+      "group_id": "04",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-028",
+      "listing_id": 247,
+      "sku": "SC-CAT-NP-028",
+      "group_id": "04",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-029",
+      "listing_id": 248,
+      "sku": "SC-CAT-NP-029",
+      "group_id": "04",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-030",
+      "listing_id": 177,
+      "sku": "SC-UL0045-214",
+      "group_id": "04",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-031",
+      "listing_id": 249,
+      "sku": "SC-CAT-NP-031",
+      "group_id": "04",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-035",
+      "listing_id": 180,
+      "sku": "SC-KNP-OYSTER",
+      "group_id": "05",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-036",
+      "listing_id": 180,
+      "sku": "SC-KNP-OYSTER",
+      "group_id": "05",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-037",
+      "listing_id": 181,
+      "sku": "SC-KNP-FISH-BRAISE",
+      "group_id": "05",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-038",
+      "listing_id": 182,
+      "sku": "SC-KNP-THAI-HOTPOT",
+      "group_id": "05",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-039",
+      "listing_id": 183,
+      "sku": "SC-KNP-VEG-SATE",
+      "group_id": "05",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-040",
+      "listing_id": 184,
+      "sku": "SC-KNP-SHRIMP-SATE",
+      "group_id": "05",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-041",
+      "listing_id": 185,
+      "sku": "SC-KNP-SWEET-CHILI",
+      "group_id": "05",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-042",
+      "listing_id": 185,
+      "sku": "SC-KNP-SWEET-CHILI",
+      "group_id": "05",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-043",
+      "listing_id": 186,
+      "sku": "SC-KNP-PLUM-CHILI",
+      "group_id": "05",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-044",
+      "listing_id": 187,
+      "sku": "SC-KNP-PHO-HOISIN",
+      "group_id": "05",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-045",
+      "listing_id": 187,
+      "sku": "SC-KNP-PHO-HOISIN",
+      "group_id": "05",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-046",
+      "listing_id": 155,
+      "sku": "SC-UL0045-191",
+      "group_id": "05",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-047",
+      "listing_id": 155,
+      "sku": "SC-UL0045-191",
+      "group_id": "05",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-048",
+      "listing_id": 188,
+      "sku": "SC-KNP-GRILL-MARINADE",
+      "group_id": "05",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-049",
+      "listing_id": 189,
+      "sku": "SC-KNP-CHAR-SIU",
+      "group_id": "05",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-050",
+      "listing_id": 190,
+      "sku": "SC-KNP-DRIED-CHILI",
+      "group_id": "05",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-051",
+      "listing_id": 191,
+      "sku": "SC-KNP-CHILI-SATE",
+      "group_id": "05",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-052",
+      "listing_id": 192,
+      "sku": "SC-KNP-TAMARIND",
+      "group_id": "05",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-053",
+      "listing_id": 193,
+      "sku": "SC-KNP-BLACK-PEPPER",
+      "group_id": "05",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-054",
+      "listing_id": 194,
+      "sku": "SC-KNP-CHINSU-SEASONING",
+      "group_id": "06",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-055",
+      "listing_id": 156,
+      "sku": "SC-UL0045-192",
+      "group_id": "06",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-056",
+      "listing_id": 162,
+      "sku": "SC-UL0045-198",
+      "group_id": "06",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-057",
+      "listing_id": 161,
+      "sku": "SC-UL0045-197",
+      "group_id": "06",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-058",
+      "listing_id": 159,
+      "sku": "SC-UL0045-195",
+      "group_id": "06",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-059",
+      "listing_id": 250,
+      "sku": "SC-CAT-NP-059",
+      "group_id": "06",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-060",
+      "listing_id": 251,
+      "sku": "SC-CAT-NP-060",
+      "group_id": "06",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-061",
+      "listing_id": 252,
+      "sku": "SC-CAT-NP-061",
+      "group_id": "06",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-062",
+      "listing_id": 253,
+      "sku": "SC-CAT-NP-062",
+      "group_id": "06",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-063",
+      "listing_id": 254,
+      "sku": "SC-CAT-NP-063",
+      "group_id": "07",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-064",
+      "listing_id": 255,
+      "sku": "SC-CAT-NP-064",
+      "group_id": "07",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-065",
+      "listing_id": 256,
+      "sku": "SC-CAT-NP-065",
+      "group_id": "07",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-066",
+      "listing_id": 257,
+      "sku": "SC-CAT-NP-066",
+      "group_id": "07",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-067",
+      "listing_id": 258,
+      "sku": "SC-CAT-NP-067",
+      "group_id": "07",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-068",
+      "listing_id": 258,
+      "sku": "SC-CAT-NP-067",
+      "group_id": "07",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-069",
+      "listing_id": 259,
+      "sku": "SC-CAT-NP-069",
+      "group_id": "07",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-070",
+      "listing_id": 259,
+      "sku": "SC-CAT-NP-069",
+      "group_id": "07",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-071",
+      "listing_id": 260,
+      "sku": "SC-CAT-NP-071",
+      "group_id": "07",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-072",
+      "listing_id": 260,
+      "sku": "SC-CAT-NP-071",
+      "group_id": "07",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-073",
+      "listing_id": 261,
+      "sku": "SC-CAT-NP-073",
+      "group_id": "07",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-074",
+      "listing_id": 261,
+      "sku": "SC-CAT-NP-073",
+      "group_id": "07",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-075",
+      "listing_id": 98,
+      "sku": "MAN_COM_XAO_GUNG",
+      "group_id": "08",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-076",
+      "listing_id": 262,
+      "sku": "SC-CAT-NP-076",
+      "group_id": "08",
+      "owner_image_pending": true
+    },
+    {
+      "catalog_code": "NP-077",
+      "listing_id": 263,
+      "sku": "SC-CAT-NP-077",
+      "group_id": "08",
+      "owner_image_pending": true
+    },
+    {
+      "catalog_code": "NP-078",
+      "listing_id": 264,
+      "sku": "SC-CAT-NP-078",
+      "group_id": "08",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-079",
+      "listing_id": 265,
+      "sku": "SC-CAT-NP-079",
+      "group_id": "08",
+      "owner_image_pending": true
+    },
+    {
+      "catalog_code": "NP-080",
+      "listing_id": 266,
+      "sku": "SC-CAT-NP-080",
+      "group_id": "08",
+      "owner_image_pending": true
+    },
+    {
+      "catalog_code": "NP-081",
+      "listing_id": 267,
+      "sku": "SC-CAT-NP-081",
+      "group_id": "08",
+      "owner_image_pending": true
+    },
+    {
+      "catalog_code": "NP-082",
+      "listing_id": 268,
+      "sku": "SC-CAT-NP-082",
+      "group_id": "08",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-083",
+      "listing_id": 269,
+      "sku": "SC-CAT-NP-083",
+      "group_id": "08",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-084",
+      "listing_id": 270,
+      "sku": "SC-CAT-NP-084",
+      "group_id": "08",
+      "owner_image_pending": true
+    },
+    {
+      "catalog_code": "NP-085",
+      "listing_id": 271,
+      "sku": "SC-CAT-NP-085",
+      "group_id": "08",
+      "owner_image_pending": true
+    },
+    {
+      "catalog_code": "NP-086",
+      "listing_id": 272,
+      "sku": "SC-CAT-NP-086",
+      "group_id": "08",
+      "owner_image_pending": true
+    },
+    {
+      "catalog_code": "NP-087",
+      "listing_id": 94,
+      "sku": "MO_SAY_DEO",
+      "group_id": "08",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-088",
+      "listing_id": 95,
+      "sku": "MO_XAO_GUNG",
+      "group_id": "08",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-089",
+      "listing_id": 92,
+      "sku": "CHUM_RUOT_CHANH_MUOI_OT",
+      "group_id": "08",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-090",
+      "listing_id": 273,
+      "sku": "SC-CAT-NP-090",
+      "group_id": "08",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-091",
+      "listing_id": 274,
+      "sku": "SC-CAT-NP-091",
+      "group_id": "08",
+      "owner_image_pending": true
+    },
+    {
+      "catalog_code": "NP-092",
+      "listing_id": 275,
+      "sku": "SC-CAT-NP-092",
+      "group_id": "08",
+      "owner_image_pending": true
+    },
+    {
+      "catalog_code": "NP-093",
+      "listing_id": 276,
+      "sku": "SC-CAT-NP-093",
+      "group_id": "08",
+      "owner_image_pending": true
+    },
+    {
+      "catalog_code": "NP-094",
+      "listing_id": 277,
+      "sku": "SC-CAT-NP-094",
+      "group_id": "08",
+      "owner_image_pending": true
+    },
+    {
+      "catalog_code": "NP-099",
+      "listing_id": 115,
+      "sku": "MANG_CAU_SAY_MUOI_OT_250G",
+      "group_id": "09",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-100",
+      "listing_id": 116,
+      "sku": "THOM_SAY_MUOI_OT_250G",
+      "group_id": "09",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-102",
+      "listing_id": 117,
+      "sku": "OI_HONG_MUOI_OT_250G",
+      "group_id": "09",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-103",
+      "listing_id": 83,
+      "sku": "ME_XI_MUOI",
+      "group_id": "09",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-107",
+      "listing_id": 110,
+      "sku": "XOAI_SAY_MUOI_OT_200G",
+      "group_id": "09",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-109",
+      "listing_id": 88,
+      "sku": "XOAI_SAY_DEO",
+      "group_id": "09",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-112",
+      "listing_id": 108,
+      "sku": "BANH_TRANG_XOAI",
+      "group_id": "09",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-113",
+      "listing_id": 278,
+      "sku": "SC-CAT-NP-113",
+      "group_id": "09",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-115",
+      "listing_id": 216,
+      "sku": "SC-MD-PT00081-24",
+      "group_id": "09",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-122",
+      "listing_id": 90,
+      "sku": "CHUOI_CAU_SAY",
+      "group_id": "09",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-128",
+      "listing_id": 209,
+      "sku": "SC-MD-PT00081-17",
+      "group_id": "09",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-133",
+      "listing_id": 93,
+      "sku": "CA_CHUA_SAY_DEO",
+      "group_id": "09",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-134",
+      "listing_id": 96,
+      "sku": "MO_SAY_MUOI_OT",
+      "group_id": "09",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-135",
+      "listing_id": 97,
+      "sku": "MAN_COM_SAY_DEO",
+      "group_id": "09",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-137",
+      "listing_id": 279,
+      "sku": "SC-CAT-NP-137",
+      "group_id": "09",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-138",
+      "listing_id": 99,
+      "sku": "MAN_HAU_MOC_CHAU",
+      "group_id": "09",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-139",
+      "listing_id": 280,
+      "sku": "SC-CAT-NP-139",
+      "group_id": "09",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-140",
+      "listing_id": 100,
+      "sku": "ME_CHANH_MUOI",
+      "group_id": "09",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-141",
+      "listing_id": 101,
+      "sku": "MUT_HOA_ATISO_O",
+      "group_id": "09",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-101",
+      "listing_id": 167,
+      "sku": "SC-UL0045-203",
+      "group_id": "10",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-110",
+      "listing_id": 281,
+      "sku": "SC-CAT-NP-110",
+      "group_id": "10",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-111",
+      "listing_id": 89,
+      "sku": "KHOAI_TAY_ONG_SAY",
+      "group_id": "10",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-114",
+      "listing_id": 217,
+      "sku": "SC-MD-PT00081-26",
+      "group_id": "10",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-117",
+      "listing_id": 102,
+      "sku": "KHOAI_TAY_MAM_OT",
+      "group_id": "10",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-118",
+      "listing_id": 199,
+      "sku": "SC-MD-PT00081-06",
+      "group_id": "10",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-119",
+      "listing_id": 200,
+      "sku": "SC-MD-PT00081-07",
+      "group_id": "10",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-120",
+      "listing_id": 91,
+      "sku": "KHOAI_LANG_TIM_SAY",
+      "group_id": "10",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-121",
+      "listing_id": 201,
+      "sku": "SC-MD-PT00081-09",
+      "group_id": "10",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-123",
+      "listing_id": 195,
+      "sku": "SC-MD-PT00081-01",
+      "group_id": "10",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-124",
+      "listing_id": 196,
+      "sku": "SC-MD-PT00081-02",
+      "group_id": "10",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-125",
+      "listing_id": 197,
+      "sku": "SC-MD-PT00081-03",
+      "group_id": "10",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-126",
+      "listing_id": 206,
+      "sku": "SC-MD-PT00081-14",
+      "group_id": "10",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-127",
+      "listing_id": 204,
+      "sku": "SC-MD-PT00081-12",
+      "group_id": "10",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-129",
+      "listing_id": 210,
+      "sku": "SC-MD-PT00081-18",
+      "group_id": "10",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-130",
+      "listing_id": 214,
+      "sku": "SC-MD-PT00081-22",
+      "group_id": "10",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-131",
+      "listing_id": 203,
+      "sku": "SC-MD-PT00081-11",
+      "group_id": "10",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-132",
+      "listing_id": 202,
+      "sku": "SC-MD-PT00081-10",
+      "group_id": "10",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-136",
+      "listing_id": 282,
+      "sku": "SC-CAT-NP-136",
+      "group_id": "10",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-104",
+      "listing_id": 113,
+      "sku": "MUC_TAM_VI_300G",
+      "group_id": "11",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-105",
+      "listing_id": 112,
+      "sku": "CA_BONG_MAM_ME_300G",
+      "group_id": "11",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-106",
+      "listing_id": 114,
+      "sku": "CA_DUOI_MAM_ME_300G",
+      "group_id": "11",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-108",
+      "listing_id": 78,
+      "sku": "KHO_BO",
+      "group_id": "11",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-116",
+      "listing_id": 208,
+      "sku": "SC-MD-PT00081-16",
+      "group_id": "12",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-142",
+      "listing_id": 215,
+      "sku": "SC-MD-PT00081-23",
+      "group_id": "12",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-143",
+      "listing_id": 283,
+      "sku": "SC-CAT-NP-143",
+      "group_id": "12",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-144",
+      "listing_id": 212,
+      "sku": "SC-MD-PT00081-20",
+      "group_id": "12",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-145",
+      "listing_id": 218,
+      "sku": "SC-MD-STRAWBERRY-MILK",
+      "group_id": "12",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-146",
+      "listing_id": 211,
+      "sku": "SC-MD-PT00081-19",
+      "group_id": "12",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-155",
+      "listing_id": 132,
+      "sku": "SC-UL0045-168",
+      "group_id": "13",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-156",
+      "listing_id": 134,
+      "sku": "SC-UL0045-170",
+      "group_id": "13",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-157",
+      "listing_id": 135,
+      "sku": "SC-UL0045-171",
+      "group_id": "13",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-158",
+      "listing_id": 141,
+      "sku": "SC-UL0045-177",
+      "group_id": "13",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-159",
+      "listing_id": 284,
+      "sku": "SC-CAT-NP-159",
+      "group_id": "13",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-160",
+      "listing_id": 285,
+      "sku": "SC-CAT-NP-160",
+      "group_id": "13",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-161",
+      "listing_id": 286,
+      "sku": "SC-CAT-NP-161",
+      "group_id": "13",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-162",
+      "listing_id": 287,
+      "sku": "SC-CAT-NP-162",
+      "group_id": "13",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-163",
+      "listing_id": 288,
+      "sku": "SC-CAT-NP-163",
+      "group_id": "13",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-164",
+      "listing_id": 136,
+      "sku": "SC-UL0045-172",
+      "group_id": "13",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-165",
+      "listing_id": 289,
+      "sku": "SC-CAT-NP-165",
+      "group_id": "13",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-166",
+      "listing_id": 290,
+      "sku": "SC-CAT-NP-166",
+      "group_id": "13",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-167",
+      "listing_id": 291,
+      "sku": "SC-CAT-NP-167",
+      "group_id": "13",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-168",
+      "listing_id": 292,
+      "sku": "SC-CAT-NP-168",
+      "group_id": "13",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-169",
+      "listing_id": 293,
+      "sku": "SC-CAT-NP-169",
+      "group_id": "13",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-170",
+      "listing_id": 294,
+      "sku": "SC-CAT-NP-170",
+      "group_id": "13",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-171",
+      "listing_id": 140,
+      "sku": "SC-UL0045-176",
+      "group_id": "13",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-172",
+      "listing_id": 295,
+      "sku": "SC-CAT-NP-172",
+      "group_id": "13",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-173",
+      "listing_id": 296,
+      "sku": "SC-CAT-NP-173",
+      "group_id": "13",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-174",
+      "listing_id": 297,
+      "sku": "SC-CAT-NP-174",
+      "group_id": "13",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-154",
+      "listing_id": 298,
+      "sku": "SC-CAT-NP-154",
+      "group_id": "14",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-176",
+      "listing_id": 299,
+      "sku": "SC-CAT-NP-176",
+      "group_id": "14",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-177",
+      "listing_id": 300,
+      "sku": "SC-CAT-NP-177",
+      "group_id": "14",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-178",
+      "listing_id": 301,
+      "sku": "SC-CAT-NP-178",
+      "group_id": "14",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-179",
+      "listing_id": 302,
+      "sku": "SC-CAT-NP-179",
+      "group_id": "14",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-180",
+      "listing_id": 303,
+      "sku": "SC-CAT-NP-180",
+      "group_id": "14",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-181",
+      "listing_id": 304,
+      "sku": "SC-CAT-NP-181",
+      "group_id": "14",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-182",
+      "listing_id": 305,
+      "sku": "SC-CAT-NP-182",
+      "group_id": "14",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-183",
+      "listing_id": 306,
+      "sku": "SC-CAT-NP-183",
+      "group_id": "14",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-184",
+      "listing_id": 307,
+      "sku": "SC-CAT-NP-184",
+      "group_id": "14",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-192",
+      "listing_id": 308,
+      "sku": "SC-CAT-NP-192",
+      "group_id": "14",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-151",
+      "listing_id": 142,
+      "sku": "SC-UL0045-178",
+      "group_id": "15",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-152",
+      "listing_id": 309,
+      "sku": "SC-CAT-NP-152",
+      "group_id": "15",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-175",
+      "listing_id": 310,
+      "sku": "SC-CAT-NP-175",
+      "group_id": "15",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-185",
+      "listing_id": 311,
+      "sku": "SC-CAT-NP-185",
+      "group_id": "16",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-186",
+      "listing_id": 205,
+      "sku": "SC-MD-PT00081-13",
+      "group_id": "16",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-187",
+      "listing_id": 81,
+      "sku": "KHOAI_LANG_SAY",
+      "group_id": "16",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-188",
+      "listing_id": 90,
+      "sku": "CHUOI_CAU_SAY",
+      "group_id": "16",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-189",
+      "listing_id": 214,
+      "sku": "SC-MD-PT00081-22",
+      "group_id": "16",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-190",
+      "listing_id": 208,
+      "sku": "SC-MD-PT00081-16",
+      "group_id": "16",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-191",
+      "listing_id": 213,
+      "sku": "SC-MD-PT00081-21",
+      "group_id": "16",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-147",
+      "listing_id": 45,
+      "sku": "ULNND01",
+      "group_id": "17",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-148",
+      "listing_id": 45,
+      "sku": "ULNND01",
+      "group_id": "17",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-149",
+      "listing_id": 312,
+      "sku": "SC-CAT-NP-149",
+      "group_id": "17",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-150",
+      "listing_id": 312,
+      "sku": "SC-CAT-NP-149",
+      "group_id": "17",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-153",
+      "listing_id": 313,
+      "sku": "SC-CAL-WALL",
+      "group_id": "19",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "TRA_ATISO_NGOC_DUY_GOI_CAM",
+      "listing_id": 103,
+      "sku": "TRA_ATISO_NGOC_DUY_GOI_CAM",
+      "group_id": "18",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "TRA_ATISO_NGOC_DUY_GOI_XANH",
+      "listing_id": 104,
+      "sku": "TRA_ATISO_NGOC_DUY_GOI_XANH",
+      "group_id": "18",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "TRA_ATISO_LADOPHAR_TRA_ATISO",
+      "listing_id": 105,
+      "sku": "TRA_ATISO_LADOPHAR_TRA_ATISO",
+      "group_id": "18",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "TRA_ATISO_LADOPHAR_TRA_DUONG_SINH",
+      "listing_id": 106,
+      "sku": "TRA_ATISO_LADOPHAR_TRA_DUONG_SINH",
+      "group_id": "18",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "TRA_MANG_CAU_LADOPHAR",
+      "listing_id": 107,
+      "sku": "TRA_MANG_CAU_LADOPHAR",
+      "group_id": "18",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-193",
+      "listing_id": 314,
+      "sku": "SC-CAL-DESK",
+      "group_id": "19",
+      "owner_image_pending": false
+    },
+    {
+      "catalog_code": "NP-194",
+      "listing_id": 315,
+      "sku": "SC-CAL-BLOC",
+      "group_id": "19",
+      "owner_image_pending": false
+    }
+  ]
+}

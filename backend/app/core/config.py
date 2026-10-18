@@ -20,7 +20,7 @@ class Settings(BaseSettings):
 
     # pydantic-settings mặc định decode list[...] từ env bằng JSON.
     # Dùng NoDecode + validator để hỗ trợ format comma-separated (vd: "http://localhost:5173,http://localhost:3000")
-    CORS_ORIGINS: Annotated[list[str], NoDecode] = Field(default_factory=lambda: ["http://localhost:5173"])
+    CORS_ORIGINS: Annotated[list[str], NoDecode] = Field(default_factory=lambda: ["http://localhost:5173", "https://ulink-llc.com", "https://www.ulink-llc.com", "https://thetowelshaven.com", "https://www.thetowelshaven.com"])
 
     COMPANY_NAME: str = "My Company"
     COMPANY_ADDRESS: str = ""
@@ -42,6 +42,21 @@ class Settings(BaseSettings):
 
     DEFAULT_CURRENCY: str = "USD"
     DEFAULT_TAX_RATE: float = 0.0
+
+    # Shippo Shipping Rates API
+    SHIPPO_API_TOKEN: str = ""
+    DEFAULT_WAREHOUSE_NAME: str = "ULINK Warehouse"
+    DEFAULT_WAREHOUSE_STREET: str = "11411 Harry Hines Blvd"
+    DEFAULT_WAREHOUSE_CITY: str = "Dallas"
+    DEFAULT_WAREHOUSE_STATE: str = "TX"
+    DEFAULT_WAREHOUSE_ZIP: str = "75220"
+    DEFAULT_WAREHOUSE_COUNTRY: str = "US"
+    DEFAULT_WAREHOUSE_PHONE: str = "4695551234"
+
+    # Storefront API Keys for partner websites
+    STOREFRONT_SECRET_KEY: str = ""
+    TOWELSHAVEN_SECRET_KEY: str = ""
+
 
     # Auth / JWT
     JWT_SECRET_KEY: str = "CHANGE_ME"

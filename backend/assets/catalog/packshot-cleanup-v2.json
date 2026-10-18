@@ -1,0 +1,2384 @@
+[
+  {
+    "reference": "NP-025",
+    "method": "exterior-white",
+    "listing_id": 244,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-025.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-025.webp",
+    "size": [
+      1600,
+      1600
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-025-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-025-v2.png",
+    "crop": {
+      "left": 299,
+      "top": 281,
+      "width": 926,
+      "height": 1183
+    },
+    "input_sha256": "cea30634c4a0f667ab2077f898d07dde5b729f5b3295bb03de7f855a4c77c89e",
+    "output_sha256": "4fd4a5ee2bf4646a957462e11fd463c6c120f8471ce89185cb8dc1b2529bbb3f"
+  },
+  {
+    "reference": "NP-026",
+    "method": "exterior-white",
+    "listing_id": 245,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-026.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-026.webp",
+    "size": [
+      1600,
+      1600
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-026-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-026-v2.png",
+    "crop": {
+      "left": 299,
+      "top": 284,
+      "width": 926,
+      "height": 1180
+    },
+    "input_sha256": "ee34c63f597bb0d77664a5d7e22e1fe655dfc2f52f4e70277231761e05248d93",
+    "output_sha256": "f53550441559d03895a659012c5c0a42b9b5db6e999e2cddcbaa05bbcea2faab"
+  },
+  {
+    "reference": "NP-027",
+    "method": "exterior-white",
+    "listing_id": 246,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-027.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-027.webp",
+    "size": [
+      1600,
+      1600
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-027-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-027-v2.png",
+    "crop": {
+      "left": 299,
+      "top": 281,
+      "width": 926,
+      "height": 1183
+    },
+    "input_sha256": "42c2061ce2165356499398913f3f487b8dbd3e04f2c562194d80a94602809db6",
+    "output_sha256": "cf4b9d5d67a59af11064821733dd441518fef66b49863937f5dce1affa7d222a"
+  },
+  {
+    "reference": "NP-028",
+    "method": "exterior-white",
+    "listing_id": 247,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-028.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-028.webp",
+    "size": [
+      1600,
+      1600
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-028-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-028-v2.png",
+    "crop": {
+      "left": 299,
+      "top": 281,
+      "width": 926,
+      "height": 1183
+    },
+    "input_sha256": "d1419271210255a624726c634018ae93b7ec0c87c6df8203087451c147840f34",
+    "output_sha256": "e9a931fb832e074db4c1bd29dc2fe7d7bb4cfc0fde51a134102538a6713c7272"
+  },
+  {
+    "reference": "NP-029",
+    "method": "exterior-white",
+    "listing_id": 248,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-029.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-029.webp",
+    "size": [
+      1600,
+      1600
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-029-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-029-v2.png",
+    "crop": {
+      "left": 299,
+      "top": 281,
+      "width": 926,
+      "height": 1183
+    },
+    "input_sha256": "d19f598ded4e412629beac98e50a85ce657bd1927d25ebc3da58c6ac47a2c6e9",
+    "output_sha256": "4980ad4dd817067a2c177dba630a1fe6d2bab20c2dcdb338df52b0254ff36421"
+  },
+  {
+    "reference": "NP-058",
+    "method": "exterior-white",
+    "listing_id": 159,
+    "local": "tmp/packshot-v2/input/worldmarket-195.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/worldmarket-195.webp",
+    "size": [
+      499,
+      1400
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-058-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-058-v2.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 499,
+      "height": 1400
+    },
+    "input_sha256": "36f3b965e83d4f52ab6d4b93a16cceb758971f2ac3441bab35cc41393090ccbd",
+    "output_sha256": "5fe7483fc7b121f56898c68eb424f54c280e16037609d1eac6c6d03ef7b974c2"
+  },
+  {
+    "reference": "NP-059",
+    "method": "exterior-white",
+    "listing_id": 250,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-059.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-059.webp",
+    "size": [
+      1536,
+      1600
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-059-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-059-v2.png",
+    "crop": {
+      "left": 32,
+      "top": 426,
+      "width": 1472,
+      "height": 749
+    },
+    "input_sha256": "8bcf71640a21937ef5d4fcebd870e8e2ef2c3ff3ea2eb5e19eb3c3d6c3fd23eb",
+    "output_sha256": "30e6606aa794884103a6c9b69b1651af400508008be475cd6ee3b97506d421e5"
+  },
+  {
+    "reference": "NP-060",
+    "method": "exterior-white",
+    "listing_id": 251,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-060.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-060.webp",
+    "size": [
+      1536,
+      1600
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-060-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-060-v2.png",
+    "crop": {
+      "left": 39,
+      "top": 424,
+      "width": 1465,
+      "height": 749
+    },
+    "input_sha256": "d0c273b9fa0d67b421c7980baad7b0cf1cf8e80d52fe12d0ed6dcd1595eedfe4",
+    "output_sha256": "1d4f3e29c242b6a14405c3dd7f2186dd381ada2ad67c4511112fc6843bcb7960"
+  },
+  {
+    "reference": "NP-061",
+    "method": "exterior-white",
+    "listing_id": 252,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-061.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-061.webp",
+    "size": [
+      1536,
+      1600
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-061-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-061-v2.png",
+    "crop": {
+      "left": 30,
+      "top": 425,
+      "width": 1464,
+      "height": 749
+    },
+    "input_sha256": "c1abf6bf7033266d7e637473f3d0e1ff1b6caca8ce14c6eb51361a91d1aee176",
+    "output_sha256": "8ecfd2a9edd5e617ca1f5c9488d9149f12262922a23337364aea1df45497eeeb"
+  },
+  {
+    "reference": "NP-062",
+    "method": "exterior-white",
+    "listing_id": 253,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-062.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-062.webp",
+    "size": [
+      1536,
+      1600
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-062-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-062-v2.png",
+    "crop": {
+      "left": 36,
+      "top": 444,
+      "width": 1470,
+      "height": 745
+    },
+    "input_sha256": "f8e1ff94938c7f61dec83bcb8ba127b800cafe9ef4041b5a0f61d40f9bbebdcc",
+    "output_sha256": "c0b84c505b35d47a5eed176e49ecdb3ec24a38674449518fb997180a8e8a00c0"
+  },
+  {
+    "reference": "NP-064",
+    "method": "exterior-white",
+    "listing_id": 255,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-064.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-064.webp",
+    "size": [
+      1600,
+      1600
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-064-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-064-v2.png",
+    "crop": {
+      "left": 494,
+      "top": 32,
+      "width": 624,
+      "height": 1526
+    },
+    "input_sha256": "51ecdf526bd60775825d3474f946fcd439ba596a918bb67cf8aeab8e64dfd7ca",
+    "output_sha256": "31e1314069cc92e5160cbfe8c676e52423eaf195da1a9e07541840b32ee95968"
+  },
+  {
+    "reference": "NP-065",
+    "method": "exterior-white",
+    "listing_id": 256,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-065.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-065.webp",
+    "size": [
+      1600,
+      1600
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-065-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-065-v2.png",
+    "crop": {
+      "left": 493,
+      "top": 46,
+      "width": 623,
+      "height": 1509
+    },
+    "input_sha256": "4efa263472147ac61964b9febc95e2ef7473f6452589d96f35ecc2021db40f32",
+    "output_sha256": "65a66d2f4394fe0dda4c53fc157e3fb1c286db09604d4a0bd2f0d82f962afe35"
+  },
+  {
+    "reference": "NP-066",
+    "method": "exterior-white",
+    "listing_id": 257,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-066.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-066.webp",
+    "size": [
+      1600,
+      1600
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-066-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-066-v2.png",
+    "crop": {
+      "left": 488,
+      "top": 50,
+      "width": 632,
+      "height": 1509
+    },
+    "input_sha256": "dc5c62df411bf66449f0c806a197da1e20045fe2e09418c6d68e2e9438c66b57",
+    "output_sha256": "069d00e010a083a09afdd4aa14e3212b1f560017520a2ae8abf1c7887419312d"
+  },
+  {
+    "reference": "NP-078",
+    "method": "exterior-white",
+    "listing_id": 264,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-078.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-078.webp",
+    "size": [
+      173,
+      116
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-078-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-078-v2.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 173,
+      "height": 116
+    },
+    "input_sha256": "28992caad92aeeb9f5e2523e1aab5b6b5322cf4fbb67c9c7f246193b8dffcadb",
+    "output_sha256": "45de7511768938bd06aa89213586417d65187534d955971880e8edc55d747f40"
+  },
+  {
+    "reference": "NP-082",
+    "method": "exterior-white",
+    "listing_id": 268,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-082.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-082.webp",
+    "size": [
+      194,
+      142
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-082-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-082-v2.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 194,
+      "height": 142
+    },
+    "input_sha256": "8b46640aa96c972fcf46cabff8f2483d854db471f7be384f6d9a3527e62f04b6",
+    "output_sha256": "e60b3a1f5c71fbc6142e09a212da807a2262daab1c6773a52b56928a1c090b7e"
+  },
+  {
+    "reference": "NP-083",
+    "method": "exterior-white",
+    "listing_id": 269,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-083.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-083.webp",
+    "size": [
+      192,
+      139
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-083-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-083-v2.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 192,
+      "height": 139
+    },
+    "input_sha256": "02ad404ba8b49ff66a4bea628e6c1148628373a67edea5ac5ba9733d66c79d58",
+    "output_sha256": "5291984ca1fe9c0dea3310ca6f22325728b5add7e6c21f60f10014368842d8af"
+  },
+  {
+    "reference": "NP-090",
+    "method": "exterior-white",
+    "listing_id": 273,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-090.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-090.webp",
+    "size": [
+      189,
+      129
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-090-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-090-v2.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 189,
+      "height": 129
+    },
+    "input_sha256": "a1e5725617e3ce844645b3ff745f9ad2320a389081f0cc9ff58b5f761f7683f8",
+    "output_sha256": "46975b1bbec31c776c8311cbffb958371e0eda9e62797c3a14898529855bb7b2"
+  },
+  {
+    "reference": "NP-113",
+    "method": "exterior-white",
+    "listing_id": 278,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-113.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-113.webp",
+    "size": [
+      232,
+      212
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-113-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-113-v2.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 232,
+      "height": 212
+    },
+    "input_sha256": "54ba464824c5057fd3a162274e46b822ef6194142afe56b02628d516ecd37439",
+    "output_sha256": "32f90343636c8e1bf9678f1cb582f18f57b212788db85ca03977e74fc8db58fb"
+  },
+  {
+    "reference": "NP-115",
+    "method": "exterior-white",
+    "listing_id": 216,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-115.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-115.webp",
+    "size": [
+      240,
+      214
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-115-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-115-v2.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 240,
+      "height": 214
+    },
+    "input_sha256": "7ad105c4f2ea3aff74c6ce6afd54d18812c510cc3b8e2e3603bf9ff9c27367c3",
+    "output_sha256": "7695148b5caee08f54c46926b588b3f7dae905c4fcb35dd232ff8feaee931250"
+  },
+  {
+    "reference": "NP-134",
+    "method": "exterior-white",
+    "listing_id": 96,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-134.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-134.webp",
+    "size": [
+      159,
+      136
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-134-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-134-v2.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 159,
+      "height": 136
+    },
+    "input_sha256": "449e8af534175232043ff8f8a0c042e25957f6d45170fb75b08e4c0b5bd34537",
+    "output_sha256": "6aac1eb40f134897b10a8cd8b5fbbc2e5e17978e98ddecba480c6c22774a11f9"
+  },
+  {
+    "reference": "NP-135",
+    "method": "exterior-white",
+    "listing_id": 97,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-135.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-135.webp",
+    "size": [
+      168,
+      139
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-135-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-135-v2.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 168,
+      "height": 139
+    },
+    "input_sha256": "4145c488ce83ab349ec53e1b06ca0051f00812c1ee0f12df66145e9e91a91f11",
+    "output_sha256": "a5b1e753c8124bd4c85973b7652a09215df5a324a21df22b94e8d3d22ec7801e"
+  },
+  {
+    "reference": "NP-137",
+    "method": "exterior-white",
+    "listing_id": 279,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-137.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-137.webp",
+    "size": [
+      188,
+      133
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-137-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-137-v2.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 188,
+      "height": 133
+    },
+    "input_sha256": "640d1d68f7c9995053e308816cc1de82963a2ea262361862a5196b9c8bcfbbcb",
+    "output_sha256": "949ee82aa1dad1fa464a81ae35ad08fc33c044a0a3861b38b03353ccc4a64845"
+  },
+  {
+    "reference": "NP-138",
+    "method": "exterior-white",
+    "listing_id": 99,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-138.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-138.webp",
+    "size": [
+      157,
+      136
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-138-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-138-v2.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 157,
+      "height": 136
+    },
+    "input_sha256": "663a092b60b0dd44b3815c09eae75de542bc54c15b744e1821ae4f3d1ae56beb",
+    "output_sha256": "b8c383c589e61d30a2e492c5cf3697290cfa6244fb11a0c77f3e15eaa5b8a4e4"
+  },
+  {
+    "reference": "NP-139",
+    "method": "exterior-white",
+    "listing_id": 280,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-139.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-139.webp",
+    "size": [
+      165,
+      105
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-139-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-139-v2.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 165,
+      "height": 105
+    },
+    "input_sha256": "5731fcff146d2980ae5faf554a57e949e8dcb12b27d21eb34d99d2060fc9412f",
+    "output_sha256": "2c52f6b7978de7a09b722204f8af43562abe03b46b8e01b106277d248fc6d727"
+  },
+  {
+    "reference": "NP-140",
+    "method": "exterior-white",
+    "listing_id": 100,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-140.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-140.webp",
+    "size": [
+      158,
+      119
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-140-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-140-v2.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 158,
+      "height": 119
+    },
+    "input_sha256": "a587c47d8de05674c019605cc0b4ce498e70e9f1d1b2c42cc9db4d97c060544f",
+    "output_sha256": "007210b30ecc4c7fddf6cf33eb26d3eff84170a522edc07ea96bae2cf2f80fc7"
+  },
+  {
+    "reference": "NP-110",
+    "method": "exterior-white",
+    "listing_id": 281,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-110.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-110.webp",
+    "size": [
+      241,
+      195
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-110-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-110-v2.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 241,
+      "height": 195
+    },
+    "input_sha256": "b1c632ba6c14a799f2da0e10ba881d2a82d03515f7994b24221bf2492f557d3a",
+    "output_sha256": "eb016b65dd620ba1b6f43ec18479fd6ccb15651998cef98e4f05787ca3816ca5"
+  },
+  {
+    "reference": "NP-114",
+    "method": "exterior-white",
+    "listing_id": 217,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-114.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-114.webp",
+    "size": [
+      285,
+      191
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-114-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-114-v2.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 285,
+      "height": 191
+    },
+    "input_sha256": "9c54042e105f1b9448d1bf9b18d218eb2e69d59774e328314e55123a7cd19d70",
+    "output_sha256": "e6666436fde8ed57a2426b35655fbad25fcad1ef8986f55d554f6a5f616a7504"
+  },
+  {
+    "reference": "NP-118",
+    "method": "exterior-white",
+    "listing_id": 199,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-118.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-118.webp",
+    "size": [
+      259,
+      244
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-118-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-118-v2.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 259,
+      "height": 244
+    },
+    "input_sha256": "9d6572b87caab5538969d92abdef82f26faddf0bf492480867f505a025821f2f",
+    "output_sha256": "88b056471d33f8f70cd4abbb10cebbb1428e3ef377b6a474c452649420a736ef"
+  },
+  {
+    "reference": "NP-121",
+    "method": "exterior-white",
+    "listing_id": 201,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-121.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-121.webp",
+    "size": [
+      287,
+      261
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-121-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-121-v2.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 287,
+      "height": 261
+    },
+    "input_sha256": "238e9c0a2466d62734f14b82c94d9e67256e7c141edf1bbb64bf6500c1cbcbff",
+    "output_sha256": "d1ec052644da0252d64af1458cfe66040c83dc3393ac2930854fedc45ebf652c"
+  },
+  {
+    "reference": "NP-124",
+    "method": "exterior-white",
+    "listing_id": 196,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-124.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-124.webp",
+    "size": [
+      270,
+      247
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-124-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-124-v2.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 270,
+      "height": 247
+    },
+    "input_sha256": "e1066d11e3f34e18302f31e124e49abc672def02b119758a54dbdc54fa09ed37",
+    "output_sha256": "7cdf508c32796cab7b98d434e8e5593fc2bc6346b32b52cf28a229f42829087a"
+  },
+  {
+    "reference": "NP-126",
+    "method": "exterior-white",
+    "listing_id": 206,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-126.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-126.webp",
+    "size": [
+      302,
+      203
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-126-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-126-v2.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 302,
+      "height": 203
+    },
+    "input_sha256": "88f8874369471fa7de29361c0c3b75ca08fbe0c16edb0ee0dd35208197c7270a",
+    "output_sha256": "2b989d43f564fd3780b5633740295937eb989f5996da65c24d7658f49b9138ca"
+  },
+  {
+    "reference": "NP-127",
+    "method": "exterior-white",
+    "listing_id": 204,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-127.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-127.webp",
+    "size": [
+      324,
+      205
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-127-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-127-v2.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 324,
+      "height": 205
+    },
+    "input_sha256": "d801d70e33cc8f85abe68d89c86cb3424d699066524419f12b0c0cfac7768016",
+    "output_sha256": "37b121106f7a2f96e0af7bec3001b2ec9e832dcdddbed614d40d3eb4b90f4410"
+  },
+  {
+    "reference": "NP-130",
+    "method": "exterior-white",
+    "listing_id": 214,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-130.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-130.webp",
+    "size": [
+      321,
+      223
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-130-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-130-v2.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 321,
+      "height": 223
+    },
+    "input_sha256": "c352e8e0889b3ef9709108515345f26a4dc07d3e3aacd5b70af6a9696970dadb",
+    "output_sha256": "02e3bc27a73b8db0fb3740d858e1dabaa2e541c7c96a4aecaef481b6d9bac093"
+  },
+  {
+    "reference": "NP-131",
+    "method": "exterior-white",
+    "listing_id": 203,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-131.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-131.webp",
+    "size": [
+      297,
+      166
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-131-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-131-v2.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 297,
+      "height": 166
+    },
+    "input_sha256": "3b87f47862d4c69c1e5be26ee81ecfba1e4e391fabbabce462f3adb48f43428e",
+    "output_sha256": "43449e4f9bafd097af2453cc89c95fede435de40d50cb90be124f7a09da4f968"
+  },
+  {
+    "reference": "NP-132",
+    "method": "exterior-white",
+    "listing_id": 202,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-132.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-132.webp",
+    "size": [
+      301,
+      168
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-132-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-132-v2.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 301,
+      "height": 168
+    },
+    "input_sha256": "13dd6e99dc296f766234022dab50ef1a976e9e440b78f1cb0b40bd369c929ec6",
+    "output_sha256": "9be5185a612916f49816de81bed1573e7f7025c505bceefffe135f3c5f9efb01"
+  },
+  {
+    "reference": "NP-136",
+    "method": "exterior-white",
+    "listing_id": 282,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-136.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-136.webp",
+    "size": [
+      180,
+      132
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-136-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-136-v2.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 180,
+      "height": 132
+    },
+    "input_sha256": "5bcb212a51a03901b276e1ec0714e6d582177d32b6a10316a24a09f689f287a5",
+    "output_sha256": "a5d85449789736d7a23f676b1adb9ed4303e77e9dcfe2f4a1b27c480276dc6cc"
+  },
+  {
+    "reference": "NP-116",
+    "method": "exterior-white",
+    "listing_id": 208,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-116.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-116.webp",
+    "size": [
+      294,
+      153
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-116-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-116-v2.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 294,
+      "height": 153
+    },
+    "input_sha256": "30062a6f2cf6a648ed96fccc8018506d791ee17d366023216cee69895c9c967b",
+    "output_sha256": "ed33af63ddbb294a2b262560646292cb9f920a2443331d8263a3a6cdac0ed470"
+  },
+  {
+    "reference": "NP-142",
+    "method": "exterior-white",
+    "listing_id": 215,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-142.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-142.webp",
+    "size": [
+      172,
+      125
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-142-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-142-v2.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 172,
+      "height": 125
+    },
+    "input_sha256": "d45b1e3a7eb0c59d88640881a625ee08aa3b58a8427e194b0e9f32062d43ae2d",
+    "output_sha256": "dcc1240224ec105f5d2d2cd059adf7cf62bfece608c93fe2e3a17b6b8f757454"
+  },
+  {
+    "reference": "NP-143",
+    "method": "exterior-white",
+    "listing_id": 283,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-143.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-143.webp",
+    "size": [
+      171,
+      118
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-143-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-143-v2.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 171,
+      "height": 118
+    },
+    "input_sha256": "0d51b4e2e668e373c3c0e877a0c54a4b4705e235448923c7907e7d46cc27b147",
+    "output_sha256": "5bc46f582901c72b1d69994fe730a4c5644ae70ac0774474102688e8ad4dd67a"
+  },
+  {
+    "reference": "NP-146",
+    "method": "exterior-white",
+    "listing_id": 211,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-146.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-146.webp",
+    "size": [
+      202,
+      130
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-146-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-146-v2.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 202,
+      "height": 130
+    },
+    "input_sha256": "49a96d1122e026ba0b036dff6e2a98d13a23179f9f0c9d494da3350b72f09d3a",
+    "output_sha256": "d9e81c708c47ce06af479873ae423b2b3734522b7f32485b199b380750857756"
+  },
+  {
+    "reference": "NP-191",
+    "method": "manual-original-pixel-mask",
+    "listing_id": 213,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-191.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-191.webp",
+    "size": [
+      720,
+      720
+    ],
+    "ellipse": [
+      0.047,
+      0.052,
+      0.955,
+      0.972
+    ],
+    "masked": "tmp/packshot-v2/NP-191-masked.png",
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-191-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-191-v2.png",
+    "crop": {
+      "left": 17,
+      "top": 20,
+      "width": 688,
+      "height": 697
+    },
+    "input_sha256": "a4cffea88bf2a1cf2a065a0ae2caf041e946ee0cd687823d4d0fd5b45b640aa8",
+    "output_sha256": "1e27d55ac989c54e7b5fd79da9897142bf2f29f3ece96f94b334c9e006166b2c"
+  },
+  {
+    "reference": "NP-175",
+    "method": "exterior-white",
+    "listing_id": 310,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-175.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-175.webp",
+    "size": [
+      1448,
+      1086
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-175-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-175-v2.png",
+    "crop": {
+      "left": 167,
+      "top": 161,
+      "width": 1115,
+      "height": 806
+    },
+    "input_sha256": "80ce5833c220bcaefdcae251e43bff5034c91c46b1afce56df3e83185c72bb2f",
+    "output_sha256": "4c17f5d02aae527d8627eaedcf17626ae50f7e21e063e7a768a24bfd15f56171"
+  },
+  {
+    "reference": "NP-159",
+    "method": "largest-alpha",
+    "listing_id": 284,
+    "local": "tmp/packshot-v2/input/transparent-catalog-2026-np-159-v1.png",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/transparent-catalog-2026-np-159-v1.png",
+    "size": [
+      355,
+      524
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-159-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-159-v2.png",
+    "crop": {
+      "left": 192,
+      "top": 56,
+      "width": 163,
+      "height": 468
+    },
+    "input_sha256": "4f020ca3af23b1756a6161413e9b0207932fc066cc0a3e8b67921e0cce53551b",
+    "output_sha256": "83c2079c0f6fa58681a7b45df9f52e9d2d46cfc4ca5cf3d52a8198603bd98659"
+  },
+  {
+    "reference": "NP-160",
+    "method": "largest-alpha",
+    "listing_id": 285,
+    "local": "tmp/packshot-v2/input/transparent-catalog-2026-np-160-v1.png",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/transparent-catalog-2026-np-160-v1.png",
+    "size": [
+      310,
+      406
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-160-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-160-v2.png",
+    "crop": {
+      "left": 231,
+      "top": 123,
+      "width": 79,
+      "height": 283
+    },
+    "input_sha256": "83682a34e32eae5de5aa6d364e410c8c1e48bb9c34dfc2c8add2d15a6ee4481b",
+    "output_sha256": "8a016829c94dc91806f81a80296dc96402d638b353a47078d5e56ee8acaa999d"
+  },
+  {
+    "reference": "NP-163",
+    "method": "largest-alpha",
+    "listing_id": 288,
+    "local": "tmp/packshot-v2/input/transparent-catalog-2026-np-163-v1.png",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/transparent-catalog-2026-np-163-v1.png",
+    "size": [
+      347,
+      534
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-163-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-163-v2.png",
+    "crop": {
+      "left": 207,
+      "top": 86,
+      "width": 140,
+      "height": 448
+    },
+    "input_sha256": "652fa790d244e2c69e16edfb9c27f9c2fe76f4875f2a67923039e43bc7cbd92c",
+    "output_sha256": "1ff037867617d76698d6b9548f5217db8d74a10c4069f658ad2d167b11e2fb5d"
+  },
+  {
+    "reference": "NP-167",
+    "method": "largest-alpha",
+    "listing_id": 291,
+    "local": "tmp/packshot-v2/input/transparent-catalog-2026-np-167-v1.png",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/transparent-catalog-2026-np-167-v1.png",
+    "size": [
+      351,
+      464
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-167-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-167-v2.png",
+    "crop": {
+      "left": 228,
+      "top": 107,
+      "width": 123,
+      "height": 357
+    },
+    "input_sha256": "ba5448c4b407695da012d5a89f3950c2a248d266e18b6a8b19650b1de221263d",
+    "output_sha256": "fecd37c34cfa5b3c982c10c22cdb4b8b6647a2e9f3a92f406ecde9da08ca3e89"
+  },
+  {
+    "reference": "NP-168",
+    "method": "largest-alpha",
+    "listing_id": 292,
+    "local": "tmp/packshot-v2/input/transparent-catalog-2026-np-168-v1.png",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/transparent-catalog-2026-np-168-v1.png",
+    "size": [
+      328,
+      425
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-168-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-168-v2.png",
+    "crop": {
+      "left": 219,
+      "top": 126,
+      "width": 109,
+      "height": 299
+    },
+    "input_sha256": "4d0cf48ff90991e81e5a97b33fe15bcf04ccb3f312613dc7c6f0f2a9fe304e7c",
+    "output_sha256": "132f38a4e72e9f6283e637a50a9773327e6d826c103ccc26162fcf69fc2dd060"
+  },
+  {
+    "reference": "NP-169",
+    "method": "largest-alpha",
+    "listing_id": 293,
+    "local": "tmp/packshot-v2/input/transparent-catalog-2026-np-169-v1.png",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/transparent-catalog-2026-np-169-v1.png",
+    "size": [
+      335,
+      480
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-169-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-169-v2.png",
+    "crop": {
+      "left": 204,
+      "top": 102,
+      "width": 131,
+      "height": 378
+    },
+    "input_sha256": "26da82a542280b19c965ef09709c8496f2691faadbd6e84dd38f442edc0fd6d1",
+    "output_sha256": "0a0168b4163871d762279c1030a67efbc672d9cda0d74b6d3637748e07f3d6fe"
+  },
+  {
+    "reference": "NP-170",
+    "method": "largest-alpha",
+    "listing_id": 294,
+    "local": "tmp/packshot-v2/input/transparent-catalog-2026-np-170-v1.png",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/transparent-catalog-2026-np-170-v1.png",
+    "size": [
+      341,
+      482
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-170-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-170-v2.png",
+    "crop": {
+      "left": 217,
+      "top": 93,
+      "width": 124,
+      "height": 389
+    },
+    "input_sha256": "791cbbf7acc5ee8ceec1a4bc903ffbd7f386bdb4f716713d42f7ca526d1f2ab8",
+    "output_sha256": "23628cf00e6b4a2c93e6596f1098d92f9e495f85308019806f1f743ddc07f2e4"
+  },
+  {
+    "reference": "NP-171",
+    "method": "largest-alpha",
+    "listing_id": 140,
+    "local": "tmp/packshot-v2/input/transparent-worldmarket-176-v1.png",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/transparent-worldmarket-176-v1.png",
+    "size": [
+      411,
+      1314
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-171-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-171-v2.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 411,
+      "height": 1314
+    },
+    "input_sha256": "6e91a90e361d9981dc1583cdd51ce2a6e0a6640b562195448edfcff1d28d38bb",
+    "output_sha256": "6e91a90e361d9981dc1583cdd51ce2a6e0a6640b562195448edfcff1d28d38bb"
+  },
+  {
+    "reference": "NP-172",
+    "method": "largest-alpha",
+    "listing_id": 295,
+    "local": "tmp/packshot-v2/input/transparent-catalog-2026-np-172-v1.png",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/transparent-catalog-2026-np-172-v1.png",
+    "size": [
+      350,
+      490
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-172-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-172-v2.png",
+    "crop": {
+      "left": 209,
+      "top": 56,
+      "width": 141,
+      "height": 434
+    },
+    "input_sha256": "26b9e5343a7e545651dfe164a1e034af84058f586948abaab21f93930932d4e6",
+    "output_sha256": "680d5479e2ab72cf18b7427776774cb9c5a243781526747f6516a2758fd1e093"
+  },
+  {
+    "reference": "NP-173",
+    "method": "largest-alpha",
+    "listing_id": 296,
+    "local": "tmp/packshot-v2/input/transparent-catalog-2026-np-173-v1.png",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/transparent-catalog-2026-np-173-v1.png",
+    "size": [
+      330,
+      470
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-173-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-173-v2.png",
+    "crop": {
+      "left": 210,
+      "top": 116,
+      "width": 120,
+      "height": 354
+    },
+    "input_sha256": "a06faf6f24317cf8f3170ff15f4ecbe668a23312fe13d5cc50a66183aad64dd6",
+    "output_sha256": "9e3d8f0ef8101320a4c3facf503fcab0a36bc094a5401b4d2d29a96d03b41f22"
+  },
+  {
+    "reference": "NP-174",
+    "method": "largest-alpha",
+    "listing_id": 297,
+    "local": "tmp/packshot-v2/input/transparent-catalog-2026-np-174-v1.png",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/transparent-catalog-2026-np-174-v1.png",
+    "size": [
+      125,
+      377
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-174-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-174-v2.png",
+    "crop": {
+      "left": 0,
+      "top": 5,
+      "width": 125,
+      "height": 372
+    },
+    "input_sha256": "f03ed4e7268ba4cb280ab81627eaff93ce19f43ed456c29895e4446794dbbc24",
+    "output_sha256": "2cfda7152f336ba9e58b0b8ed18584384fc3b859ce448e27004a4edb93b3f8c2"
+  },
+  {
+    "reference": "NP-180",
+    "method": "largest-alpha",
+    "listing_id": 303,
+    "local": "tmp/packshot-v2/input/transparent-catalog-2026-np-180-v1.png",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/transparent-catalog-2026-np-180-v1.png",
+    "size": [
+      337,
+      500
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-180-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-180-v2.png",
+    "crop": {
+      "left": 227,
+      "top": 92,
+      "width": 110,
+      "height": 408
+    },
+    "input_sha256": "5ff1e56273dfa655801f01779a6190a58006ae6ab69fa3d1510905afdc255326",
+    "output_sha256": "e7954ba86ce79362b3e03681ddc11aa69c0d687c7ac72c53e73c87b8b7f430ab"
+  },
+  {
+    "reference": "NP-181",
+    "method": "largest-alpha",
+    "listing_id": 304,
+    "local": "tmp/packshot-v2/input/transparent-catalog-2026-np-181-v1.png",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/transparent-catalog-2026-np-181-v1.png",
+    "size": [
+      348,
+      528
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-181-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-181-v2.png",
+    "crop": {
+      "left": 212,
+      "top": 56,
+      "width": 136,
+      "height": 472
+    },
+    "input_sha256": "76f29aa2e498927e0c1f34bd63f577e4026a54e45c2c5888e2517749198e591e",
+    "output_sha256": "3d6dc06288832e68cbc0536812b316ba861da2950012c32c53486dee698ac385"
+  },
+  {
+    "reference": "NP-182",
+    "method": "largest-alpha",
+    "listing_id": 305,
+    "local": "tmp/packshot-v2/input/transparent-catalog-2026-np-182-v1.png",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/transparent-catalog-2026-np-182-v1.png",
+    "size": [
+      333,
+      482
+    ],
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-182-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-182-v2.png",
+    "crop": {
+      "left": 224,
+      "top": 79,
+      "width": 109,
+      "height": 403
+    },
+    "input_sha256": "2f008487a71ab615cabebe13e48dfa34c526c4d174987dc7bc106227ff0f7bcc",
+    "output_sha256": "29348b184719e77938f68438deebd29f9a861b6e09db54869c41cc6988292ac6"
+  },
+  {
+    "reference": "NP-054",
+    "method": "manual-original-pixel-mask",
+    "roi": [
+      0,
+      0,
+      0.662,
+      1
+    ],
+    "listing_id": 194,
+    "local": "tmp/packshot-v2/input/transparent-knp-hat-nem-chinsu-v1.png",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/transparent-knp-hat-nem-chinsu-v1.png",
+    "size": [
+      583,
+      518
+    ],
+    "masked": "tmp/packshot-v2/NP-054-masked.png",
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-054-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-054-v2.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 399,
+      "height": 518
+    },
+    "input_sha256": "8f4a1e7ceb97e2374ff6eb60cdf759b534656b44138641b5312139495998be87",
+    "output_sha256": "a658d39be158e17824327861d357860ae76bf5064cd68bf5b6cde31bed315087"
+  },
+  {
+    "reference": "NP-057",
+    "method": "manual-original-pixel-mask",
+    "roi": [
+      0,
+      0,
+      0.33,
+      1
+    ],
+    "listing_id": 161,
+    "local": "tmp/packshot-v2/input/transparent-worldmarket-197-v1.png",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/transparent-worldmarket-197-v1.png",
+    "size": [
+      492,
+      595
+    ],
+    "masked": "tmp/packshot-v2/NP-057-masked.png",
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-057-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-057-v2.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 160,
+      "height": 595
+    },
+    "input_sha256": "593cf2f2a53d3723a6061d39f1a6ae8972a1ae43c23bbff6a199aa0985b17d6c",
+    "output_sha256": "60abf3f834e728625d313046b1d79befe0c5446049c539cbda53cede14abdae4"
+  },
+  {
+    "reference": "NP-165",
+    "method": "manual-original-pixel-mask",
+    "roi": [
+      0.45,
+      0.16,
+      0.7,
+      0.84
+    ],
+    "listing_id": 289,
+    "local": "tmp/packshot-v2/input/transparent-catalog-2026-np-165-v1.png",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/transparent-catalog-2026-np-165-v1.png",
+    "size": [
+      476,
+      462
+    ],
+    "masked": "tmp/packshot-v2/NP-165-masked.png",
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-165-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-165-v2.png",
+    "crop": {
+      "left": 232,
+      "top": 84,
+      "width": 105,
+      "height": 311
+    },
+    "input_sha256": "cd8df203dc0cb7afb95890c3e917a2ba516f3ecde3c9cc95a058de016b9cf7d2",
+    "output_sha256": "1660acb0844f8bbf63d019f1855496f5e40506b5623e2e5005cbb1018f337227"
+  },
+  {
+    "reference": "NP-166",
+    "method": "manual-original-pixel-mask",
+    "roi": [
+      0.36,
+      0.1,
+      0.65,
+      0.88
+    ],
+    "listing_id": 290,
+    "local": "tmp/packshot-v2/input/transparent-catalog-2026-np-166-v1.png",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/transparent-catalog-2026-np-166-v1.png",
+    "size": [
+      538,
+      534
+    ],
+    "masked": "tmp/packshot-v2/NP-166-masked.png",
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-166-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-166-v2.png",
+    "crop": {
+      "left": 207,
+      "top": 55,
+      "width": 142,
+      "height": 421
+    },
+    "input_sha256": "5ed4c9d0120be11b024338bde3693997abca2294f0a2140489e3b66e84085323",
+    "output_sha256": "eef81af28519b0422fb72ffaa096d88ec274ea6f5c47ce7e14d710c58791539f"
+  },
+  {
+    "reference": "NP-162",
+    "method": "manual-original-pixel-mask",
+    "polygon": [
+      [
+        0.8,
+        0.01
+      ],
+      [
+        0.93,
+        0.01
+      ],
+      [
+        0.94,
+        0.08
+      ],
+      [
+        0.985,
+        0.16
+      ],
+      [
+        0.997,
+        0.9
+      ],
+      [
+        0.97,
+        0.99
+      ],
+      [
+        0.77,
+        0.99
+      ],
+      [
+        0.75,
+        0.9
+      ],
+      [
+        0.75,
+        0.2
+      ],
+      [
+        0.78,
+        0.11
+      ]
+    ],
+    "listing_id": 287,
+    "local": "tmp/packshot-v2/input/transparent-catalog-2026-np-162-v1.png",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/transparent-catalog-2026-np-162-v1.png",
+    "size": [
+      520,
+      489
+    ],
+    "masked": "tmp/packshot-v2/NP-162-masked.png",
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-162-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-162-v2.png",
+    "crop": {
+      "left": 378,
+      "top": 0,
+      "width": 142,
+      "height": 483
+    },
+    "input_sha256": "77f8dfa0ee0212e5381b9204eb44cd9947c445db61e58f24f03d3dd474436525",
+    "output_sha256": "933b2b693d6326515ddb0de0be98f5391fb788b3e07a4ef948c92bdd47b34277"
+  },
+  {
+    "reference": "NP-161",
+    "method": "manual-original-pixel-mask",
+    "polygon": [
+      [
+        0.435,
+        0.06
+      ],
+      [
+        0.535,
+        0.06
+      ],
+      [
+        0.535,
+        0.15
+      ],
+      [
+        0.57,
+        0.21
+      ],
+      [
+        0.6,
+        0.28
+      ],
+      [
+        0.6,
+        0.79
+      ],
+      [
+        0.59,
+        0.91
+      ],
+      [
+        0.51,
+        0.93
+      ],
+      [
+        0.4,
+        0.91
+      ],
+      [
+        0.375,
+        0.85
+      ],
+      [
+        0.375,
+        0.3
+      ],
+      [
+        0.4,
+        0.21
+      ],
+      [
+        0.435,
+        0.15
+      ]
+    ],
+    "listing_id": 286,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-161.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-161.webp",
+    "size": [
+      534,
+      462
+    ],
+    "masked": "tmp/packshot-v2/NP-161-masked.png",
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-161-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-161-v2.png",
+    "crop": {
+      "left": 190,
+      "top": 18,
+      "width": 141,
+      "height": 423
+    },
+    "input_sha256": "17f2379900172125e421c87dd0ce023217a6ad612fca1c7016b2a2caa3a3e48d",
+    "output_sha256": "928a183088d0a2b8d0467f736d943f03612da3f38d486d7713b6a366068432f3"
+  },
+  {
+    "reference": "NP-030",
+    "method": "manual-original-pixel-mask",
+    "roi": [
+      0.27925925925925926,
+      0.22,
+      0.72,
+      0.945925925925926
+    ],
+    "solid": true,
+    "listing_id": 177,
+    "local": "tmp/packshot-v2/input/worldmarket-214.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/worldmarket-214.webp",
+    "size": [
+      1350,
+      1350
+    ],
+    "masked": "tmp/packshot-v2/NP-030-masked.png",
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-030-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-030-v2.png",
+    "crop": {
+      "left": 353,
+      "top": 273,
+      "width": 643,
+      "height": 1028
+    },
+    "input_sha256": "2a09129d941520d02e7671f9f79b84fc1c10d863a18d74b4c77b2dd8ef3ee361",
+    "output_sha256": "2476f28b1bf178625253a3cfd395da1f7e8616f8693296cff286daea342c6e2d"
+  },
+  {
+    "reference": "NP-031",
+    "method": "manual-original-pixel-mask",
+    "polygon": [
+      [
+        0.311,
+        0.426
+      ],
+      [
+        0.658,
+        0.426
+      ],
+      [
+        0.726,
+        0.471
+      ],
+      [
+        0.713,
+        0.9
+      ],
+      [
+        0.298,
+        0.9
+      ],
+      [
+        0.283,
+        0.475
+      ]
+    ],
+    "listing_id": 249,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-031.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-031.webp",
+    "size": [
+      1600,
+      1600
+    ],
+    "masked": "tmp/packshot-v2/NP-031-masked.png",
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-031-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-031-v2.png",
+    "crop": {
+      "left": 434,
+      "top": 663,
+      "width": 748,
+      "height": 797
+    },
+    "input_sha256": "567bc758ff5042ac2e17a47284e3d5b82d813fd659b085e609be7de18cac73a0",
+    "output_sha256": "bf62dd1830c320854d431749408378134a008020fb1887f7f5ae1f4b081e9b3a"
+  },
+  {
+    "reference": "NP-152",
+    "method": "manual-original-pixel-mask",
+    "polygon": [
+      [
+        0.083,
+        0.014
+      ],
+      [
+        0.318,
+        0.04
+      ],
+      [
+        0.463,
+        0.022
+      ],
+      [
+        0.48,
+        0.117
+      ],
+      [
+        0.486,
+        0.42
+      ],
+      [
+        0.486,
+        0.934
+      ],
+      [
+        0.465,
+        0.965
+      ],
+      [
+        0.045,
+        0.967
+      ],
+      [
+        0.024,
+        0.93
+      ],
+      [
+        0.036,
+        0.145
+      ],
+      [
+        0.053,
+        0.1
+      ]
+    ],
+    "listing_id": 309,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-152.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-152.webp",
+    "size": [
+      510,
+      501
+    ],
+    "masked": "tmp/packshot-v2/NP-152-masked.png",
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-152-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-152-v2.png",
+    "crop": {
+      "left": 0,
+      "top": 0,
+      "width": 261,
+      "height": 497
+    },
+    "input_sha256": "917815836d69f54b256cc2658efbaab10c424d7b67957c70d52f0d6cfdc6c8c5",
+    "output_sha256": "e2e26061e8174479200d692bf182b86c96e246e8bddea47d7e281eb192ccd6c8"
+  },
+  {
+    "reference": "NP-147",
+    "method": "manual-original-pixel-mask",
+    "roi": [
+      0.55,
+      0,
+      1,
+      1
+    ],
+    "listing_id": 45,
+    "local": "tmp/packshot-v2/input/transparent-nghia-d01-v1.png",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/transparent-nghia-d01-v1.png",
+    "size": [
+      626,
+      682
+    ],
+    "masked": "tmp/packshot-v2/NP-147-masked.png",
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-147-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-147-v2.png",
+    "crop": {
+      "left": 357,
+      "top": 10,
+      "width": 269,
+      "height": 672
+    },
+    "input_sha256": "c9162781158848f6396d1c20e984b41b354a2a1cc097a68a77352040e799557f",
+    "output_sha256": "dd724c131a07569b94ca8b7da4716a4650b381630cdf5281fd5f3746a67caa25"
+  },
+  {
+    "reference": "NP-153",
+    "method": "manual-original-pixel-mask",
+    "roi": [
+      0.197,
+      0.088,
+      0.473,
+      0.918
+    ],
+    "solid": true,
+    "listing_id": 313,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-153.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-153.webp",
+    "size": [
+      1600,
+      809
+    ],
+    "masked": "tmp/packshot-v2/NP-153-masked.png",
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-153-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-153-v2.png",
+    "crop": {
+      "left": 298,
+      "top": 54,
+      "width": 476,
+      "height": 706
+    },
+    "input_sha256": "cbd4a9a72b35f4f61fd5bf2503b41d75cef2e5010c6b32ca8cb53391af25eb7a",
+    "output_sha256": "da0581a06732d77ed592271597a6576bd6fc5577082a3497d54fb996613b0697"
+  },
+  {
+    "reference": "NP-194",
+    "method": "manual-original-pixel-mask",
+    "polygon": [
+      [
+        0.419,
+        0.219
+      ],
+      [
+        0.421,
+        0.245
+      ],
+      [
+        0.457,
+        0.278
+      ],
+      [
+        0.466,
+        0.305
+      ],
+      [
+        0.468,
+        0.32
+      ],
+      [
+        0.487,
+        0.326
+      ],
+      [
+        0.503,
+        0.347
+      ],
+      [
+        0.503,
+        0.372
+      ],
+      [
+        0.494,
+        0.412
+      ],
+      [
+        0.492,
+        0.478
+      ],
+      [
+        0.483,
+        0.522
+      ],
+      [
+        0.478,
+        0.542
+      ],
+      [
+        0.492,
+        0.565
+      ],
+      [
+        0.495,
+        0.638
+      ],
+      [
+        0.493,
+        0.899
+      ],
+      [
+        0.479,
+        0.915
+      ],
+      [
+        0.321,
+        0.918
+      ],
+      [
+        0.317,
+        0.901
+      ],
+      [
+        0.303,
+        0.9
+      ],
+      [
+        0.305,
+        0.554
+      ],
+      [
+        0.302,
+        0.542
+      ],
+      [
+        0.291,
+        0.492
+      ],
+      [
+        0.288,
+        0.403
+      ],
+      [
+        0.287,
+        0.37
+      ],
+      [
+        0.293,
+        0.347
+      ],
+      [
+        0.309,
+        0.328
+      ],
+      [
+        0.333,
+        0.323
+      ],
+      [
+        0.331,
+        0.3
+      ],
+      [
+        0.345,
+        0.278
+      ],
+      [
+        0.377,
+        0.245
+      ],
+      [
+        0.379,
+        0.22
+      ]
+    ],
+    "listing_id": 315,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-194.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-194.webp",
+    "size": [
+      1600,
+      1049
+    ],
+    "masked": "tmp/packshot-v2/NP-194-masked.png",
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-194-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-194-v2.png",
+    "crop": {
+      "left": 441,
+      "top": 212,
+      "width": 383,
+      "height": 770
+    },
+    "input_sha256": "c0ffdbb1366a421f341efc60d8fe6eeb1db1983bf5ed5145a086a5d426079c16",
+    "output_sha256": "e9e038cfb48b868cd64e5e8afff2b7e9edef9cb713c643aac91d0d8739d350aa"
+  },
+  {
+    "reference": "TRA_ATISO_LADOPHAR_TRA_ATISO",
+    "method": "manual-original-pixel-mask",
+    "polygon": [
+      [
+        0.34,
+        0.218
+      ],
+      [
+        0.363,
+        0.216
+      ],
+      [
+        0.662,
+        0.25
+      ],
+      [
+        0.681,
+        0.258
+      ],
+      [
+        0.685,
+        0.27
+      ],
+      [
+        0.684,
+        0.322
+      ],
+      [
+        0.677,
+        0.364
+      ],
+      [
+        0.662,
+        0.4
+      ],
+      [
+        0.66,
+        0.474
+      ],
+      [
+        0.661,
+        0.555
+      ],
+      [
+        0.643,
+        0.732
+      ],
+      [
+        0.627,
+        0.838
+      ],
+      [
+        0.609,
+        0.85
+      ],
+      [
+        0.528,
+        0.854
+      ],
+      [
+        0.357,
+        0.845
+      ],
+      [
+        0.331,
+        0.834
+      ],
+      [
+        0.331,
+        0.801
+      ],
+      [
+        0.342,
+        0.704
+      ],
+      [
+        0.344,
+        0.551
+      ],
+      [
+        0.342,
+        0.432
+      ],
+      [
+        0.341,
+        0.399
+      ],
+      [
+        0.329,
+        0.376
+      ],
+      [
+        0.324,
+        0.329
+      ],
+      [
+        0.328,
+        0.268
+      ]
+    ],
+    "listing_id": 105,
+    "local": "tmp/packshot-v2/input/atiso-ladophar-pouch.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/atiso-ladophar-pouch.webp",
+    "size": [
+      1024,
+      1024
+    ],
+    "masked": "tmp/packshot-v2/TRA_ATISO_LADOPHAR_TRA_ATISO-masked.png",
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-tra-atiso-ladophar-tra-atiso-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-tra-atiso-ladophar-tra-atiso-v2.png",
+    "crop": {
+      "left": 316,
+      "top": 205,
+      "width": 402,
+      "height": 686
+    },
+    "input_sha256": "a155dc33dd6f8fc2fc22c213cfb83621ab20d965af6c1dad0a64b8cd04ce21ef",
+    "output_sha256": "3fb8c482843f9b9039ea111f96b3ff0787d3b46480b6cbe46bfd2fe6f837598e"
+  },
+  {
+    "reference": "TRA_ATISO_LADOPHAR_TRA_DUONG_SINH",
+    "method": "manual-original-pixel-mask",
+    "polygon": [
+      [
+        0.333,
+        0.26
+      ],
+      [
+        0.352,
+        0.248
+      ],
+      [
+        0.666,
+        0.271
+      ],
+      [
+        0.684,
+        0.288
+      ],
+      [
+        0.716,
+        0.782
+      ],
+      [
+        0.721,
+        0.837
+      ],
+      [
+        0.71,
+        0.845
+      ],
+      [
+        0.38,
+        0.887
+      ],
+      [
+        0.35,
+        0.883
+      ],
+      [
+        0.334,
+        0.852
+      ],
+      [
+        0.303,
+        0.854
+      ],
+      [
+        0.293,
+        0.832
+      ],
+      [
+        0.309,
+        0.408
+      ],
+      [
+        0.322,
+        0.302
+      ]
+    ],
+    "listing_id": 106,
+    "local": "tmp/packshot-v2/input/atiso-ladophar-duongsinh.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/atiso-ladophar-duongsinh.webp",
+    "size": [
+      600,
+      600
+    ],
+    "masked": "tmp/packshot-v2/TRA_ATISO_LADOPHAR_TRA_DUONG_SINH-masked.png",
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-tra-atiso-ladophar-tra-duong-sinh-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-tra-atiso-ladophar-tra-duong-sinh-v2.png",
+    "crop": {
+      "left": 166,
+      "top": 139,
+      "width": 278,
+      "height": 404
+    },
+    "input_sha256": "68172fd8bd9424c46400b840d70144a77628304f8f7297b013c54d450efb450c",
+    "output_sha256": "99d9335e4a38a14ba2dd1fa632c4a4c29e2bb8fb0d10ae9b5586790e4e6fbfed"
+  },
+  {
+    "reference": "TRA_MANG_CAU_LADOPHAR",
+    "method": "manual-original-pixel-mask",
+    "polygon": [
+      [
+        0.312,
+        0.221
+      ],
+      [
+        0.704,
+        0.221
+      ],
+      [
+        0.726,
+        0.234
+      ],
+      [
+        0.737,
+        0.257
+      ],
+      [
+        0.737,
+        0.835
+      ],
+      [
+        0.724,
+        0.848
+      ],
+      [
+        0.314,
+        0.848
+      ],
+      [
+        0.3,
+        0.836
+      ],
+      [
+        0.3,
+        0.26
+      ],
+      [
+        0.304,
+        0.238
+      ]
+    ],
+    "listing_id": 107,
+    "local": "tmp/packshot-v2/input/mangcau-ladophar.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/mangcau-ladophar.webp",
+    "size": [
+      1024,
+      1024
+    ],
+    "masked": "tmp/packshot-v2/TRA_MANG_CAU_LADOPHAR-masked.png",
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-tra-mang-cau-ladophar-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-tra-mang-cau-ladophar-v2.png",
+    "crop": {
+      "left": 291,
+      "top": 210,
+      "width": 481,
+      "height": 675
+    },
+    "input_sha256": "be24d9cf08eee460df215f964eee5805667e3d06b5b1bfcfb01c90795d423658",
+    "output_sha256": "536f7b2d17cde1bf16282653fe7c212237650a257155dc5e8ec2910cd96e8151"
+  },
+  {
+    "reference": "NP-023",
+    "listing_id": 243,
+    "local": "tmp/packshot-v2/input/NP-023-clean-source.jpg",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-023.webp",
+    "size": [
+      900,
+      900
+    ],
+    "method": "exterior-white",
+    "source_page": "https://emartmall.com.vn/index.php?product_id=109642&route=product%2Fproduct",
+    "source_image": "https://emartmall.com.vn/image/cache/catalog/products/8936082342221/8936082342221-2608-600x600.jpg",
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-023-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-023-v2.png",
+    "crop": {
+      "left": 71,
+      "top": 9,
+      "width": 459,
+      "height": 585
+    },
+    "input_sha256": "e33df3179a297d3c200a005672234c12d31de1d9cf86bb19c2feb27301c6abf2",
+    "output_sha256": "aa40671d124817b21813b4ecc879ee8c1e78b7212b84492592dd2672e71bbf53"
+  },
+  {
+    "reference": "NP-154",
+    "listing_id": 298,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-154.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-154.webp",
+    "size": [
+      600,
+      600
+    ],
+    "method": "manual-original-pixel-mask",
+    "polygon": [
+      [
+        0.225,
+        0.055
+      ],
+      [
+        0.3,
+        0.055
+      ],
+      [
+        0.31333333333333335,
+        0.06333333333333334
+      ],
+      [
+        0.31333333333333335,
+        0.12
+      ],
+      [
+        0.31,
+        0.13
+      ],
+      [
+        0.30666666666666664,
+        0.25333333333333335
+      ],
+      [
+        0.31666666666666665,
+        0.29333333333333333
+      ],
+      [
+        0.3433333333333333,
+        0.35333333333333333
+      ],
+      [
+        0.375,
+        0.4266666666666667
+      ],
+      [
+        0.3983333333333333,
+        0.49333333333333335
+      ],
+      [
+        0.3983333333333333,
+        0.625
+      ],
+      [
+        0.39166666666666666,
+        0.7916666666666666
+      ],
+      [
+        0.385,
+        0.8866666666666667
+      ],
+      [
+        0.36666666666666664,
+        0.9166666666666666
+      ],
+      [
+        0.31666666666666665,
+        0.9283333333333333
+      ],
+      [
+        0.22833333333333333,
+        0.9283333333333333
+      ],
+      [
+        0.17833333333333334,
+        0.9133333333333333
+      ],
+      [
+        0.16,
+        0.885
+      ],
+      [
+        0.14833333333333334,
+        0.74
+      ],
+      [
+        0.14333333333333334,
+        0.62
+      ],
+      [
+        0.14666666666666667,
+        0.48333333333333334
+      ],
+      [
+        0.16166666666666665,
+        0.41333333333333333
+      ],
+      [
+        0.185,
+        0.34
+      ],
+      [
+        0.20833333333333334,
+        0.275
+      ],
+      [
+        0.21666666666666667,
+        0.24833333333333332
+      ],
+      [
+        0.21833333333333332,
+        0.13
+      ],
+      [
+        0.21666666666666667,
+        0.12
+      ],
+      [
+        0.21666666666666667,
+        0.06666666666666667
+      ]
+    ],
+    "masked": "tmp/packshot-v2/NP-154-masked.png",
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-154-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-154-v2.png",
+    "crop": {
+      "left": 73,
+      "top": 20,
+      "width": 180,
+      "height": 551
+    },
+    "input_sha256": "ea5a9bb96b4668a37c59c66bc378a1374b16691c37f87d7e98510c105d45192d",
+    "output_sha256": "8f0985225c2c0e13875e6e55eb5933f8fceb13fb730fb73d7f792bd03b0bf1f1"
+  },
+  {
+    "reference": "NP-193",
+    "listing_id": 314,
+    "local": "tmp/packshot-v2/input/catalog-2026-np-193.webp",
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/catalog-2026-np-193.webp",
+    "size": [
+      600,
+      600
+    ],
+    "method": "manual-original-pixel-mask",
+    "polygon": [
+      [
+        0.16,
+        0.121
+      ],
+      [
+        0.191,
+        0.126
+      ],
+      [
+        0.22,
+        0.12
+      ],
+      [
+        0.256,
+        0.133
+      ],
+      [
+        0.29,
+        0.134
+      ],
+      [
+        0.326,
+        0.143
+      ],
+      [
+        0.363,
+        0.149
+      ],
+      [
+        0.4,
+        0.151
+      ],
+      [
+        0.438,
+        0.161
+      ],
+      [
+        0.475,
+        0.169
+      ],
+      [
+        0.516,
+        0.175
+      ],
+      [
+        0.554,
+        0.185
+      ],
+      [
+        0.59,
+        0.196
+      ],
+      [
+        0.631,
+        0.2
+      ],
+      [
+        0.674,
+        0.212
+      ],
+      [
+        0.713,
+        0.221
+      ],
+      [
+        0.75,
+        0.227
+      ],
+      [
+        0.793,
+        0.238
+      ],
+      [
+        0.83,
+        0.247
+      ],
+      [
+        0.868,
+        0.258
+      ],
+      [
+        0.905,
+        0.269
+      ],
+      [
+        0.942,
+        0.282
+      ],
+      [
+        0.954,
+        0.588
+      ],
+      [
+        0.973,
+        0.871
+      ],
+      [
+        0.87,
+        0.819
+      ],
+      [
+        0.818,
+        0.96
+      ],
+      [
+        0.04,
+        0.644
+      ],
+      [
+        0.003,
+        0.628
+      ],
+      [
+        0.07,
+        0.404
+      ],
+      [
+        0.133,
+        0.173
+      ]
+    ],
+    "masked": "tmp/packshot-v2/NP-193-masked.png",
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-np-193-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-np-193-v2.png",
+    "crop": {
+      "left": 0,
+      "top": 57,
+      "width": 600,
+      "height": 535
+    },
+    "input_sha256": "74ffe7bf513c2b20a481821dac4fe40bcfda749f6cd69232564230aad7558cab",
+    "output_sha256": "7c2116e8ee6ee6c89c4b6e1f954d57a197b362ae8a3fb18cb123d0c1bc241a03"
+  },
+  {
+    "reference": "TRA_ATISO_NGOC_DUY_GOI_CAM",
+    "listing_id": 103,
+    "image_url": "https://storage.thanhtungvo.id.vn/api/v1/public/product-images/transparent-atiso-ngocduy-cam-v1.png",
+    "size": [
+      548,
+      581
+    ],
+    "local": "tmp/packshot-v2/input/ngocduy-orange-clean.jpg",
+    "method": "manual-original-pixel-mask",
+    "roi": [
+      0,
+      0,
+      1,
+      0.904
+    ],
+    "source_page": "https://tiki.vn/100-tui-loc-sieu-tiet-kiem-tra-atiso-tui-loc-relax-thuong-hang-ngoc-duy-goi-cam-200g-100-tui-loc-x-2g-giup-giai-doc-gan-thanh-loc-co-the-lam-dep-da-ngu-ngon-hon-tot-cho-nguoi-tieu-duong-p94225714.html",
+    "source_image": "https://salt.tikicdn.com/ts/tmp/53/06/a0/6b81407349cce89cf8f767dedc2674bb.jpg",
+    "masked": "tmp/packshot-v2/TRA_ATISO_NGOC_DUY_GOI_CAM-masked.png",
+    "output": "/Users/thanhtungvo/Codex-Project/ULINK/output/images/packshot-clean-v2/clean-tra-atiso-ngoc-duy-goi-cam-v2.png",
+    "new_url": "/api/v1/public/product-images/clean-tra-atiso-ngoc-duy-goi-cam-v2.png",
+    "crop": {
+      "left": 133,
+      "top": 0,
+      "width": 532,
+      "height": 757
+    },
+    "input_sha256": "0fe94bfb5f8724272d3b69cc354b27bf1d31121f32e23efea170c7fc1ee0fa2e",
+    "output_sha256": "a0a5c770229ab261594887c1551bfd2ac7440096f809c7b15a3b1e803ac6495b"
+  }
+]

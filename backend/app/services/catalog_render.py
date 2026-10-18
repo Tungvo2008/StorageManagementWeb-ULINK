@@ -96,7 +96,10 @@ def get_catalog_company(*, title: str = "", version: str = "") -> CatalogCompany
     )
 
 
-def normalize_catalog_product(product: Product) -> CatalogProduct:
+def normalize_catalog_product(
+    product: Product,
+    price_overrides: dict[int, Decimal] | None = None,
+) -> CatalogProduct:
     category = product.category
     category_name = category.name if category else "Uncategorized"
     badges = tuple(
@@ -107,6 +110,9 @@ def normalize_catalog_product(product: Product) -> CatalogProduct:
     case_pack = product.catalog_case_pack
     if case_pack is None and int(product.uom_multiplier or 1) > 1:
         case_pack = int(product.uom_multiplier)
+    price = Decimal(product.unit_price or 0)
+    if price_overrides and product.id in price_overrides:
+        price = price_overrides[product.id]
     return CatalogProduct(
         id=product.id,
         category_id=product.category_id,
@@ -120,7 +126,7 @@ def normalize_catalog_product(product: Product) -> CatalogProduct:
         case_pack=case_pack,
         country_of_origin=(product.country_of_origin or "").strip(),
         upc=(product.upc or "").strip(),
-        wholesale_price=Decimal(product.unit_price or 0),
+        wholesale_price=price,
         currency=(product.currency or settings.DEFAULT_CURRENCY).upper(),
         availability="in_stock" if int(product.quantity_on_hand or 0) > 0 else "out_of_stock",
         badges=badges,
@@ -128,10 +134,13 @@ def normalize_catalog_product(product: Product) -> CatalogProduct:
     )
 
 
-def build_catalog_categories(products: Iterable[Product]) -> tuple[CatalogCategory, ...]:
+def build_catalog_categories(
+    products: Iterable[Product],
+    price_overrides: dict[int, Decimal] | None = None,
+) -> tuple[CatalogCategory, ...]:
     grouped: dict[tuple[int | None, str, int], list[CatalogProduct]] = {}
     for product in products:
-        normalized = normalize_catalog_product(product)
+        normalized = normalize_catalog_product(product, price_overrides=price_overrides)
         category_order = int(product.category.catalog_sort_order or 0) if product.category else 999999
         key = (normalized.category_id, normalized.category_name, category_order)
         grouped.setdefault(key, []).append(normalized)
@@ -437,14 +446,19 @@ def _resolve_logo_path() -> Path | None:
 
 
 def _register_fonts(pdfmetrics, TTFont) -> tuple[str, str]:  # type: ignore[no-untyped-def]
+    assets_font_dir = Path(__file__).resolve().parents[2] / "assets" / "fonts"
     regular_candidates = [
         Path(settings.INVOICE_PDF_FONT_PATH).expanduser() if settings.INVOICE_PDF_FONT_PATH else None,
+        assets_font_dir / "DejaVuSans.ttf",
+        Path("/app/assets/fonts/DejaVuSans.ttf"),
         Path("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"),
         Path("/System/Library/Fonts/Supplemental/Arial Unicode.ttf"),
         Path("/System/Library/Fonts/Supplemental/Arial.ttf"),
     ]
     bold_candidates = [
         Path(settings.INVOICE_PDF_FONT_BOLD_PATH).expanduser() if settings.INVOICE_PDF_FONT_BOLD_PATH else None,
+        assets_font_dir / "DejaVuSans-Bold.ttf",
+        Path("/app/assets/fonts/DejaVuSans-Bold.ttf"),
         Path("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"),
         Path("/System/Library/Fonts/Supplemental/Arial Bold.ttf"),
     ]

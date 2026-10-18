@@ -12,6 +12,8 @@ from app.db.init_db import init_db
 def create_app() -> FastAPI:
     app = FastAPI(title=settings.PROJECT_NAME)
     product_image_dir = Path(__file__).resolve().parents[1] / "assets" / "product-images"
+    cargo_image_dir = Path(__file__).resolve().parents[1] / "assets" / "cargo-images"
+    cargo_image_dir.mkdir(parents=True, exist_ok=True)
 
     cors_origins = settings.CORS_ORIGINS
     if cors_origins:
@@ -27,6 +29,11 @@ def create_app() -> FastAPI:
         f"{settings.API_V1_STR}/public/product-images",
         StaticFiles(directory=product_image_dir, check_dir=False),
         name="product-images",
+    )
+    app.mount(
+        f"{settings.API_V1_STR}/public/cargo-images",
+        StaticFiles(directory=cargo_image_dir, check_dir=False),
+        name="cargo-images",
     )
     app.include_router(api_router, prefix=settings.API_V1_STR)
 
