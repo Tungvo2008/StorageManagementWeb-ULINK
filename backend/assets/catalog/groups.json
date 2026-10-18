@@ -20,6 +20,12 @@
     "hero_image": "/api/v1/public/product-images/ulink-editorial-soups-v1.jpg"
   },
   {
+    "id": "chinsu",
+    "name": "Gia vị CHIN-SU",
+    "name_en": "CHIN-SU Condiments",
+    "hero_image": "/api/v1/public/product-images/ulink-editorial-condiments-v1.jpg"
+  },
+  {
     "id": "05",
     "name": "Gia vị Cholimex",
     "hero_image": "/api/v1/public/product-images/ulink-editorial-condiments-v1.jpg"
@@ -93,5 +99,11 @@
     "id": "19",
     "name": "Lịch & quà tặng",
     "hero_image": "/api/v1/public/product-images/ulink-editorial-calendar-v1.jpg"
+  },
+  {
+    "id": "dannygreen",
+    "name": "DannyGreen — Danh mục đối tác",
+    "name_en": "DannyGreen Partner Collection",
+    "hero_image": "/api/v1/public/product-images/ulink-editorial-pantry-v1.jpg"
   }
 ]
