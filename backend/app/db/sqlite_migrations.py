@@ -436,3 +436,12 @@ def _ensure_columns(conn: Connection) -> None:
             "is_published",
             "is_published BOOLEAN NOT NULL DEFAULT 0",
         )
+
+    if "cargo_boxes" in tables:
+        _add_column_if_missing(conn, "cargo_boxes", "tracking_number", "tracking_number VARCHAR(64)")
+        _add_column_if_missing(conn, "cargo_boxes", "delivery_status", "delivery_status VARCHAR(32) DEFAULT 'PENDING'")
+        _add_column_if_missing(conn, "cargo_boxes", "delivered_at", "delivered_at DATETIME")
+        _add_column_if_missing(conn, "cargo_boxes", "cali_code", "cali_code VARCHAR(32)")
+        conn.execute(text("CREATE INDEX IF NOT EXISTS ix_cargo_boxes_tracking_number ON cargo_boxes (tracking_number)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS ix_cargo_boxes_cali_code ON cargo_boxes (cali_code)"))
+

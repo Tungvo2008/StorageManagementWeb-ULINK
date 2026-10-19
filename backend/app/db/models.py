@@ -772,6 +772,10 @@ class CargoBox(TimestampMixin, Base):
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     is_hub: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     hub_consignee_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    tracking_number: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    delivery_status: Mapped[str | None] = mapped_column(String(32), nullable=True, default="PENDING")
+    delivered_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    cali_code: Mapped[str | None] = mapped_column(String(32), nullable=True, index=True)
 
     batch: Mapped[CargoBatch] = relationship(back_populates="boxes")
     bills: Mapped[list["CargoBill"]] = relationship(back_populates="box")

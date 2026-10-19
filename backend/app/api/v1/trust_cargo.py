@@ -277,6 +277,12 @@ def create_box(
         box_image_url=payload.box_image_url,
         weight_lbs=payload.weight_lbs,
         notes=payload.notes,
+        is_hub=payload.is_hub,
+        hub_consignee_name=payload.hub_consignee_name,
+        tracking_number=payload.tracking_number,
+        delivery_status=payload.delivery_status or "PENDING",
+        delivered_at=payload.delivered_at,
+        cali_code=payload.cali_code,
     )
     db.add(box)
     db.commit()
@@ -307,6 +313,18 @@ def update_box(
         box.weight_lbs = payload.weight_lbs
     if payload.notes is not None:
         box.notes = payload.notes
+    if payload.is_hub is not None:
+        box.is_hub = payload.is_hub
+    if payload.hub_consignee_name is not None:
+        box.hub_consignee_name = payload.hub_consignee_name
+    if payload.tracking_number is not None:
+        box.tracking_number = payload.tracking_number
+    if payload.delivery_status is not None:
+        box.delivery_status = payload.delivery_status
+    if payload.delivered_at is not None:
+        box.delivered_at = payload.delivered_at
+    if payload.cali_code is not None:
+        box.cali_code = payload.cali_code
 
     db.commit()
     db.refresh(box)

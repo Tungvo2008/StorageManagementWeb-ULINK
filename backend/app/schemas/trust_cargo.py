@@ -130,6 +130,10 @@ class CargoBoxBase(BaseModel):
     is_hub: bool = False
     hub_consignee_name: Optional[str] = None
     notes: Optional[str] = None
+    tracking_number: Optional[str] = None
+    delivery_status: Optional[str] = "PENDING"
+    delivered_at: Optional[datetime] = None
+    cali_code: Optional[str] = None
 
 
 class CargoBoxCreate(CargoBoxBase):
@@ -145,6 +149,10 @@ class CargoBoxUpdate(BaseModel):
     is_hub: Optional[bool] = None
     hub_consignee_name: Optional[str] = None
     notes: Optional[str] = None
+    tracking_number: Optional[str] = None
+    delivery_status: Optional[str] = None
+    delivered_at: Optional[datetime] = None
+    cali_code: Optional[str] = None
 
 
 class CargoBoxRead(CargoBoxBase):
