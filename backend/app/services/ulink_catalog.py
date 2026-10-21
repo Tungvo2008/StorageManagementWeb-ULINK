@@ -79,6 +79,7 @@ def build_catalog(db,output,group_id=None,section_only=False,settings=None):
  O=Path(output);O.parent.mkdir(parents=True,exist_ok=True)
  W,H=595.28,841.89;INK=cfg['text_color'];GREEN=cfg['brand_color'];PALE=cfg['pale_color'];CREAM=cfg['paper_color'];MUTED='#777C70'
  c=canvas.Canvas(str(O),pagesize=(W,H),pageCompression=1);c.setTitle(cfg['title']);c.setAuthor(cfg['company'])
+ product_image_paths={p['image'] for p in products if p.get('image')}
  cache={};logo=(managed_image(cfg['logo_image']) if cfg['logo_image'] else str(A/'logo.png')) if cfg['show_logo'] else None
  def text(x,y,value,size=10,font='Regular',color=None,width=None):
   value=str(value or '');color=color or INK
@@ -109,7 +110,9 @@ def build_catalog(db,output,group_id=None,section_only=False,settings=None):
   if path not in cache:
    with Image.open(path) as source:
     im=source.copy();iw,ih=im.size;im.thumbnail((750,750) if is_grid and max(w,h)<250 else (1400,1400),Image.Resampling.LANCZOS);s=io.BytesIO()
-    if im.mode=='RGBA':im.save(s,format='PNG')
+    if path in product_image_paths and (im.mode in ['RGBA','LA'] or 'transparency' in im.info):
+     rgba=im.convert('RGBA');paper=Image.new('RGB',rgba.size,CREAM);paper.paste(rgba,mask=rgba.getchannel('A'));paper.save(s,format='JPEG',quality=92,subsampling=0,optimize=True)
+    elif im.mode=='RGBA':im.save(s,format='PNG')
     else:im.convert('RGB').save(s,format='JPEG',quality=90)
     s.seek(0);cache[path]=(ImageReader(s),iw,ih)
   reader,iw,ih=cache[path];scale=max(w/iw,h/ih) if (fit or cfg['image_fit'])=='cover' else min(w/iw,h/ih)
