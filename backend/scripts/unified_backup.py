@@ -48,6 +48,7 @@ DATABASE_TARGETS = [
     ("amazon_shipping_shipping", PRIMARY_HOME / "amazon-shipping/data/shipping.db"),
     ("amazon_shipping_alerts", PRIMARY_HOME / "amazon-shipping/data/alerts.db"),
     ("amazon_shipping_app", PRIMARY_HOME / "amazon-shipping/data/app.db"),
+    ("amazon_shipping_brand_analytics", PRIMARY_HOME / "amazon-shipping/data/brand_analytics.db"),
     ("pirateship_agent", PRIMARY_HOME / "pirateship-agent-service/data/pirateship-agent.sqlite3"),
     ("habit_tracker", PRIMARY_HOME / "MinimalHabitTracker/data/habits.db"),
     ("assistant_app", PRIMARY_HOME / "assistant/data/app.db"),
@@ -95,6 +96,8 @@ COMMON_EXCLUDES = [
     "chrome-profile",
     "profiles",
     "data",
+    "build",
+    "dist",
 ]
 
 
@@ -107,25 +110,18 @@ class GoogleDriveManager:
         self.service = None
         self.account_name = None
         
-        # Try personal account first (thanhtungvo20082006 / default)
-        if self.mgr.is_authorized("default"):
-            try:
-                creds = self.mgr.creds_map["default"]
-                self.service = build("drive", "v3", credentials=creds)
-                self.account_name = "thanhtungvo20082006"
-                logger.info("Using authorized Google Drive account: thanhtungvo20082006 (default)")
-            except Exception as e:
-                logger.warning(f"Failed to use default account: {e}")
-        
-        # Fallback to ulink
-        if not self.service:
-            if self.mgr.is_authorized("ulink"):
-                creds = self.mgr.creds_map["ulink"]
-                self.service = build("drive", "v3", credentials=creds)
-                self.account_name = "ulinkllc@gmail.com (ulink)"
-                logger.info("Using authorized Google Drive account: ulink (ulinkllc@gmail.com)")
-            else:
-                raise PermissionError("No Google Drive account is authorized! Please authorize via /app/data/google")
+        # Enforce personal Google Drive account ONLY (thanhtungvo20082006 / default)
+        if not self.mgr.is_authorized("default"):
+            raise PermissionError("Tài khoản Google Drive cá nhân (thanhtungvo20082006 / default) chưa được ủy quyền!")
+            
+        try:
+            creds = self.mgr.creds_map["default"]
+            self.service = build("drive", "v3", credentials=creds)
+            self.account_name = "thanhtungvo20082006 (default)"
+            logger.info("Using authorized Google Drive personal account: thanhtungvo20082006 (default)")
+        except Exception as e:
+            logger.error(f"Failed to initialize Drive service for personal account: {e}")
+            raise
         
         self.folders_cache = {}
         self.root_folder_id = self._get_or_create_folder(DRIVE_ROOT_FOLDER)
@@ -361,24 +357,17 @@ def run_recorder_app_backup(drive: GoogleDriveManager, state: dict) -> int:
             
         size_mb = round(size / (1024 * 1024), 2)
         logger.info(f"Syncing Recorder App file: {f.name} ({size_mb} MB)...")
-        try:
-            up_res = drive.upload_file(f, subfolder_name="recorder_recordings")
-            uploaded_map[file_key] = {
-                "size": size,
-                "mtime": mtime,
-                "uploaded_at": datetime.now().isoformat(),
-                "drive_id": up_res.get("id")
-            }
-            uploaded_count += 1
-            save_state(state)
-        except Exception as e:
-            if "storageQuotaExceeded" in str(e):
-                logger.warning(f"⚠️ Google Drive storage quota reached on '{drive.account_name}'. Remaining recordings will sync once thanhtungvo20082006 is authorized.")
-                break
-            else:
-                logger.error(f"Error uploading {f.name}: {e}")
+        up_res = drive.upload_file(f, subfolder_name="recorder_recordings")
+        uploaded_map[file_key] = {
+            "size": size,
+            "mtime": mtime,
+            "uploaded_at": datetime.now().isoformat(),
+            "drive_id": up_res.get("id")
+        }
+        uploaded_count += 1
+        save_state(state)
         
-    logger.info(f"Recorder App media sync step finished. Uploaded {uploaded_count} new file(s).")
+    logger.info(f"Recorder App media sync finished. Uploaded {uploaded_count} new file(s).")
     return uploaded_count
 
 
@@ -424,21 +413,15 @@ def run_code_and_system_backup(drive: GoogleDriveManager, state: dict) -> dict:
         size_mb = round(archive_path.stat().st_size / (1024 * 1024), 2)
         logger.info(f"Codebase archive created: {archive_name} ({size_mb} MB)")
         
-        try:
-            up_res = drive.upload_file(archive_path, subfolder_name="code_bundles")
-            drive.clean_old_files("code_bundles", keep_count=7)
-            state["last_code_backup"] = {
-                "timestamp": now.isoformat(),
-                "file_name": archive_name,
-                "size_mb": size_mb,
-                "file_id": up_res.get("id")
-            }
-        except Exception as e:
-            if "storageQuotaExceeded" in str(e):
-                logger.warning(f"⚠️ Drive storage limit reached while uploading code bundle on '{drive.account_name}'. Will sync once thanhtungvo20082006 is authorized.")
-                state["last_code_backup"] = {"timestamp": now.isoformat(), "file_name": archive_name, "size_mb": size_mb, "file_id": None}
-            else:
-                logger.error(f"Error uploading code bundle: {e}")
+        up_res = drive.upload_file(archive_path, subfolder_name="code_bundles")
+        drive.clean_old_files("code_bundles", keep_count=7)
+        
+        state["last_code_backup"] = {
+            "timestamp": now.isoformat(),
+            "file_name": archive_name,
+            "size_mb": size_mb,
+            "file_id": up_res.get("id")
+        }
         return state["last_code_backup"]
 
 
@@ -484,6 +467,9 @@ def main():
     
     state = load_state()
     try:
+        # Step A: Local Git Auto-commit and Remote Push Check
+        run_git_sync()
+        
         # Step B: Google Drive Sync
         drive = GoogleDriveManager()
         db_res = run_database_backup(drive, state)
@@ -506,6 +492,39 @@ def main():
         }
         (LOGS_DIR / "last_backup_meta.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
         
+        # Send Telegram notification report to Tùng (Admin)
+        try:
+            tele_msg = (
+                f"🛡️ **BÁO CÁO SAO LƯU HỆ THỐNG ĐỊNH KỲ (BACKUP SUCCESS)**\n\n"
+                f"• **Thời gian hoàn tất:** {datetime.now().strftime('%H:%M:%S - %d/%m/%Y')}\n"
+                f"• **Thời lượng thực thi:** {dur} giây\n"
+                f"• **Tài khoản Google Drive:** `{drive.account_name}`\n"
+                f"• **Thư mục Drive:** `ZEN_SERVER_BACKUPS`\n\n"
+                f"📦 **Chi tiết các gói dữ liệu đã đồng bộ:**\n"
+                f"• Snapshot SQLite: `{db_res['file_name']}` ({db_res.get('size_mb', 0)} MB)\n"
+                f"• Bản nén mã nguồn: `{code_res['file_name']}` ({code_res.get('size_mb', 0)} MB)\n"
+                f"• Video Google Meet mới: {meet_count} tệp\n"
+                f"• Audio/Media Recorder mới: {rec_count} tệp\n\n"
+                f"✅ *Dữ liệu toàn hệ thống đã được bảo toàn nguyên vẹn trên Google Drive cá nhân của Tùng!*"
+            )
+            # Send via ZenNotiBot (@ZenNotiBot) to keep main chat clean
+            noti_token = os.getenv("NOTIFICATION_BOT_TOKEN") or "8831162340:AAFofOcn8xNbf3OUgjKafyXDS-o9huPQcpk"
+            admin_id = 8151613595
+            if noti_token:
+                import urllib.request
+                import urllib.parse
+                api_url = f"https://api.telegram.org/bot{noti_token}/sendMessage"
+                payload = urllib.parse.urlencode({
+                    "chat_id": admin_id,
+                    "text": tele_msg,
+                    "parse_mode": "Markdown"
+                }).encode("utf-8")
+                req = urllib.request.Request(api_url, data=payload, headers={"Content-Type": "application/x-www-form-urlencoded"})
+                with urllib.request.urlopen(req, timeout=10) as resp:
+                    logger.info("Sent backup completion report to ZenNotiBot Telegram successfully.")
+        except Exception as te:
+            logger.warning(f"Could not send Telegram backup report: {te}")
+
         logger.info("==================================================")
         logger.info(f"✅ UNIFIED BACKUP COMPLETED in {dur}s")
         logger.info(f"Summary: {json.dumps(summary, indent=2)}")

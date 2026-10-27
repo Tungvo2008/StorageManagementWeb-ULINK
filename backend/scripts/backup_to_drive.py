@@ -60,9 +60,9 @@ def get_drive_service():
     from googleapiclient.discovery import build
     
     mgr = GoogleWorkspaceManager.get_instance()
-    if not mgr.is_authorized("ulink"):
-        raise PermissionError("Tài khoản Google 'ulink' chưa được xác thực OAuth!")
-    creds = mgr.creds_map["ulink"]
+    if not mgr.is_authorized("default"):
+        raise PermissionError("Tài khoản Google cá nhân 'default' (thanhtungvo20082006) chưa được xác thực OAuth!")
+    creds = mgr.creds_map["default"]
     return build("drive", "v3", credentials=creds)
 
 def get_or_create_backup_folder(service) -> tuple[str, str]:
