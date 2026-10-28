@@ -1457,9 +1457,11 @@ def extract_box_recipients(box: CargoBox) -> list[str]:
 
     # 2. If no bills, parse box.label_text
     if not names and getattr(box, "label_text", None):
-        text = box.label_text.strip()
-        if text:
-            parts = re.split(r"[,+/&\n]|(?:\s+và\s+)", text, flags=re.IGNORECASE)
+        raw_text = (box.label_text or "").strip()
+        lines = [l.strip() for l in raw_text.splitlines() if l.strip()]
+        candidate_text = lines[0] if lines else ""
+        if candidate_text:
+            parts = re.split(r"[,+&]|(?:\s+và\s+)", candidate_text, flags=re.IGNORECASE)
             for p in parts:
                 p = p.strip()
                 if p and p.upper() not in seen:
