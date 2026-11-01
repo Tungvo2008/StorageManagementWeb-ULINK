@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import io
+import unicodedata
 from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal, ROUND_HALF_UP
@@ -11,6 +12,10 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from app.core.config import settings
 from app.db.models import Customer, Invoice
+
+
+def to_nfc(text: str) -> str:
+    return unicodedata.normalize('NFC', str(text)) if text else ""
 
 
 @dataclass(frozen=True)
@@ -24,11 +29,11 @@ class CompanyInfo:
 
 def get_company_info() -> CompanyInfo:
     return CompanyInfo(
-        name=settings.COMPANY_NAME,
-        address=settings.COMPANY_ADDRESS,
-        phone=settings.COMPANY_PHONE,
-        email=settings.COMPANY_EMAIL,
-        tax_code=settings.COMPANY_TAX_CODE,
+        name=to_nfc(settings.COMPANY_NAME),
+        address=to_nfc(settings.COMPANY_ADDRESS),
+        phone=to_nfc(settings.COMPANY_PHONE),
+        email=to_nfc(settings.COMPANY_EMAIL),
+        tax_code=to_nfc(settings.COMPANY_TAX_CODE),
     )
 
 
@@ -107,7 +112,7 @@ def render_invoice_pdf(invoice: Invoice, customer: Customer | None) -> bytes:
             return []
         out: list[str] = []
         for raw in str(v).replace("|", "\n").splitlines():
-            s = raw.strip()
+            s = to_nfc(raw.strip())
             if s:
                 out.append(s)
         return out
@@ -239,12 +244,12 @@ def render_invoice_pdf(invoice: Invoice, customer: Customer | None) -> bytes:
         c.setFont(font_bold if bold else font_regular, size)
 
     # Resolve customer snapshot for stable output
-    cust_name = invoice.client_name_snapshot or (customer.name if customer else "Walk-in customer")
-    cust_phone = invoice.tele_snapshot or (customer.phone if customer else "")
-    cust_addr = invoice.address_snapshot or (customer.address if customer else "")
-    cust_city = invoice.city_snapshot or (customer.city if customer else "")
-    cust_zip = invoice.zip_code_snapshot or (customer.zip_code if customer else "")
-    invoice_note = (invoice.note or "").strip()
+    cust_name = to_nfc(invoice.client_name_snapshot or (customer.name if customer else "Walk-in customer"))
+    cust_phone = to_nfc(invoice.tele_snapshot or (customer.phone if customer else ""))
+    cust_addr = to_nfc(invoice.address_snapshot or (customer.address if customer else ""))
+    cust_city = to_nfc(invoice.city_snapshot or (customer.city if customer else ""))
+    cust_zip = to_nfc(invoice.zip_code_snapshot or (customer.zip_code if customer else ""))
+    invoice_note = to_nfc((invoice.note or "").strip())
     city_zip = ""
     if cust_city and cust_zip:
         city_zip = f"{cust_city}, {cust_zip}"
@@ -417,8 +422,9 @@ def render_invoice_pdf(invoice: Invoice, customer: Customer | None) -> bytes:
             if line is None:
                 continue
 
-            desc = (line.product_name or "")[:60]
-            unit = (line.uom or "")[:12]
+            raw_desc = getattr(line, "description", None) or line.product_name or ""
+            desc = to_nfc(raw_desc)[:60]
+            unit = to_nfc(line.uom or "")[:12]
             qty = int(line.quantity)
             unit_price = fmt_money_symbol(Decimal(line.unit_price), invoice.currency)
             total = fmt_money_symbol(Decimal(line.line_total), invoice.currency)
