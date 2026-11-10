@@ -1,11 +1,12 @@
 from __future__ import annotations
+from app.services.zen_operations import reserve as zen_reserve, complete as zen_complete, replay as zen_replay
 
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 import re
 from urllib.parse import quote
 
-from fastapi import APIRouter, Depends, File, HTTPException, Response, UploadFile, status
+from fastapi import APIRouter, Request, Depends, File, HTTPException, Response, UploadFile, status
 from sqlalchemy import select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, selectinload
@@ -477,9 +478,13 @@ def _auto_record_customer_prices(db: Session, invoice: Invoice):
 @router.post("/manual", response_model=InvoiceRead, status_code=status.HTTP_201_CREATED)
 def create_manual_invoice(
     body: InvoiceManualCreate,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> Invoice:
+    existing = zen_reserve(request, db, 'invoice', body)
+    if existing is not None:
+        return zen_replay(db, Invoice, existing)
     _ = current_user
     invoice_number = (body.invoice_number or "").strip() or _generate_invoice_number(
         db,
@@ -517,6 +522,7 @@ def create_manual_invoice(
     _sync_invoice_stock(db, invoice, actor_username=current_user.username)
     _auto_record_customer_prices(db, invoice)
     try:
+        zen_complete(db, 'invoice', invoice.id)
         db.commit()
     except IntegrityError as e:
         db.rollback()

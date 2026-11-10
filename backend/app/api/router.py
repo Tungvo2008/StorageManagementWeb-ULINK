@@ -58,3 +58,12 @@ api_router.include_router(leads_router, dependencies=auth_deps)
 
 from app.api.v1.catalog_admin import router as catalog_admin_router
 api_router.include_router(catalog_admin_router, dependencies=auth_deps)
+
+from app.services.zen_operations import router as zen_operations_router
+api_router.include_router(zen_operations_router, dependencies=auth_deps)
+
+from app.services.data_explorer import router as zen_data_router
+api_router.include_router(zen_data_router, dependencies=auth_deps)
+
+from app.services.shipping_api import router as zen_shipping_router
+api_router.include_router(zen_shipping_router, dependencies=auth_deps)

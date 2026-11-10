@@ -1,0 +1,99 @@
+{
+  "origin": {
+    "name": "Thai Nguyen",
+    "street1": "141 Carondelet Plz",
+    "city": "Saint Louis",
+    "state": "MO",
+    "zip": "63105-3429",
+    "country": "US",
+    "phone": "7139030933",
+    "email": "ulinkllc@gmail.com"
+  },
+  "carrier_account": "d840f4c96831421ebfc2a6593c3ebc45",
+  "purchases_enabled": false,
+  "legacy_guard": {
+    "version": 1,
+    "cargo_id_high_watermark": 11,
+    "cargo_decisions": {},
+    "captured_at": "2026-11-10T01:14:00.278624+00:00",
+    "evidence": [
+      {
+        "batch_id": 2,
+        "batch_code": "CARGO-20260924-WORL",
+        "state": "UNRECONCILED",
+        "source": "erp-existing-at-provider-migration"
+      },
+      {
+        "batch_id": 3,
+        "batch_code": "CARGO-20260925-01",
+        "state": "UNRECONCILED",
+        "source": "erp-existing-at-provider-migration"
+      },
+      {
+        "batch_id": 4,
+        "batch_code": "CARGO-20260930-WORL",
+        "state": "UNRECONCILED",
+        "source": "erp-existing-at-provider-migration"
+      },
+      {
+        "batch_id": 5,
+        "batch_code": "CARGO-20261006-WORL",
+        "state": "UNRECONCILED",
+        "source": "erp-existing-at-provider-migration"
+      },
+      {
+        "batch_id": 6,
+        "batch_code": "CARGO-OLD-MARKET",
+        "state": "UNRECONCILED",
+        "source": "erp-existing-at-provider-migration"
+      },
+      {
+        "batch_id": 7,
+        "batch_code": "CARGO-20261011-WORL",
+        "state": "UNRECONCILED",
+        "source": "erp-existing-at-provider-migration"
+      },
+      {
+        "batch_id": 8,
+        "batch_code": "CARGO-20261020-WORL",
+        "state": "UNRECONCILED",
+        "source": "erp-existing-at-provider-migration"
+      },
+      {
+        "batch_id": 9,
+        "batch_code": "CARGO-20261026-WORL",
+        "state": "UNRECONCILED",
+        "source": "erp-existing-at-provider-migration"
+      },
+      {
+        "batch_id": 10,
+        "batch_code": "CARGO-20261103-WORL",
+        "state": "UNRECONCILED",
+        "source": "erp-existing-at-provider-migration"
+      },
+      {
+        "batch_id": 11,
+        "batch_code": "CARGO-20261105-WORL",
+        "state": "UNRECONCILED",
+        "source": "erp-existing-at-provider-migration"
+      },
+      {
+        "batch_id": 10,
+        "provider": "pirateship",
+        "provider_batch_id": "637984094",
+        "purchase_state": "DONE",
+        "source": "/home/thanhtung/pirateship-agent-service/data/batch-flow/cargo-10.json",
+        "source_sha256": "a3addc3bd3fed71481b6aba4024dcb72c2a1ea297d4f96f3d1ad193d2f8f6e8a"
+      },
+      {
+        "batch_id": 11,
+        "provider": "pirateship",
+        "provider_batch_id": "638685453",
+        "purchase_state": "PENDING_OUTCOME",
+        "source": "/home/thanhtung/pirateship-agent-service/data/batch-flow/cargo-11.json",
+        "source_sha256": "bcc537f232d8f28578cd8ea87b720ff3e53e1cf45b1c731bcbacb57fe59290a0"
+      }
+    ]
+  },
+  "amazon_order_key_file": "/app/app/services/zen_shipping/amazon-order.key"
+}

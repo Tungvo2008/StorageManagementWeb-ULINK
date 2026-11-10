@@ -1,10 +1,11 @@
 from __future__ import annotations
+from app.services.zen_operations import reserve as zen_reserve, complete as zen_complete, replay as zen_replay
 import uuid
 
 from datetime import datetime, timezone, date
 from decimal import Decimal
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Response, UploadFile, File, status
+from fastapi import APIRouter, Request, Depends, HTTPException, Query, Response, UploadFile, File, status
 from sqlalchemy import func, select, or_, and_
 from sqlalchemy.orm import Session
 from sqlalchemy.orm import selectinload, joinedload
@@ -318,9 +319,13 @@ def list_receipt_summary(db: Session = Depends(get_db)) -> list[InventoryReceipt
 @router.post("/receipts", response_model=InventoryReceiptRead, status_code=status.HTTP_201_CREATED)
 def create_receipt(
     body: InventoryReceiptCreate,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> InventoryReceipt:
+    existing = zen_reserve(request, db, 'inventory_receipt', body)
+    if existing is not None:
+        return zen_replay(db, InventoryReceipt, existing)
     return _create_receipt(body=body, db=db, actor_username=current_user.username)
 
 
@@ -420,6 +425,7 @@ def _create_receipt(*, body: InventoryReceiptCreate, db: Session, actor_username
         )
 
     db.add_all(movements)
+    zen_complete(db, 'inventory_receipt', receipt.id)
     db.commit()
 
     created = db.scalar(
@@ -469,9 +475,13 @@ def delete_issue(issue_id: int, db: Session = Depends(get_db)) -> None:
 @router.post("/issues", response_model=InventoryIssueRead, status_code=status.HTTP_201_CREATED)
 def create_issue(
     body: InventoryIssueCreate,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> InventoryIssue:
+    existing = zen_reserve(request, db, 'inventory_issue', body)
+    if existing is not None:
+        return zen_replay(db, InventoryIssue, existing)
     return _create_issue(body=body, db=db, actor_username=current_user.username)
 
 
@@ -540,6 +550,7 @@ def _create_issue(*, body: InventoryIssueCreate, db: Session, actor_username: st
         )
 
     db.add_all(movements)
+    zen_complete(db, 'inventory_issue', issue.id)
     db.commit()
 
     created = db.scalar(select(InventoryIssue).where(InventoryIssue.id == issue.id).options(selectinload(InventoryIssue.lines)))

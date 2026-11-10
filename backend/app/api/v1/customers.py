@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from app.services.zen_operations import reserve as zen_reserve, complete as zen_complete, replay as zen_replay
+from fastapi import APIRouter, Request, Depends, HTTPException, Query, status
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
@@ -34,7 +35,10 @@ def list_customers(
 
 
 @router.post("", response_model=CustomerRead, status_code=status.HTTP_201_CREATED)
-def create_customer(customer_in: CustomerCreate, db: Session = Depends(get_db)) -> Customer:
+def create_customer(customer_in: CustomerCreate, request: Request, db: Session = Depends(get_db)) -> Customer:
+    existing = zen_reserve(request, db, 'customer', customer_in)
+    if existing is not None:
+        return zen_replay(db, Customer, existing)
     customer = Customer(
         name=customer_in.name,
         email=customer_in.email,
@@ -44,6 +48,8 @@ def create_customer(customer_in: CustomerCreate, db: Session = Depends(get_db)) 
         zip_code=customer_in.zip_code,
     )
     db.add(customer)
+    db.flush()
+    zen_complete(db, 'customer', customer.id)
     db.commit()
     db.refresh(customer)
     return customer
