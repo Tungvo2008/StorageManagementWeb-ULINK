@@ -64,6 +64,9 @@ class ShippoBatch:
   return self.get(job_id)
  def observe(self,job_id):
   job=self.get(job_id)
+  # A durable verified receipt is historical evidence, not a fresh provider poll.
+  # Never downgrade it or discard its PDF/proof from a later async batch view.
+  if job['state'] in ('TRANSACTIONS_VERIFIED','ARTIFACTS_VERIFIED'):return job
   if not job['remote_id']:return job
   remote=self.provider.request('GET','/batches/'+job['remote_id']+'/')
   if remote.get('object_id')!=job['remote_id'] or remote.get('metadata')!=job_id:raise ValueError('REMOTE_BATCH_IDENTITY_MISMATCH')

@@ -4,6 +4,7 @@ from decimal import Decimal
 from pathlib import Path
 from fastapi import APIRouter,Depends,HTTPException
 from fastapi.responses import FileResponse
+from starlette.concurrency import run_in_threadpool
 from pydantic import BaseModel,ConfigDict,Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session,joinedload
@@ -61,8 +62,7 @@ def safe(function):
 @router.get('/contract')
 def contract():return {'version':1,'provider':'shippo','native_batch':True,'durable_purchase_intent':True,'service':'ups_ground','label_filetype':'PDF_4x6'}
 
-@router.post('/jobs')
-async def prepare(request:Prepare,db:Session=Depends(get_db),user=Depends(get_current_user)):
+async def current_cargo_plan(request:Prepare,db:Session,user,origin):
  batch=db.scalar(select(CargoBatch).options(joinedload(CargoBatch.boxes).joinedload(CargoBox.bills),joinedload(CargoBatch.bills)).where(CargoBatch.id==request.batch_id))
  if not batch or len(batch.boxes)!=request.expected_box_count:raise HTTPException(409,'EXACT_BATCH_BOX_COUNT_REQUIRED')
  # The ERP source must not already point to labels from any provider.
@@ -79,10 +79,15 @@ async def prepare(request:Prepare,db:Session=Depends(get_db),user=Depends(get_cu
  async for chunk in exported.body_iterator:
   content.extend(chunk)
   if len(content)>10*1024*1024:raise HTTPException(409,'EXPORT_SIZE_LIMIT')
- service=engine(db)
  snapshot={'id':batch.id,'batch_code':batch.batch_code,'boxes':[{'id':box.id,'box_code':box.box_code} for box in batch.boxes],
            'unassigned_bills':[bill.id for bill in batch.bills if bill.box_id is None]}
- plan=safe(lambda:prepare_batch(snapshot,labels_from_export(bytes(content)),measurements,service.provider.origin))
+ plan=safe(lambda:prepare_batch(snapshot,labels_from_export(bytes(content)),measurements,origin))
+ return plan
+
+@router.post('/jobs')
+async def prepare(request:Prepare,db:Session=Depends(get_db),user=Depends(get_current_user)):
+ service=engine(db)
+ plan=await current_cargo_plan(request,db,user,service.provider.origin)
  safe(lambda:check_legacy(plan,json.loads(ORIGIN_FILE.read_text())))
  job_id=safe(lambda:service.prepare(plan))
  return summary(service.get(job_id))
@@ -109,21 +114,27 @@ def status(job_id:str,db:Session=Depends(get_db)):
  return {**summary(job),'erp_tracking':safe(lambda:cargo_tracking_status(service,job))}
 
 @router.post('/jobs/{job_id}/purchase')
-def purchase(job_id:str,request:Purchase,db:Session=Depends(get_db)):
+async def purchase(job_id:str,request:Purchase,db:Session=Depends(get_db),user=Depends(get_current_user)):
  if not ORIGIN_FILE.is_file() or json.loads(ORIGIN_FILE.read_text()).get('purchases_enabled') is not True:raise HTTPException(409,'SHIPPING_PURCHASE_ACTIVATION_PENDING')
  service=engine(db);job=safe(lambda:service.get(job_id))
  if job['plan_sha']!=request.plan_sha256:raise HTTPException(409,'PLAN_CHANGED')
  safe(lambda:check_legacy(job['plan'],json.loads(ORIGIN_FILE.read_text())))
  if job['state'] in ('TRANSACTIONS_VERIFIED','ARTIFACTS_VERIFIED'):return summary(job)
- if job['state']!='VALIDATED':return safe(lambda:summary(service.observe(job_id)))
+ if job['state']!='VALIDATED':return await run_in_threadpool(lambda:safe(lambda:summary(service.observe(job_id))))
  if job['plan'].get('kind')=='fbm':
   from app.services.zen_shipping.shipping_fbm_plan import prepare_fbm
   config=json.loads(ORIGIN_FILE.read_text());plan=job['plan']
-  fresh=safe(lambda:prepare_fbm(plan['batch_id'],plan['labels'][0]['address_to'],lookup_amazon_order(plan['batch_id'],config),plan['origin'],config['legacy_guard']['captured_at']))
+  fresh=await run_in_threadpool(lambda:safe(lambda:prepare_fbm(plan['batch_id'],plan['labels'][0]['address_to'],lookup_amazon_order(plan['batch_id'],config),plan['origin'],config['legacy_guard']['captured_at'])))
   if fresh['plan_sha256']!=job['plan_sha']:raise HTTPException(409,'AMAZON_ORDER_CHANGED')
- total=quote_total(service,job)
+ else:
+  labels=job['plan']['labels']
+  measurements={str(label['box_id']):{'weight_lbs':label['parcel']['weight'],'length_in':label['parcel']['length'],'width_in':label['parcel']['width'],'height_in':label['parcel']['height']} for label in labels}
+  fresh_request=Prepare(batch_id=job['plan']['batch_id'],expected_box_count=len(labels),measurements=measurements)
+  fresh=await current_cargo_plan(fresh_request,db,user,service.provider.origin)
+  if fresh['plan_sha256']!=job['plan_sha']:raise HTTPException(409,'CARGO_SOURCE_CHANGED_REVIEW_ORIGINAL_JOB')
+ total=await run_in_threadpool(quote_total,service,job)
  if total>Decimal(str(request.max_total_usd)):raise HTTPException(409,'TOTAL_EXCEEDS_AUTHORIZED_LIMIT')
- return safe(lambda:summary(service.purchase(job_id,request.plan_sha256)))
+ return await run_in_threadpool(lambda:safe(lambda:summary(service.purchase(job_id,request.plan_sha256))))
 
 @router.post('/jobs/{job_id}/verify')
 def verify(job_id:str,db:Session=Depends(get_db)):
