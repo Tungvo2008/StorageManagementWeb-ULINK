@@ -10,7 +10,7 @@
     "email": "ulinkllc@gmail.com"
   },
   "carrier_account": "d840f4c96831421ebfc2a6593c3ebc45",
-  "purchases_enabled": false,
+  "purchases_enabled": true,
   "legacy_guard": {
     "version": 1,
     "cargo_id_high_watermark": 11,

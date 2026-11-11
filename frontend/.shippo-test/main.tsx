@@ -1,0 +1,2 @@
+import React from 'react';import{createRoot}from'react-dom/client';import ShippoCargoLabels from '../src/components/ShippoCargoLabels';
+const missing=new URLSearchParams(location.search).has('missing');createRoot(document.getElementById('root')!).render(<ShippoCargoLabels batch={{id:12,batch_code:'INTERNAL-CARGO-FIXTURE',boxes:[{id:21,box_code:'T1',weight_lbs:missing?null:9},{id:22,box_code:'T2',weight_lbs:10}],unassigned_bills:[]}} onUpdated={()=>{}}/>);

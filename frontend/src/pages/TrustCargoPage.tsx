@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import ShippoCargoLabels from "../components/ShippoCargoLabels";
 import { apiJson, apiUpload, assetUrl, downloadFile } from "../api/client";
 
 interface CargoBill {
@@ -376,32 +377,6 @@ export default function TrustCargoPage() {
   const [newBatchMarket, setNewBatchMarket] = useState("Chợ Việt St. Louis");
   const [newBatchDate, setNewBatchDate] = useState(new Date().toISOString().split("T")[0]);
   const [newBatchNotes, setNewBatchNotes] = useState("");
-
-  // Pirate Ship Labels Modal
-  const [showPirateShipModal, setShowPirateShipModal] = useState(false);
-  const [psBatchId, setPsBatchId] = useState<number | null>(null);
-  const [psBatchCode, setPsBatchCode] = useState<string>("");
-  const [psBoxCount, setPsBoxCount] = useState(5);
-  const [psWeightLbs, setPsWeightLbs] = useState(8.0);
-  const [psPrefix, setPsPrefix] = useState("TC");
-
-  const [downloadingFormat, setDownloadingFormat] = useState<string | null>(null);
-
-  const handleDownloadPirateShip = async (format: "xlsx" | "csv") => {
-    try {
-      setDownloadingFormat(format);
-      const batchParam = psBatchId ? `&batch_id=${psBatchId}` : "";
-      const url = `/api/v1/trust-cargo/export-shipping-labels?box_count=${psBoxCount}&weight_lbs=${psWeightLbs}&prefix=${encodeURIComponent(psPrefix)}&format=${format}${batchParam}`;
-      const filename = psBatchCode
-        ? `pirateship-${psBatchCode}-${psBoxCount}boxes.${format}`
-        : `pirateship-trustcargo-${psBoxCount}boxes.${format}`;
-      await downloadFile(url, filename);
-    } catch (err) {
-      alert("Lỗi tải file: " + (err instanceof Error ? err.message : String(err)));
-    } finally {
-      setDownloadingFormat(null);
-    }
-  };
 
   const [showNewBoxModal, setShowNewBoxModal] = useState(false);
   const [newBoxCode, setNewBoxCode] = useState("");
@@ -832,19 +807,10 @@ export default function TrustCargoPage() {
             </button>
             <button
               className={`btn ${topTab === "fulfillment" ? "primary" : ""}`}
-              onClick={() => {
-                setTopTab("fulfillment");
-                if (!psBatchId && selectedBatchId) {
-                  setPsBatchId(selectedBatchId);
-                  if (batchDetail) {
-                    setPsBatchCode(batchDetail.batch_code);
-                    setPsBoxCount(batchDetail.boxes.length || 1);
-                  }
-                }
-              }}
+              onClick={() => setTopTab("fulfillment")}
               style={{ fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}
             >
-              <span>🏷️</span> 2. Nhãn Pirate Ship
+              <span>🏷️</span> 2. Nhãn Shippo
             </button>
             <button
               className={`btn ${topTab === "logs" ? "primary" : ""}`}
@@ -1004,14 +970,9 @@ export default function TrustCargoPage() {
                       <button
                         className="btn"
                         style={{ background: "#0284c7", color: "white", borderColor: "#0284c7", fontWeight: 600 }}
-                        onClick={() => {
-                          setPsBatchId(batchDetail.id);
-                          setPsBatchCode(batchDetail.batch_code);
-                          setPsBoxCount(batchDetail.boxes.length || 1);
-                          setShowPirateShipModal(true);
-                        }}
+                        onClick={() => setTopTab("fulfillment")}
                       >
-                        🏷️ Xuất File Pirate Ship ({batchDetail.boxes.length} Thùng)
+                        🏷️ Nhãn Shippo ({batchDetail.boxes.length} Thùng)
                       </button>
                       <button
                         className="btn"
@@ -1301,180 +1262,11 @@ export default function TrustCargoPage() {
 
         </>
       )}
-      {/* ========================================================================= */}
-      {/* BƯỚC 2: NHÃN VẬN CHUYỂN PIRATE SHIP SANG KHO CALI                         */}
-      {/* ========================================================================= */}
-      {topTab === "fulfillment" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-          <div className="card" style={{ background: "white", borderLeft: "4px solid #0284c7" }}>
-            <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
-              <div>
-                <h3 style={{ margin: "0 0 4px 0", color: "#0369a1", display: "flex", alignItems: "center", gap: 8 }}>
-                  🏷️ Bước 2: Tạo Nhãn Pirate Ship & Gửi Sang Cali
-                </h3>
-                <div className="muted" style={{ fontSize: 13 }}>
-                  Xuất danh sách thùng thành file CSV/Excel định dạng chuẩn để nhập thẳng vào Pirate Ship mua nhãn UPS Ground / FedEx.
-                </div>
-              </div>
-
-              {/* Batch Selector */}
-              <div className="row" style={{ gap: 8, alignItems: "center" }}>
-                <span style={{ fontSize: 13, fontWeight: 600, color: "#475569" }}>Chọn Đợt Hàng:</span>
-                <select
-                  className="input"
-                  value={psBatchId || selectedBatchId || ""}
-                  onChange={(e) => {
-                    const id = e.target.value ? parseInt(e.target.value) : null;
-                    setPsBatchId(id);
-                    if (id) {
-                      const found = batches.find((b) => b.id === id);
-                      if (found) {
-                        setPsBatchCode(found.batch_code);
-                        setPsBoxCount(found.box_count || 1);
-                      }
-                    }
-                  }}
-                >
-                  <option value="">-- Mặc định (Tự sinh) --</option>
-                  {batches.map((b) => (
-                    <option key={b.id} value={b.id}>
-                      {formatDate(b.ship_date)} ({b.batch_code}) - {b.box_count} thùng
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 20 }}>
-            {/* Left Column: Boxes list & readiness */}
-            <div className="card" style={{ background: "white" }}>
-              <div style={{ fontWeight: 600, fontSize: 15, marginBottom: 12, color: "#1e293b", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span>📦 Danh Sách Thùng Sẵn Sàng Vận Chuyển</span>
-                <span style={{ fontSize: 13, color: "#0369a1", fontWeight: 700 }}>
-                  {batchDetail?.boxes.length || psBoxCount} Thùng
-                </span>
-              </div>
-
-              {batchDetail && batchDetail.boxes.length > 0 ? (
-                <div style={{ overflowX: "auto" }}>
-                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-                    <thead>
-                      <tr style={{ background: "#f8fafc", textAlign: "left", color: "#475569", borderBottom: "2px solid #e2e8f0" }}>
-                        <th style={{ padding: "8px 10px" }}>STT</th>
-                        <th style={{ padding: "8px 10px" }}>Mã Thùng</th>
-                        <th style={{ padding: "8px 10px" }}>Loại Thùng</th>
-                        <th style={{ padding: "8px 10px" }}>Nhãn Ghi Trên Thùng</th>
-                        <th style={{ padding: "8px 10px", textAlign: "center" }}>Số Bill</th>
-                        <th style={{ padding: "8px 10px", textAlign: "right" }}>Cân Nặng (lbs)</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {batchDetail.boxes.map((bx, idx) => {
-                        const isHub = bx.is_hub || Boolean(bx.hub_consignee_name);
-                        return (
-                          <tr key={bx.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                            <td style={{ padding: "8px 10px", color: "#94a3b8" }}>#{idx + 1}</td>
-                            <td style={{ padding: "8px 10px", fontWeight: 700, color: "#1e3a8a" }}>{bx.box_code}</td>
-                            <td style={{ padding: "8px 10px" }}>
-                              {isHub ? (
-                                <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 700, background: "#f3e8ff", color: "#7e22ce" }}>
-                                  🏢 Hub VN
-                                </span>
-                              ) : bx.bills.length >= 2 ? (
-                                <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 700, background: "#fef3c7", color: "#b45309" }}>
-                                  📦 Thùng Gộp
-                                </span>
-                              ) : (
-                                <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 700, background: "#e0f2fe", color: "#0369a1" }}>
-                                  📦 Thùng Đơn
-                                </span>
-                              )}
-                            </td>
-                            <td style={{ padding: "8px 10px", color: "#334155" }}>
-                              {bx.label_text || (isHub ? `Gom đầu cầu: ${bx.hub_consignee_name}` : "--")}
-                            </td>
-                            <td style={{ padding: "8px 10px", textAlign: "center" }}>{bx.bills.length}</td>
-                            <td style={{ padding: "8px 10px", textAlign: "right", fontWeight: 600, color: "#0f766e" }}>
-                              {bx.weight_lbs || (bx.bills.reduce((s, bi) => s + (Number(bi.weight_lbs) || 0), 0) || psWeightLbs)} lbs
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              ) : (
-                <div style={{ textAlign: "center", padding: "30px 10px", color: "#94a3b8", fontSize: 13 }}>
-                  Chưa chọn đợt hoặc đợt chưa có thùng nào. Bạn có thể xuất file theo cấu hình mẫu bên phải.
-                </div>
-              )}
-            </div>
-
-            {/* Right Column: Export form & Test labels */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              {/* Form export */}
-              <div className="card" style={{ background: "white" }}>
-                <h4 style={{ margin: "0 0 12px 0", color: "#1e293b", fontSize: 14 }}>⚙️ Tải File Mẫu Nhập Pirate Ship</h4>
-                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                  <div>
-                    <label style={{ display: "block", fontSize: 12, fontWeight: 600, marginBottom: 4 }}>Số lượng thùng:</label>
-                    <input
-                      type="number"
-                      className="input"
-                      style={{ width: "100%" }}
-                      value={psBoxCount}
-                      onChange={(e) => setPsBoxCount(Math.max(1, parseInt(e.target.value) || 1))}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: "block", fontSize: 12, fontWeight: 600, marginBottom: 4 }}>Cân nặng mặc định (lbs/thùng):</label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      className="input"
-                      style={{ width: "100%" }}
-                      value={psWeightLbs}
-                      onChange={(e) => setPsWeightLbs(parseFloat(e.target.value) || 1)}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: "block", fontSize: 12, fontWeight: 600, marginBottom: 4 }}>Tiền tố mã kiện (Prefix):</label>
-                    <input
-                      type="text"
-                      className="input"
-                      style={{ width: "100%" }}
-                      value={psPrefix}
-                      onChange={(e) => setPsPrefix(e.target.value)}
-                    />
-                  </div>
-
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 4 }}>
-                    <button
-                      className="btn primary"
-                      style={{ padding: "8px 10px", fontSize: 13 }}
-                      disabled={downloadingFormat !== null}
-                      onClick={() => handleDownloadPirateShip("csv")}
-                    >
-                      {downloadingFormat === "csv" ? "Đang tải..." : "📥 Tải File CSV"}
-                    </button>
-                    <button
-                      className="btn"
-                      style={{ padding: "8px 10px", fontSize: 13 }}
-                      disabled={downloadingFormat !== null}
-                      onClick={() => handleDownloadPirateShip("xlsx")}
-                    >
-                      {downloadingFormat === "xlsx" ? "Đang tải..." : "📥 Tải Excel"}
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-
-            </div>
-          </div>
-        </div>
-      )}
+      {topTab === "fulfillment" && <div className="card">
+        <h3>🏷️ Bước 2: Nhãn Shippo & gửi sang kho Cali</h3>
+        <label>Đợt hàng <select className="input" value={selectedBatchId ?? ""} onChange={e => setSelectedBatchId(e.target.value ? Number(e.target.value) : null)}><option value="">Chọn đợt hàng</option>{batches.map(b => <option key={b.id} value={b.id}>{b.batch_code} — {b.box_count} thùng</option>)}</select></label>
+        {batchDetail && batchDetail.id === selectedBatchId ? <ShippoCargoLabels key={batchDetail.id} batch={batchDetail} onUpdated={() => { void loadBatchDetail(batchDetail.id);void loadBatches(); }} /> : <p>Chọn một đợt có dữ liệu thùng để lấy báo giá.</p>}
+      </div>}
       {/* ========================================================================= */}
       {/* BƯỚC 3: NHẬT KÝ GỬI HÀNG (SHIPMENT LOGS)                                   */}
       {/* ========================================================================= */}
@@ -2795,107 +2587,6 @@ export default function TrustCargoPage() {
       {/* ========================================================================= */}
       {/* MODALS                                                                    */}
       {/* ========================================================================= */}
-      {showPirateShipModal && (
-        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.5)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 999 }}>
-          <div className="card" style={{ width: 480, background: "white", borderRadius: 12, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.2)" }}>
-            <div className="row" style={{ justifyContent: "space-between", alignItems: "center", marginBottom: 16, borderBottom: "1px solid #e2e8f0", paddingBottom: 12 }}>
-              <h3 style={{ margin: 0, color: "#1e3a8a", display: "flex", alignItems: "center", gap: 8 }}>
-                🏷️ Tạo File Ship Pirate Ship
-              </h3>
-              <button className="btn" style={{ padding: "4px 8px", fontSize: 13 }} onClick={() => setShowPirateShipModal(false)}>✕</button>
-            </div>
-
-            <div style={{ background: "#f0f9ff", border: "1px solid #bae6fd", borderRadius: 8, padding: 12, marginBottom: 16, fontSize: 13, color: "#0369a1" }}>
-              <div style={{ fontWeight: 600, marginBottom: 4 }}>📍 Địa chỉ nhận cố định (King Cargo):</div>
-              <div>• <strong>KING CARGO - THAI MISSOURI</strong></div>
-              <div>• 10471 Bolsa Ave, Westminster CA 92683-6757, US</div>
-            </div>
-
-            {psBatchId ? (
-              <div style={{ background: "#ecfdf5", border: "1px solid #a7f3d0", borderRadius: 8, padding: 10, marginBottom: 16, fontSize: 13, color: "#065f46" }}>
-                <strong>📦 Đang liên kết đợt hàng:</strong> {psBatchCode} ({psBoxCount} thùng thực tế)
-                <br />
-                ✨ <strong>Rubber Stamp tự động:</strong> Tự động đánh số <strong>THÙNG 1, 2, 3... kèm tên người nhận hoặc A + B + C (đơn gộp)</strong> theo đúng nhật ký đóng thùng!
-              </div>
-            ) : (
-              <div style={{ background: "#fefce8", border: "1px solid #fef08a", borderRadius: 8, padding: 10, marginBottom: 16, fontSize: 13, color: "#854d0e" }}>
-                ✨ <strong>Rubber Stamp tự động:</strong> File sẽ tự đánh số <strong>THÙNG 1, 2, 3...</strong> ở cả cột <em>Rubber Stamp 1</em> lẫn <em>Recipient Name</em>.
-              </div>
-            )}
-
-            <div style={{ marginBottom: 14 }}>
-              <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 6 }}>Số lượng thùng / label cần tạo:</label>
-              <div className="row" style={{ gap: 8, alignItems: "center" }}>
-                <input
-                  type="number"
-                  min={1}
-                  max={100}
-                  className="input"
-                  style={{ width: 100, fontSize: 15, fontWeight: 600 }}
-                  value={psBoxCount}
-                  onChange={(e) => setPsBoxCount(Math.max(1, parseInt(e.target.value) || 1))}
-                />
-                <button type="button" className="btn" onClick={() => setPsBoxCount(3)}>3</button>
-                <button type="button" className="btn" onClick={() => setPsBoxCount(5)}>5</button>
-                <button type="button" className="btn" onClick={() => setPsBoxCount(10)}>10</button>
-                <button type="button" className="btn" onClick={() => setPsBoxCount((prev) => prev + 1)}>+1</button>
-              </div>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 20 }}>
-              <div>
-                <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 6 }}>Cân nặng mỗi thùng (lbs):</label>
-                <input
-                  type="number"
-                  step="0.1"
-                  min={0.1}
-                  className="input"
-                  style={{ width: "100%" }}
-                  value={psWeightLbs}
-                  onChange={(e) => setPsWeightLbs(parseFloat(e.target.value) || 8.0)}
-                />
-              </div>
-              <div>
-                <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 6 }}>Tiền tố mã đơn (Prefix):</label>
-                <input
-                  className="input"
-                  style={{ width: "100%" }}
-                  value={psPrefix}
-                  onChange={(e) => setPsPrefix(e.target.value.toUpperCase())}
-                  placeholder="TC"
-                />
-              </div>
-            </div>
-
-            <div style={{ fontSize: 12, color: "#64748b", marginBottom: 16, fontStyle: "italic" }}>
-              💡 File xuất ra có đủ các cột chuẩn Pirate Ship (Order ID, Name, Address, City, State, Zip, Country, Weight). Tải về và chọn &quot;Upload Spreadsheet&quot; trên Pirate Ship.
-            </div>
-
-            <div className="row" style={{ justifyContent: "flex-end", gap: 8 }}>
-              <button type="button" className="btn" onClick={() => setShowPirateShipModal(false)}>Đóng</button>
-              <button
-                type="button"
-                className="btn"
-                disabled={downloadingFormat !== null}
-                onClick={() => void handleDownloadPirateShip("csv")}
-              >
-                {downloadingFormat === "csv" ? "Đang tải..." : "📥 Tải CSV (.csv)"}
-              </button>
-              <button
-                type="button"
-                className="btn primary"
-                style={{ background: "#0284c7", borderColor: "#0284c7" }}
-                disabled={downloadingFormat !== null}
-                onClick={() => void handleDownloadPirateShip("xlsx")}
-              >
-                {downloadingFormat === "xlsx" ? "Đang tải..." : "📊 Tải Excel (.xlsx)"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      
 {showNewBatchModal && (
         <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.5)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 999 }}>
           <div className="card" style={{ width: 440, background: "white" }}>
