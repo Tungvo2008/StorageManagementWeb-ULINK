@@ -14,7 +14,16 @@
   "legacy_guard": {
     "version": 1,
     "cargo_id_high_watermark": 11,
-    "cargo_decisions": {},
+    "cargo_decisions": {
+      "11": {
+        "state": "VERIFIED_NO_PURCHASE",
+        "plan_sha256": "dc0c7bc4a59c399f3c9cf18ba1728ec26f39e6db806a8db886bf5ce533ee4d98",
+        "evidence_sha256": "72ce146e41e8e46e4fcb57a930c32de3dc99cb28a8769d30857a6b0d16c7796a",
+        "evidence_source": "owner_confirmation",
+        "evidence_path": "/app/exports/zen-shipping/cargo11-owner-no-purchase-72ce146e41e8e46e4fcb57a930c32de3dc99cb28a8769d30857a6b0d16c7796a.json",
+        "recorded_at": "2026-11-12T23:51:45.674861+00:00"
+      }
+    },
     "captured_at": "2026-11-10T01:14:00.278624+00:00",
     "evidence": [
       {

@@ -46,11 +46,13 @@ def engine(db):
  origin_config=json.loads(ORIGIN_FILE.read_text())
  origin=origin_config.get('origin',origin_config)
  provider=Shippo('',origin,key_provider=lambda:token)
- return ShippoBatch(Path(db.get_bind().url.database).resolve(),provider)
+ from app.services.zen_shipping.shippo_rate_group import RateGroup
+ return RateGroup(Path(db.get_bind().url.database).resolve(),provider)
 def summary(job):
  receipt=job.get('receipt') or {}
  return {'job_id':job['id'],'state':job['state'],'plan_sha256':job['plan_sha'],'batch_id':job['plan']['batch_id'],
   'box_count':len(job['plan']['labels']),'provider_batch_id':job['remote_id'],
+  'purchase_mode':receipt.get('_purchase_mode','legacy_instalabel'),'transaction_errors':[{'business_key':row.get('metadata'),'transaction_id':row.get('transaction'),'messages':row.get('messages',[])} for row in (receipt.get('batch_shipments')or{}).get('results',[]) if row.get('status') in ('ERROR','TRANSACTION_FAILED')],
   'transactions':receipt.get('_verified_transactions',[]),'verified_total_usd':receipt.get('_verified_total_usd'),
   'artifact':receipt.get('_artifact'),'automatic_retry_allowed':False,
   'detail':'PURCHASE_RETURNED means provider count only; completion needs transaction and file verification.'}
@@ -60,19 +62,15 @@ def safe(function):
  except (ValueError,KeyError,sqlite3.Error) as exc:raise HTTPException(409,{'code':str(exc)[:160] if isinstance(exc,ValueError) else type(exc).__name__}) from None
 
 @router.get('/contract')
-def contract():return {'version':1,'provider':'shippo','native_batch':True,'durable_purchase_intent':True,'service':'ups_ground','label_filetype':'PDF_4x6'}
+def contract():return {'version':1,'provider':'shippo','native_batch':False,'grouped_job':True,'purchase_mode':'rate_transactions','durable_purchase_intent':True,'service':'ups_ground','label_filetype':'PDF_4x6'}
 
 async def current_cargo_plan(request:Prepare,db:Session,user,origin):
  batch=db.scalar(select(CargoBatch).options(joinedload(CargoBatch.boxes).joinedload(CargoBox.bills),joinedload(CargoBatch.bills)).where(CargoBatch.id==request.batch_id))
  if not batch or len(batch.boxes)!=request.expected_box_count:raise HTTPException(409,'EXACT_BATCH_BOX_COUNT_REQUIRED')
  # The ERP source must not already point to labels from any provider.
  if any(box.tracking_number for box in batch.boxes):raise HTTPException(409,'EXISTING_LABELS_REQUIRE_RECONCILIATION')
- measurements={key:value.model_dump() for key,value in request.measurements.items()}
- for box in batch.boxes:
-  values=measurements.get(str(box.id))
-  if not values:raise HTTPException(409,'EVERY_BOX_REQUIRES_MEASUREMENTS')
-  if box.weight_lbs and Decimal(str(box.weight_lbs))>0 and Decimal(str(values['weight_lbs']))!=Decimal(str(box.weight_lbs)):
-   raise HTTPException(409,'BOX_WEIGHT_DIFFERS_FROM_ERP_REVIEW_SOURCE_FIRST')
+ # Owner-mandated fixed purchase preset; ERP weight remains business data.
+ measurements={str(box.id):{'weight_lbs':8,'length_in':10,'width_in':8,'height_in':6} for box in batch.boxes}
  # Reuse the production exporter's receiver, company and reference formatting.
  exported=export_shipping_labels(ExportShippingLabelsRequest(batch_id=batch.id,box_count=request.expected_box_count,weight_lbs=8,format='xlsx'),db=db,user=user)
  content=bytearray()
@@ -128,6 +126,7 @@ async def purchase(job_id:str,request:Purchase,db:Session=Depends(get_db),user=D
   if fresh['plan_sha256']!=job['plan_sha']:raise HTTPException(409,'AMAZON_ORDER_CHANGED')
  else:
   labels=job['plan']['labels']
+  if any(any(Decimal(str(label['parcel'].get(k,0)))!=v for k,v in {'weight':8,'length':10,'width':8,'height':6}.items()) for label in labels):raise HTTPException(409,'FIXED_PARCEL_REQUIRED_10X8X6_8LB')
   measurements={str(label['box_id']):{'weight_lbs':label['parcel']['weight'],'length_in':label['parcel']['length'],'width_in':label['parcel']['width'],'height_in':label['parcel']['height']} for label in labels}
   fresh_request=Prepare(batch_id=job['plan']['batch_id'],expected_box_count=len(labels),measurements=measurements)
   fresh=await current_cargo_plan(fresh_request,db,user,service.provider.origin)
@@ -165,10 +164,27 @@ def label(job_id:str,db:Session=Depends(get_db)):
 def quote_total(service,job):
  # Read the selected carrier rate for every original shipment.
  total=Decimal('0');remote=job['receipt'];rows=remote['batch_shipments']['results']
+ if remote.get('_purchase_mode')=='rates_v1':
+  for row in rows:
+   rate=service.provider.request('GET','/rates/'+row['rate']+'/')
+   if rate.get('object_id')!=row['rate'] or rate.get('carrier_account')!=row['carrier_account'] or str(rate.get('provider','')).casefold()!='ups' or (rate.get('servicelevel')or{}).get('token')!='ups_ground' or rate.get('currency')!='USD':raise HTTPException(409,'RATE_IDENTITY_MISMATCH')
+   amount=Decimal(str(rate['amount']))
+   if not amount.is_finite() or amount<0:raise HTTPException(409,'INVALID_RATE')
+   total+=amount
+  return total
+
  for row in rows:
   shipment=service.provider.request('GET','/shipments/'+row['shipment']+'/')
   rates=[rate for rate in shipment.get('rates',[]) if rate.get('carrier_account')==(row.get('carrier_account') or remote.get('default_carrier_account'))
          and str(rate.get('provider','')).casefold()=='ups' and (rate.get('servicelevel') or {}).get('token')=='ups_ground' and rate.get('currency')=='USD']
+  if not rates:
+   # Shippo batch-created shipments may omit rate objects. Obtain an unpaid
+   # rate preview for the exact frozen label and configured carrier account.
+   label=next((label for label in job['plan']['labels'] if label['business_key']==row.get('metadata')),None)
+   if not label:raise HTTPException(409,'QUOTE_LABEL_IDENTITY_MISMATCH')
+   carrier=row.get('carrier_account') or remote.get('default_carrier_account')
+   preview=service.provider.request('POST','/shipments/',{'address_from':job['plan']['origin'],'address_to':label['address_to'],'parcels':[label['parcel']],'carrier_accounts':[carrier],'async':False,'metadata':'quote:'+job['id']+':'+str(label['box_id'])})
+   rates=[rate for rate in preview.get('rates',[]) if rate.get('carrier_account')==carrier and str(rate.get('provider','')).casefold()=='ups' and (rate.get('servicelevel') or {}).get('token')=='ups_ground' and rate.get('currency')=='USD']
   if not rates:raise HTTPException(409,'UPS_GROUND_RATE_UNAVAILABLE')
   amount=min(Decimal(str(rate['amount'])) for rate in rates)
   if not amount.is_finite() or amount<0:raise HTTPException(409,'INVALID_RATE')
@@ -219,7 +235,7 @@ def lookup_amazon_order(order_id,config):
  import urllib.request
  keyfile=Path(config.get('amazon_order_key_file') or '')
  if not keyfile.is_file():raise HTTPException(503,'AMAZON_ORDER_AUTH_NOT_CONFIGURED')
- remote=urllib.request.Request('http://127.0.0.1:5688/orders/'+order_id,headers={'Authorization':'Bearer '+keyfile.read_text().strip()})
+ remote=urllib.request.Request('http://amazon-shipping-amazon-shipping-1:5688/orders/'+order_id,headers={'Authorization':'Bearer '+keyfile.read_text().strip()})
  try:
   with urllib.request.urlopen(remote,timeout=12) as response:raw=response.read(1024*1024+1)
   if len(raw)>1024*1024:raise ValueError()

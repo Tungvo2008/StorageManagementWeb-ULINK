@@ -13,13 +13,11 @@ def prepare_fbm(order_id,address,order,origin,migration_started_at):
  if timestamp(order.get('purchase_date'))<=timestamp(migration_started_at):raise ValueError('LEGACY_FBM_ORDER_REQUIRES_ORIGINAL_LABEL_RECONCILIATION')
  destination=Shippo.address(address)
  norm=lambda v:re.sub(r'\s+',' ',str(v or '').strip()).casefold()
- if (not all(order.get(k) for k in ('city','state','postal_code')) or norm(destination['city'])!=norm(order['city'])
-  or norm(destination['state'])!=norm(order['state']) or re.sub(r'\D','',destination['zip'])[:5]!=re.sub(r'\D','',str(order['postal_code']))[:5]
+ if (not all(order.get(k) for k in ('city','state')) or norm(destination['city'])!=norm(order['city'])
+  or norm(destination['state'])!=norm(order['state']) or (order.get('postal_code') and re.sub(r'\D','',destination['zip'])[:5]!=re.sub(r'\D','',str(order['postal_code']))[:5])
   or destination['country']!=str(order.get('country_code') or 'US').upper()):raise ValueError('ORDER_DESTINATION_MISMATCH_OR_INCOMPLETE')
- # If Amazon supplies full address data, enforce it; restricted-address orders
- # still require the user's explicit complete destination plus geography match.
- for source,target in [('address_line_1','street1'),('address_line_2','street2')]:
-  if order.get(source) and norm(order[source])!=norm(destination.get(target)):raise ValueError('ORDER_STREET_MISMATCH')
+ # The user's complete address is authoritative. Amazon provides only city/state
+ # for this workflow; do not require or substitute its restricted street/ZIP.
  content={'kind':'fbm','batch_id':order_id,'batch_code':order_id,'origin':Shippo.address(origin),'service':'ups_ground','label_file_type':'PDF_4x6',
   'order_purchase_date':order['purchase_date'],'labels':[{'business_key':'fbm:'+order_id,'box_id':order_id,'box_code':order_id,'address_to':destination,
    'parcel':{'length':'10','width':'8','height':'6','weight':'8','distance_unit':'in','mass_unit':'lb'},'reference':order_id}]}

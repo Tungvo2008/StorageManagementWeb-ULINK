@@ -9,15 +9,17 @@ const base = "/api/v1/zen-shipping";
 const labels: Record<string, string> = { PREPARED: "Đang chuẩn bị lô", CREATE_SENT: "Đang đối soát lần tạo lô", CREATED: "Đang lấy giá", VALIDATED: "Đã có báo giá", PURCHASE_SENT: "Đang mua nhãn", PURCHASING: "Đang mua nhãn", PURCHASE_RETURNED: "Đang xác minh nhãn", TRANSACTIONS_VERIFIED: "Đang gộp PDF", ARTIFACTS_VERIFIED: "Đã có nhãn", PARTIAL: "Lô chưa hoàn tất — đối soát lô gốc" };
 function message(error: unknown) {
  const text = error instanceof Error ? error.message : String(error);
+ if (text.includes("UPS_GROUND_RATE_UNAVAILABLE")) return "Chưa lấy được giá UPS Ground cho đủ nhãn. Chưa thể mua; bấm Cập nhật kết quả lô để thử lấy lại báo giá.";
  if (text.includes("LEGACY_LABELS_REQUIRE")) return "Lô này có trước khi chuyển sang Shippo. Cần đối soát nhãn cũ trước khi mua lại.";
  if (text.includes("EXISTING_LABELS")) return "Thùng đã có tracking. Hãy lấy lại nhãn của lô gốc, không mua nhãn khác.";
  if (text.includes("SOURCE_CHANGED") || text.includes("BOX_WEIGHT_DIFFERS")) return "Dữ liệu thùng đã thay đổi sau báo giá. Cần đối soát lô hiện có trước khi mua.";
  return text;
 }
 export default function ShippoCargoLabels({ batch, onUpdated }: { batch: Batch; onUpdated: () => void }) {
- const [measurements, setMeasurements] = useState<Record<string, Measure>>(() => Object.fromEntries(batch.boxes.map(b => [String(b.id), { weight_lbs: Number(b.weight_lbs) > 0 ? String(b.weight_lbs) : "", length_in: "10", width_in: "8", height_in: "6" }])));
+ const measurements: Record<string, Measure> = Object.fromEntries(batch.boxes.map(b => [String(b.id), { weight_lbs: "8", length_in: "10", width_in: "8", height_in: "6" }]));
  const [job, setJob] = useState<Job | null>(null);
  const [budget, setBudget] = useState("");
+ const [quoted, setQuoted] = useState(false);
  const [busy, setBusy] = useState(false);
  const [attempted, setAttempted] = useState(false);
  const [error, setError] = useState("");
@@ -31,7 +33,7 @@ export default function ShippoCargoLabels({ batch, onUpdated }: { batch: Batch; 
    setJob(current);
    if (current.state === "VALIDATED") {
     const quote = await apiJson<{ quoted_total_usd: string }>(`${base}/jobs/${current.job_id}/quote`);
-    if (alive.current) setBudget(quote.quoted_total_usd);
+    if (alive.current) { setBudget(quote.quoted_total_usd);setQuoted(true); }
    }
   }).catch(e => { if (alive.current && !String(e).includes("404") && !String(e).includes("SHIPPING_JOB_NOT_FOUND")) setError(message(e)); });
   return () => { alive.current = false; };
@@ -51,12 +53,12 @@ export default function ShippoCargoLabels({ batch, onUpdated }: { batch: Batch; 
   }
   if (current.state === "VALIDATED") {
    const quote = await apiJson<{ quoted_total_usd: string }>(`${base}/jobs/${current.job_id}/quote`);
-   if (alive.current) setBudget(quote.quoted_total_usd);
+   if (alive.current) { setBudget(quote.quoted_total_usd);setQuoted(true); }
   }
   if (current.state === "ARTIFACTS_VERIFIED" && current.erp_tracking?.state === "VERIFIED") onUpdated();
  }
  async function act(action: () => Promise<void>) {
-  setBusy(true);setError("");
+  setBusy(true);setError("");setQuoted(false);
   try { await action(); } catch (e) { if (alive.current) setError(message(e)); } finally { if (alive.current) setBusy(false); }
  }
  async function prepare() {
@@ -76,13 +78,13 @@ export default function ShippoCargoLabels({ batch, onUpdated }: { batch: Batch; 
  }
  return <section className="card" style={{ marginTop: 16 }}>
   <h3>Nhãn Shippo — {batch.batch_code}</h3>
-  <p>UPS Ground · PDF 4×6 · một lô gồm {batch.boxes.length} thùng. Nhập cân nặng cả bì thực tế; kích thước mặc định 10×8×6 inch có thể sửa cho từng thùng.</p>
-  <div style={{ overflowX: "auto" }}><table style={{ width: "100%" }}><thead><tr><th>Thùng</th><th>Cân nặng (lb)</th><th>Dài (in)</th><th>Rộng (in)</th><th>Cao (in)</th></tr></thead><tbody>{batch.boxes.map(b => <tr key={b.id}><td>{b.box_code}</td>{(["weight_lbs", "length_in", "width_in", "height_in"] as const).map(key => <td key={key}><input aria-label={`${b.box_code} ${key}`} className="input" type="number" min="0.01" step="0.01" value={measurements[String(b.id)]?.[key] ?? ""} disabled={busy || !!job} onChange={e => setMeasurements(old => ({ ...old, [String(b.id)]: { ...old[String(b.id)], [key]: e.target.value } }))} style={{ width: 90 }} /></td>)}</tr>)}</tbody></table></div>
+  <p>UPS Ground · PDF 4×6 · một lô gồm {batch.boxes.length} thùng. Quy cách mua nhãn cố định: mỗi thùng 10×8×6 inch, 8 lb. Cân nặng hàng trong ERP để tính tiền cargo được giữ nguyên.</p>
+  <div style={{ overflowX: "auto" }}><table style={{ width: "100%" }}><thead><tr><th>Thùng</th><th>Cân nặng (lb)</th><th>Dài (in)</th><th>Rộng (in)</th><th>Cao (in)</th></tr></thead><tbody>{batch.boxes.map(b => <tr key={b.id}><td>{b.box_code}</td>{(["weight_lbs", "length_in", "width_in", "height_in"] as const).map(key => <td key={key}><span>{measurements[String(b.id)][key]}</span></td>)}</tr>)}</tbody></table></div>
   {error && <p role="alert" style={{ color: "#b91c1c", whiteSpace: "pre-wrap" }}>{error}</p>}
   <div className="row" style={{ gap: 10, marginTop: 14, flexWrap: "wrap" }}>
    {!job && <button className="btn primary" disabled={busy || !batch.boxes.length} onClick={() => void act(prepare)}>{busy ? "Đang lấy giá…" : "Lấy báo giá cả lô"}</button>}
-   {job && <><strong role="status">{labels[job.state] ?? "Đang đối soát lô"}</strong><button className="btn" disabled={busy} onClick={() => void act(async () => { const current = await update(job.job_id); if (current.state === "PREPARED") { const created = await apiJson<Job>(`${base}/jobs/${current.job_id}/create`, { method: "POST", body: "{}" });setJob(created);await settle(created); } else await settle(current); })}>Cập nhật kết quả lô</button></>}
-   {job?.state === "VALIDATED" && <><label>Hạn mức cả lô (USD) <input aria-label="Hạn mức cả lô (USD)" className="input" type="number" step="0.01" min="0.01" value={budget} disabled={busy || attempted} onChange={e => setBudget(e.target.value)} style={{ width: 100 }} /></label><button className="btn primary" disabled={busy || attempted || Number(budget) <= 0 || !Number.isFinite(Number(budget))} onClick={() => void act(purchase)}>Mua {job.box_count} nhãn — tối đa ${budget || "0"}</button></>}
+   {job && <><strong role="status">{job.state === "VALIDATED" && !quoted ? "Chưa lấy được báo giá" : labels[job.state] ?? "Đang đối soát lô"}</strong><button className="btn" disabled={busy} onClick={() => void act(async () => { const current = await update(job.job_id); if (current.state === "PREPARED") { const created = await apiJson<Job>(`${base}/jobs/${current.job_id}/create`, { method: "POST", body: "{}" });setJob(created);await settle(created); } else await settle(current); })}>Cập nhật kết quả lô</button></>}
+   {job?.state === "VALIDATED" && quoted && <><label>Hạn mức cả lô (USD) <input aria-label="Hạn mức cả lô (USD)" className="input" type="number" step="0.01" min="0.01" value={budget} disabled={busy || attempted} onChange={e => setBudget(e.target.value)} style={{ width: 100 }} /></label><button className="btn primary" disabled={busy || attempted || Number(budget) <= 0 || !Number.isFinite(Number(budget))} onClick={() => void act(purchase)}>Mua {job.box_count} nhãn — tối đa ${budget || "0"}</button></>}
    {ready && <button className="btn primary" disabled={busy} onClick={() => void act(() => downloadFile(`${base}/jobs/${job!.job_id}/label.pdf`, `shippo-${batch.batch_code}-labels.pdf`))}>Tải PDF nhãn gộp 4×6</button>}
   </div>
   {attempted && !ready && <p>Đã gửi yêu cầu mua cho lô này. Dùng “Cập nhật kết quả lô” để tiếp tục đối soát, không tạo lô khác.</p>}
