@@ -1461,9 +1461,14 @@ def create_fba_inbound_shipment(
             data=json.dumps(sp_payload).encode(),
         )
         try:
-            with urllib.request.urlopen(req, timeout=30) as resp:
+            with urllib.request.urlopen(req, timeout=150) as resp:
                 resp_data = json.loads(resp.read().decode())
                 inbound_plan_id = resp_data.get("inboundPlanId")
+                if not inbound_plan_id or resp_data.get("operationStatus", {}).get("operationStatus") != "SUCCESS":
+                    raise ValueError("Amazon createInboundPlan chưa xác nhận SUCCESS; không xuất kho")
+        except urllib.error.HTTPError as exc:
+            detail = exc.read().decode(errors="replace")
+            raise HTTPException(status_code=exc.code, detail=detail) from exc
         except Exception as exc:
             raise HTTPException(
                 status_code=502,
