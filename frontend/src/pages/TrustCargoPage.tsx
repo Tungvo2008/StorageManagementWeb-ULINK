@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import LabelPrintLibrary from "../components/LabelPrintLibrary";
 import ShippoCargoLabels from "../components/ShippoCargoLabels";
 import { apiJson, apiUpload, assetUrl, downloadFile } from "../api/client";
 
@@ -231,7 +232,7 @@ interface CaliReconcileResponse {
 }
 
 export default function TrustCargoPage() {
-  type TopTabType = "packing" | "fulfillment" | "logs" | "reconcile" | "billing";
+  type TopTabType = "print" | "packing" | "fulfillment" | "logs" | "reconcile" | "billing";
   const [topTab, setTopTab] = useState<TopTabType>("packing");
 
   const [logReconcileSubTab, setLogReconcileSubTab] = useState<"logs" | "reconcile">("logs");
@@ -798,6 +799,7 @@ export default function TrustCargoPage() {
 
           {/* 4 Step Workflow Buttons */}
           <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
+            <button className={`btn ${topTab === "print" ? "primary" : ""}`} onClick={() => setTopTab("print")} style={{fontWeight:600}}>🖨️ In label</button>
             <button
               className={`btn ${topTab === "packing" ? "primary" : ""}`}
               onClick={() => setTopTab("packing")}
@@ -1262,6 +1264,7 @@ export default function TrustCargoPage() {
 
         </>
       )}
+      {topTab === "print" && <LabelPrintLibrary />}
       {topTab === "fulfillment" && <div className="card">
         <h3>🏷️ Bước 2: Nhãn Shippo & gửi sang kho Cali</h3>
         <label>Đợt hàng <select className="input" value={selectedBatchId ?? ""} onChange={e => setSelectedBatchId(e.target.value ? Number(e.target.value) : null)}><option value="">Chọn đợt hàng</option>{batches.map(b => <option key={b.id} value={b.id}>{b.batch_code} — {b.box_count} thùng</option>)}</select></label>
